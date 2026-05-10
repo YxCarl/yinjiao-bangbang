@@ -1,0 +1,141 @@
+<view class="page-container">
+
+<!-- 顶部品牌头条 -->
+<view class="top-bar">
+  <view class="brand-row">
+    <view class="brand-mini">
+      <view class="bm-shape"></view>
+      <text class="bm-char">师</text>
+    </view>
+    <view class="brand-text-wrap">
+      <text class="brand-title">师傅在吗</text>
+      <text class="brand-slogan">银龄智慧 · 教坛传承</text>
+    </view>
+    <view class="msg-btn" bindtap="goToMessage">
+      <view class="msg-dot"></view>
+      消息
+    </view>
+  </view>
+
+  <view class="search-bar" bindtap="goToSearch">
+    <view class="s-icon">⌕</view>
+    <text class="search-placeholder">搜索名师 / 学科 / 教案模板</text>
+  </view>
+</view>
+
+<!-- 数据看板 -->
+<view class="biz-card dashboard-card">
+  <view class="dash-greeting">
+    <text class="hello">你好，{{userName}}</text>
+    <text class="hello-sub">本周护航进度</text>
+  </view>
+
+  <view class="dash-data">
+    <view class="data-item">
+      <text class="d-val">{{weeklyCount}}<text class="d-unit">/{{weeklyTotal}} 次</text></text>
+      <text class="d-label">本周指导</text>
+    </view>
+    <view class="d-divider"></view>
+    <view class="data-item">
+      <text class="d-val">{{hours}}<text class="d-unit"> h</text></text>
+      <text class="d-label">护航时长</text>
+    </view>
+  </view>
+
+  <view class="progress-track">
+    <view class="progress-bar" style="width: {{progress}}%;"></view>
+  </view>
+
+  <view class="dash-actions">
+    <view class="btn-biz btn-primary flex-1" bindtap="startImprove">开始提升</view>
+    <view class="space-w"></view>
+    <view class="btn-biz btn-outline flex-1" bindtap="viewReport">复盘报告</view>
+  </view>
+</view>
+
+<!-- 轮播 banner -->
+<swiper class="banner-swiper" indicator-dots="{{false}}" autoplay="{{true}}" interval="4500" circular="{{true}}" bindchange="onBannerChange">
+  <swiper-item wx:for="{{banners}}" wx:key="index">
+    <view class="banner-card">
+      <view class="bnr-tag">{{item.tag}}</view>
+      <text class="bnr-title">{{item.title}}</text>
+      <text class="bnr-sub">{{item.sub}}</text>
+      <view class="bnr-deco"></view>
+    </view>
+  </swiper-item>
+</swiper>
+<view class="bnr-indicator">
+  <view class="bnr-dot {{bannerIndex === index ? 'bnr-dot-on' : ''}}" wx:for="{{banners}}" wx:key="index"></view>
+</view>
+
+<!-- 核心业务 -->
+<view class="section-title">核心业务</view>
+<view class="service-grid">
+  <view class="biz-card s-card" bindtap="goToMoke">
+    <view class="text-badge s-badge badge-primary">磨</view>
+    <view class="s-text">
+      <text class="s-name">磨课坊</text>
+      <text class="s-en">教案精修 · 文档批注</text>
+    </view>
+    <view class="s-arrow">›</view>
+  </view>
+
+  <view class="biz-card s-card" bindtap="goToZhenke">
+    <view class="text-badge s-badge badge-info">诊</view>
+    <view class="s-text">
+      <text class="s-name">诊课室</text>
+      <text class="s-en">视频逐帧诊断 · 教态分析</text>
+    </view>
+    <view class="s-arrow">›</view>
+  </view>
+
+  <view class="biz-card s-card" bindtap="goToWenzhen">
+    <view class="text-badge s-badge badge-accent">问</view>
+    <view class="s-text">
+      <text class="s-name">问诊室</text>
+      <text class="s-en">职场困惑 · 经验解惑</text>
+    </view>
+    <view class="s-arrow">›</view>
+  </view>
+</view>
+
+<!-- 学习资源 -->
+<view class="section-title">学习资源</view>
+<view class="biz-card resource-row">
+  <view class="res-item" bindtap="goToCourse">
+    <view class="text-badge res-badge badge-info">课</view>
+    <text class="res-name">名师课程</text>
+    <text class="res-sub">系统课程</text>
+  </view>
+  <view class="res-divider"></view>
+  <view class="res-item" bindtap="goToDoc">
+    <view class="text-badge res-badge badge-accent">案</view>
+    <text class="res-name">教案模板</text>
+    <text class="res-sub">精选资料</text>
+  </view>
+</view>
+
+<!-- 名师推荐 -->
+<view class="section-title">
+  名师推荐
+  <text class="section-sub">权威评委 · 实战导师</text>
+</view>
+<view class="tutor-list">
+  <view class="biz-card tutor-card" wx:for="{{tutors}}" wx:key="id" bindtap="goToTutor">
+    <view class="text-badge avatar-badge {{item.theme}}">{{item.char}}</view>
+    <view class="t-info">
+      <view class="t-name-row">
+        <text class="t-name">{{item.name}}</text>
+        <text class="chip chip-accent">{{item.tag}}</text>
+      </view>
+      <text class="t-title">{{item.subject}}</text>
+      <view class="t-desc">{{item.desc}}</view>
+    </view>
+    <view class="t-stat">
+      <text class="t-rate">★ {{item.rating}}</text>
+      <text class="t-orders">{{item.orders}} 单</text>
+    </view>
+  </view>
+</view>
+
+</view>

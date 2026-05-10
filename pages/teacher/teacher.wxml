@@ -1,0 +1,112 @@
+<view class="page-container mentor-page-pad">
+
+  <!-- 顶部信息栏 -->
+  <view class="teacher-header">
+    <view class="header-bg-deco"></view>
+
+    <view class="t-header-top">
+      <view class="brand-mini">
+        <view class="bm-shape"></view>
+        <text class="bm-char">师</text>
+      </view>
+      <view class="brand-text">
+        <text class="brand-line-1">导师工作台</text>
+        <text class="brand-line-2">银龄智慧 · 教坛传承</text>
+      </view>
+      <view class="t-stats-mini">
+        <text class="rate-num">★ {{rating}}</text>
+      </view>
+    </view>
+
+    <view class="greeting-row">
+      <view class="text-badge t-avatar badge-accent">
+        <text class="t-avatar-char">{{teacherName[0] || '师'}}</text>
+      </view>
+      <view class="greeting">
+        <text class="t-name">{{teacherName}}，您好</text>
+        <text class="t-title">{{teacherTitle}}</text>
+      </view>
+    </view>
+
+    <view class="income-row">
+      <view class="income-block">
+        <text class="income-label">今日收益 (元)</text>
+        <text class="income-num">{{todayIncome}}</text>
+      </view>
+      <view class="income-divider"></view>
+      <view class="income-block">
+        <text class="income-label">本月预估 (元)</text>
+        <text class="income-num">{{monthIncome}}</text>
+      </view>
+      <view class="btn-withdraw" bindtap="goToWithdraw">提现</view>
+    </view>
+  </view>
+
+  <!-- 数据卡片 -->
+  <view class="quick-stats">
+    <view class="stat-card">
+      <text class="qs-num">{{totalOrders}}</text>
+      <text class="qs-label">累计指导</text>
+    </view>
+    <view class="stat-card">
+      <text class="qs-num">{{rating}}</text>
+      <text class="qs-label">学员评分</text>
+    </view>
+    <view class="stat-card">
+      <text class="qs-num">98%</text>
+      <text class="qs-label">完成率</text>
+    </view>
+  </view>
+
+  <!-- 标签栏 -->
+  <view class="tab-nav">
+    <view class="tab-item {{currentTab == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">接单大厅</view>
+    <view class="tab-item {{currentTab == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">进行中</view>
+    <view class="tab-item {{currentTab == 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">已完成</view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <view class="empty-tip" wx:if="{{filteredOrders.length === 0}}">
+      暂无{{currentTab === 0 ? '可接' : (currentTab === 1 ? '进行中的' : '已完成的')}}订单
+    </view>
+
+    <view class="biz-card order-card" wx:for="{{filteredOrders}}" wx:key="id">
+      <view class="order-header">
+        <text class="chip {{item.typeClass}}">{{item.typeText}}</text>
+        <text class="order-time">{{item.time}}</text>
+      </view>
+      <view class="order-body">
+        <text class="course-name">{{item.title}}</text>
+        <view class="course-desc">{{item.desc}}</view>
+        <view class="student-line" wx:if="{{item.student}}">
+          <text class="sl-label">学员</text>
+          <text class="sl-name">{{item.student}}</text>
+        </view>
+      </view>
+      <view class="order-footer">
+        <view class="bounty-box"><text class="rmb">¥</text><text class="bounty-num">{{item.price}}</text></view>
+        <view class="btn-grab btn-biz btn-accent" wx:if="{{item.status == 0}}" bindtap="grabOrder" data-id="{{item.id}}">立即接单</view>
+        <view class="btn-grab btn-biz btn-primary" wx:elif="{{item.status == 1}}" bindtap="openReply" data-id="{{item.id}}">进入回复</view>
+        <view class="btn-grab btn-biz btn-ghost" wx:else bindtap="openReply" data-id="{{item.id}}">查看回复</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部导航 -->
+  <view class="mentor-tabbar">
+    <view class="mentor-tab mt-active" bindtap="navHome">
+      <view class="mt-icon">工</view>
+      <text class="mt-label">工作台</text>
+    </view>
+    <view class="mentor-tab" bindtap="navMsg">
+      <view class="mt-icon">信</view>
+      <view class="mt-badge" wx:if="{{msgUnread > 0}}">{{msgUnread}}</view>
+      <text class="mt-label">消息</text>
+    </view>
+    <view class="mentor-tab" bindtap="navMine">
+      <view class="mt-icon">我</view>
+      <text class="mt-label">我的</text>
+    </view>
+  </view>
+</view>

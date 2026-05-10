@@ -1,0 +1,185 @@
+.page-container {
+  min-height: 100vh;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  padding: 80rpx 48rpx 60rpx;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 顶部装饰背景 */
+.bg-deco {
+  position: absolute;
+  top: -200rpx;
+  left: -200rpx;
+  width: 800rpx;
+  height: 800rpx;
+  background: radial-gradient(circle at center, rgba(45, 86, 131, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* 品牌区 */
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 60rpx;
+  position: relative;
+}
+
+.brand-mark {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: 32rpx;
+}
+.brand-shape {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #2D5683 0%, #1F3D5C 100%);
+  border-radius: 36rpx;
+  box-shadow: 0 16rpx 40rpx rgba(45, 86, 131, 0.28);
+  transform: rotate(-6deg);
+}
+.brand-char {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFFFFF;
+  font-size: 80rpx;
+  font-weight: 700;
+  font-family: 'STSong', 'SimSun', serif;
+}
+
+.brand-name {
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #1A2236;
+  margin-bottom: 12rpx;
+  letter-spacing: 4rpx;
+}
+
+.brand-desc {
+  font-size: 26rpx;
+  color: #8A92A6;
+  letter-spacing: 2rpx;
+}
+
+/* 角色选择 */
+.role-section {
+  margin-top: 80rpx;
+}
+
+.role-title {
+  font-size: 28rpx;
+  color: #4A5570;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 24rpx;
+  padding-left: 8rpx;
+}
+
+.role-card {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 2rpx solid #E8EBF2;
+  border-radius: 16rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 20rpx;
+  transition: all 0.2s;
+}
+.role-card.role-active {
+  border-color: #2D5683;
+  background: linear-gradient(180deg, #F4F7FB 0%, #FFFFFF 100%);
+  box-shadow: 0 8rpx 24rpx rgba(45, 86, 131, 0.1);
+}
+
+.role-icon {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 16rpx;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.role-icon-char {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+  font-family: 'STSong', 'SimSun', serif;
+  line-height: 1;
+  display: block;
+  /* 中文字字身偏下，向上微调以视觉居中 */
+  transform: translateY(-2rpx);
+  letter-spacing: 0;
+}
+
+.role-meta {
+  margin-left: 24rpx;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.role-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1A2236;
+  margin-bottom: 6rpx;
+}
+.role-sub {
+  font-size: 24rpx;
+  color: #8A92A6;
+}
+
+.role-check {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.check-dot {
+  width: 32rpx;
+  height: 32rpx;
+  border: 2rpx solid #C9CDD4;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.2s;
+}
+.check-dot.check-on {
+  border-color: #2D5683;
+  background: #2D5683;
+}
+.check-dot.check-on::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14rpx;
+  height: 14rpx;
+  background: #FFFFFF;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* 操作区 */
+.login-actions {
+  margin-top: 64rpx;
+}
+
+/* 底部协议 */
+.login-footer {
+  text-align: center;
+  font-size: 22rpx;
+  color: #8A92A6;
+  margin-top: auto;
+  padding-top: 60rpx;
+}
+.link { color: #2D5683; }

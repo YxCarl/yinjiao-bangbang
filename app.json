@@ -1,0 +1,56 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/index/index",
+    "pages/order/order",
+    "pages/wenzhen/wenzhen",
+    "pages/mine/mine",
+    "pages/moke/moke",
+    "pages/zhenke/zhenke",
+    "pages/teacher/teacher",
+    "pages/favorite/favorite",
+    "pages/wallet/wallet",
+    "pages/questions/questions",
+    "pages/search/search",
+    "pages/message/message",
+    "pages/tutor/tutor",
+    "pages/doc/doc",
+    "pages/course/course",
+    "pages/profile/profile",
+    "pages/chat/chat"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "backgroundColor": "#F5F6FA",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "师傅在吗",
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "color": "#8A92A6",
+    "selectedColor": "#2D5683",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/order/order",
+        "text": "指导"
+      },
+      {
+        "pagePath": "pages/wenzhen/wenzhen",
+        "text": "问诊"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,45 @@
+<view class="page-container">
+
+<view class="page-header">
+  <text class="page-title">问诊室</text>
+  <text class="page-sub">职场困惑 · 银龄经验解惑</text>
+</view>
+
+<view class="header-tips biz-card">
+  <view class="text-badge tip-badge badge-accent">问</view>
+  <text class="tip-content">请详细描述您的困惑，名师将以语音 / 文字的形式在 24 小时内为您指点迷津。</text>
+</view>
+
+<view class="biz-card mt-24">
+  <textarea class="question-input"
+            placeholder="例如：考编选岗、入职后家校关系处理、备考焦虑等..."
+            placeholder-class="ph-color"
+            maxlength="500"
+            bindinput="onInput">
+  </textarea>
+  <view class="word-count">{{questionText.length}}/500</view>
+</view>
+
+<!-- 快速选项 -->
+<view class="section-title mt-32">设置</view>
+<view class="biz-card option-list">
+  <view class="option-item">
+    <view class="opt-left">
+      <text class="opt-title">匿名提问</text>
+      <text class="opt-desc">不展示您的姓名 ID</text>
+    </view>
+    <switch color="#2D5683" checked bindchange="onAnonymousChange"></switch>
+  </view>
+</view>
+
+<view class="price-row">
+  <text class="price-label">问诊费用</text>
+  <view class="price-detail">
+    <text class="price-symbol">¥</text>
+    <text class="price-num">29</text>
+    <text class="price-unit">/次</text>
+  </view>
+</view>
+
+<view class="btn-biz btn-primary submit-btn" bindtap="submitQuestion">提交问诊</view>
+</view>

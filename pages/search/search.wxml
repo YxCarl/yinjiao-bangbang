@@ -1,0 +1,65 @@
+<view class="page-container">
+
+  <view class="search-header">
+    <view class="search-box">
+      <text class="s-icon">⌕</text>
+      <input class="s-input" placeholder="呼叫名师 / 搜技巧 / 找模板"
+             placeholder-class="ph-color" focus="true" value="{{searchKeyword}}"
+             bindinput="onInput" bindconfirm="onSearch" />
+      <text class="clear-input" wx:if="{{searchKeyword}}" bindtap="clearInput">×</text>
+    </view>
+    <text class="cancel-text" bindtap="goBack">取消</text>
+  </view>
+
+  <block wx:if="{{!hasSearched}}">
+    <view class="search-section" wx:if="{{history.length > 0}}">
+      <view class="sec-bar">
+        <text class="sec-title">历史搜索</text>
+        <text class="clear-btn" bindtap="clearHistory">清空</text>
+      </view>
+      <view class="tag-list">
+        <view class="tag-chip" wx:for="{{history}}" wx:key="index" bindtap="clickTag" data-text="{{item}}">{{item}}</view>
+      </view>
+    </view>
+
+    <view class="search-section mt-32">
+      <view class="sec-bar">
+        <text class="sec-title">大家都在搜</text>
+      </view>
+      <view class="tag-list">
+        <view class="tag-chip hot-chip" wx:for="{{hotSearches}}" wx:key="index" bindtap="clickTag" data-text="{{item}}">
+          <text class="hot-rank" wx:if="{{index < 3}}">{{index + 1}}</text> {{item}}
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="result-header">
+      <text class="result-title">为您找到 <text class="hl">{{searchResults.length}}</text> 条相关结果</text>
+    </view>
+
+    <view class="result-list" wx:if="{{searchResults.length > 0}}">
+      <view class="biz-card result-card" wx:for="{{searchResults}}" wx:key="id" bindtap="goToDetail" data-type="{{item.type}}">
+        <view class="text-badge r-avatar {{item.type === 'tutor' ? 'badge-primary' : (item.type === 'doc' ? 'badge-accent' : 'badge-info')}}">{{item.char}}</view>
+        <view class="r-info">
+          <view class="r-name-row">
+            <text class="r-name">{{item.name}}</text>
+            <text class="r-title">{{item.title}}</text>
+          </view>
+          <view class="r-tags">
+            <text class="chip chip-muted" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+          </view>
+          <text class="r-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:else>
+      <view class="empty-mark">无</view>
+      <text class="empty-title">没有找到相关内容</text>
+      <text class="empty-sub">试试"李建国"、"教案"、"面试"</text>
+    </view>
+  </block>
+
+</view>

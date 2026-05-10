@@ -1,0 +1,20 @@
+<view class="page-container">
+  <view class="page-header">
+    <text class="page-title">消息中心</text>
+    <text class="page-sub">名师私信 · 系统通知</text>
+  </view>
+
+  <view class="msg-list">
+    <view class="biz-card msg-item" wx:for="{{conversations}}" wx:key="id" bindtap="openItem" data-id="{{item.id}}">
+      <view class="text-badge msg-icon {{item.theme}}">{{item.char}}</view>
+      <view class="msg-content">
+        <view class="msg-top">
+          <text class="msg-name">{{item.name}}</text>
+          <text class="msg-time">{{item.time}}</text>
+        </view>
+        <text class="msg-preview">{{item.preview}}</text>
+      </view>
+      <view class="unread-badge" wx:if="{{item.unread > 0}}">{{item.unread}}</view>
+    </view>
+  </view>
+</view>

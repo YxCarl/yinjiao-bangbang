@@ -1,0 +1,43 @@
+<view class="page-container">
+
+<view class="page-header">
+  <text class="page-title">指导订单</text>
+  <text class="page-sub">追踪每一次师承的进度</text>
+</view>
+
+<view class="tab-nav">
+  <view class="tab-item {{currentTab == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">全部</view>
+  <view class="tab-item {{currentTab == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">进行中</view>
+  <view class="tab-item {{currentTab == 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">已完成</view>
+</view>
+
+<view class="order-list">
+  <view class="empty-state" wx:if="{{filteredOrders.length === 0 && !loading}}">
+    <view class="empty-mark">无</view>
+    <text class="empty-title">暂无相关订单</text>
+    <text class="empty-sub">在首页选择对应的服务即可开启第一次指导</text>
+    <view class="btn-biz btn-primary empty-btn" bindtap="goToCreate">前往发布</view>
+  </view>
+
+  <view class="biz-card order-card" wx:for="{{filteredOrders}}" wx:key="_id">
+    <view class="order-header">
+      <text class="chip {{item.typeClass}}">{{item.typeText}}</text>
+      <text class="order-status {{item.status == 1 ? 'status-doing' : 'status-done'}}">
+        {{item.status == 1 ? '· 老师指导中' : '· 已完成'}}
+      </text>
+    </view>
+    <view class="order-body">
+      <text class="course-name">{{item.title}}</text>
+      <view class="teacher-info" wx:if="{{item.teacher}}">接单老师：{{item.teacher}}</view>
+    </view>
+    <view class="order-footer">
+      <view class="bounty-box">
+        <text class="rmb">实付 ¥</text>
+        <text class="bounty-num">{{item.price}}</text>
+      </view>
+      <view class="btn-action btn-biz btn-outline" wx:if="{{item.status == 1}}" bindtap="remindOrder" data-id="{{item._id}}">催办一下</view>
+      <view class="btn-action btn-biz btn-ghost" wx:else bindtap="viewReport">查看报告</view>
+    </view>
+  </view>
+</view>
+</view>

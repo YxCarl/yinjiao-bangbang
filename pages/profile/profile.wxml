@@ -1,0 +1,66 @@
+<view class="page-container">
+
+<view class="page-header">
+  <text class="page-title">编辑资料</text>
+  <text class="page-sub">完善信息将更受名师青睐</text>
+</view>
+
+<!-- 头像 -->
+<view class="biz-card avatar-card">
+  <view class="text-badge p-avatar {{role === 'mentor' ? 'badge-accent' : 'badge-primary'}}">{{name[0] || avatar}}</view>
+  <text class="edit-tips">头像将根据姓名首字自动生成</text>
+</view>
+
+<!-- 基础信息 -->
+<view class="section-title mt-32">基础信息</view>
+<view class="biz-card form-card">
+  <view class="form-item">
+    <text class="label">姓名 / 昵称</text>
+    <input class="input-field" value="{{name}}" bindinput="onNameInput" placeholder="请输入姓名" placeholder-class="ph-color"/>
+  </view>
+
+  <view class="form-item">
+    <text class="label">{{role === 'mentor' ? '身份' : '当前身份'}}</text>
+    <picker mode="selector" range="{{tags}}" bindchange="onTagChange">
+      <view class="picker-value {{tag ? 'selected' : ''}}">
+        {{tag || '请选择身份'}}
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="form-item" wx:if="{{role === 'mentor'}}">
+    <text class="label">教师等级</text>
+    <picker mode="selector" range="{{titleOptions}}" bindchange="onTitleChange">
+      <view class="picker-value {{title ? 'selected' : ''}}">
+        {{title || '请选择教师等级'}}
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="form-item" wx:if="{{role === 'mentor'}}">
+    <text class="label">主教学科</text>
+    <picker mode="selector" range="{{subjectOptions}}" bindchange="onSubjectChange">
+      <view class="picker-value {{subject ? 'selected' : ''}}">
+        {{subject || '请选择主教学科'}}
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="form-item" wx:if="{{role === 'mentor'}}">
+    <text class="label">教龄 (年)</text>
+    <input class="input-field text-right" type="number" value="{{years}}" bindinput="onYearsInput" placeholder="请填写" placeholder-class="ph-color"/>
+  </view>
+</view>
+
+<view class="biz-card readonly-card">
+  <view class="form-item readonly">
+    <text class="label">用户 ID</text>
+    <text class="readonly-val">{{id}}</text>
+  </view>
+</view>
+
+<view class="btn-biz btn-primary submit-btn" bindtap="saveProfile">保存档案</view>
+</view>

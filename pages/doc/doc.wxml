@@ -1,0 +1,44 @@
+<view class="page-container">
+
+  <view class="doc-header biz-card">
+    <view class="text-badge doc-icon badge-accent">案</view>
+    <text class="d-title">教案精修模板合集 (2026版)</text>
+    <view class="d-tags">
+      <text class="chip chip-accent">高分示范</text>
+      <text class="chip chip-info">全学段覆盖</text>
+    </view>
+    <text class="d-desc">本资料库汇总了历年考编面试中获得 90 分以上的优秀教案，由多位特级教师联合校对，包含教学目标设定、导入设计、板书设计等核心模块的万能模板。</text>
+  </view>
+
+  <view class="biz-card mt-24">
+    <view class="section-title">资料包含内容</view>
+    <view class="content-row">
+      <view class="text-badge cr-num badge-primary">1</view>
+      <text class="cr-text">语文、数学等 8 大学科万能导入法</text>
+    </view>
+    <view class="content-row">
+      <view class="text-badge cr-num badge-primary">2</view>
+      <text class="cr-text">结构化面试常见 100 题思路解析</text>
+    </view>
+    <view class="content-row">
+      <view class="text-badge cr-num badge-primary">3</view>
+      <text class="cr-text">优秀教案排版与板书图文示例</text>
+    </view>
+  </view>
+
+  <view class="biz-card mt-24" style="margin-bottom: 220rpx;">
+    <view class="section-title">导师推荐</view>
+    <view class="endorse-row">
+      <view class="text-badge endorse-avatar badge-primary">李</view>
+      <view class="endorse-meta">
+        <text class="endorse-name">李建国 · 特级教师</text>
+        <text class="endorse-text">"这套模板能让你少走 3 年弯路"</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-bar">
+    <view class="btn-biz btn-outline flex-1" bindtap="saveDoc">收藏资料</view>
+    <view class="btn-biz btn-primary flex-1" bindtap="downloadDoc">免费获取</view>
+  </view>
+</view>

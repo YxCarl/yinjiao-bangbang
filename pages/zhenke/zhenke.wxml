@@ -1,0 +1,52 @@
+<view class="page-container">
+
+<view class="page-header">
+  <text class="page-title">诊课室</text>
+  <text class="page-sub">视频逐帧诊断 · 教态语言精分析</text>
+</view>
+
+<!-- 上传 -->
+<view class="biz-card upload-area" bindtap="uploadVideo">
+  <view class="upload-placeholder" wx:if="{{!videoPath}}">
+    <view class="text-badge upload-badge badge-info">视</view>
+    <view class="upload-title">上传试讲 / 授课视频</view>
+    <view class="upload-desc">支持 MP4 · 建议 15 - 20 分钟</view>
+  </view>
+  <view class="video-preview" wx:else>
+    <view class="mock-player">{{videoName}}</view>
+    <view class="file-reupload">点击重新选择</view>
+  </view>
+</view>
+
+<!-- AI 切片 -->
+<view class="section-title mt-32">AI 智能切片</view>
+<view class="biz-card ai-card">
+  <view class="ai-header">
+    <text class="ai-label">分析状态</text>
+    <view class="ai-status-pill {{aiStatus === 2 ? 'ai-done' : (aiStatus === 1 ? 'ai-loading' : 'ai-idle')}}">
+      {{aiStatus === 2 ? '已完成' : (aiStatus === 1 ? '处理中…' : '等待上传')}}
+    </view>
+  </view>
+
+  <view class="ai-progress" wx:if="{{aiStatus === 1}}">
+    <view class="ai-loading-bar"></view>
+  </view>
+
+  <view class="ai-timeline" wx:if="{{aiStatus === 2}}">
+    <view class="time-node" wx:for="{{aiTimeline}}" wx:key="index">
+      <view class="t-time-pill">{{item.time}}</view>
+      <text class="node-label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <view class="ai-empty" wx:if="{{aiStatus === 0}}">
+    上传视频后将自动定位关键教学环节，便于名师精准点评。
+  </view>
+</view>
+
+<view class="tip-row">
+  <text class="tip-text">名师将就教态、语言节奏、互动设计、板书布局逐项分析。</text>
+</view>
+
+<view class="btn-biz btn-primary submit-btn" bindtap="submitZhenke">申请名师逐帧诊断 · ¥ 128</view>
+</view>

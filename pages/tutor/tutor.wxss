@@ -1,0 +1,187 @@
+.page-container { padding: 0 32rpx 60rpx; }
+
+/* 头部 */
+.tutor-header {
+  position: relative;
+  background: linear-gradient(135deg, #1F3D5C 0%, #2D5683 60%, #3868A0 100%);
+  border-radius: 0 0 32rpx 32rpx;
+  margin: 0 -32rpx 24rpx;
+  padding: 60rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #FFFFFF;
+  overflow: hidden;
+}
+.t-bg-deco {
+  position: absolute;
+  top: -100rpx;
+  right: -120rpx;
+  width: 360rpx;
+  height: 360rpx;
+  background: radial-gradient(circle, rgba(200, 146, 78, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+.t-avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  font-size: 60rpx;
+  margin-bottom: 24rpx;
+  border: 6rpx solid rgba(255,255,255,0.18);
+  font-family: 'STSong','SimSun',serif;
+  position: relative;
+  z-index: 2;
+}
+.t-name {
+  font-size: 44rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+  letter-spacing: 2rpx;
+}
+.t-title {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 24rpx;
+  letter-spacing: 1rpx;
+}
+.t-tags {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 32rpx;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.t-stats {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-top: 28rpx;
+  border-top: 1rpx solid rgba(255,255,255,0.18);
+}
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.s-num {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 4rpx;
+}
+.text-accent { color: #F5C885; }
+.s-label {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.6);
+}
+.divider {
+  width: 1rpx;
+  height: 50rpx;
+  background: rgba(255,255,255,0.18);
+}
+
+/* 描述 */
+.desc-text {
+  font-size: 26rpx;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+
+/* 服务项 */
+.service-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx dashed var(--divider);
+}
+.service-item:last-child { border-bottom: none; padding-bottom: 0; }
+.svc-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  font-family: 'STSong','SimSun',serif;
+}
+.s-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.s-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-1);
+  margin-bottom: 4rpx;
+}
+.s-desc {
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+.s-price {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--accent-dark);
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+/* 评价 */
+.review-item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx dashed var(--divider);
+}
+.review-item:last-child { border-bottom: none; padding-bottom: 0; }
+.rv-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+.rv-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.rv-text {
+  font-size: 24rpx;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+/* 底部 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: #FFFFFF;
+  border-top: 1rpx solid var(--border);
+  box-shadow: 0 -4rpx 16rpx rgba(29,54,88,0.04);
+  gap: 24rpx;
+  z-index: 100;
+}
+.bottom-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12rpx;
+}
+.bib-mark {
+  font-size: 32rpx;
+  color: var(--accent);
+  margin-bottom: 4rpx;
+}
+.bib-text {
+  font-size: 20rpx;
+  color: var(--text-3);
+}
+.bottom-main-btn {
+  font-size: 28rpx;
+  padding: 22rpx 0;
+  border-radius: 30rpx;
+}

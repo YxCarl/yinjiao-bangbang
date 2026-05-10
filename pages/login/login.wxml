@@ -1,0 +1,56 @@
+<view class="page-container">
+  <view class="bg-deco"></view>
+
+  <view class="login-header">
+    <view class="brand-mark">
+      <view class="brand-shape"></view>
+      <text class="brand-char">师</text>
+    </view>
+    <text class="brand-name">师傅在吗</text>
+    <text class="brand-desc">教育职场护航 · 银龄智慧传承</text>
+  </view>
+
+  <view class="role-section">
+    <text class="role-title">请选择您的身份</text>
+
+    <view class="role-card {{role === 'student' ? 'role-active' : ''}}" bindtap="selectRole" data-role="student">
+      <view class="role-icon badge-primary">
+        <text class="role-icon-char">学</text>
+      </view>
+      <view class="role-meta">
+        <text class="role-name">新教师 · 学员</text>
+        <text class="role-sub">师范生 / 新入职教师 / 考编备考</text>
+      </view>
+      <view class="role-check">
+        <view class="check-dot {{role === 'student' ? 'check-on' : ''}}"></view>
+      </view>
+    </view>
+
+    <view class="role-card {{role === 'mentor' ? 'role-active' : ''}}" bindtap="selectRole" data-role="mentor">
+      <view class="role-icon badge-accent">
+        <text class="role-icon-char">师</text>
+      </view>
+      <view class="role-meta">
+        <text class="role-name">银龄导师 · 名师</text>
+        <text class="role-sub">退休教师 / 资深教师 / 学科带头人</text>
+      </view>
+      <view class="role-check">
+        <view class="check-dot {{role === 'mentor' ? 'check-on' : ''}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="login-actions">
+    <view class="btn-biz {{role === 'mentor' ? 'btn-accent' : 'btn-primary'}}" bindtap="doLogin">
+      微信一键安全登录
+    </view>
+    <view class="btn-biz btn-ghost mt-24" bindtap="goBack">暂不登录，先去逛逛</view>
+  </view>
+
+  <view class="login-footer">
+    <text>登录即代表您同意</text>
+    <text class="link">《用户服务协议》</text>
+    <text>与</text>
+    <text class="link">《隐私政策》</text>
+  </view>
+</view>

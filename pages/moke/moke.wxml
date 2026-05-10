@@ -1,0 +1,59 @@
+<view class="page-container">
+
+<view class="page-header">
+  <text class="page-title">磨课坊</text>
+  <text class="page-sub">教案精修 · 银龄名师批注</text>
+</view>
+
+<!-- 上传区 -->
+<view class="biz-card upload-area" bindtap="chooseFile">
+  <view class="upload-placeholder" wx:if="{{!hasFile}}">
+    <view class="text-badge upload-badge badge-primary">案</view>
+    <view class="upload-title">上传教案文档</view>
+    <view class="upload-desc">支持 Word / PDF · 单文件 ≤ 50MB</view>
+  </view>
+  <view class="file-ready" wx:else>
+    <view class="text-badge upload-badge badge-success">✓</view>
+    <view class="file-name">{{fileName}}</view>
+    <view class="file-reupload">点击重新选择</view>
+  </view>
+</view>
+
+<!-- 表单 -->
+<view class="section-title mt-32">需求配置</view>
+<view class="biz-card form-card">
+  <view class="form-item">
+    <text class="label">学段学科</text>
+    <picker mode="selector" range="{{subjects}}" bindchange="onSubjectChange">
+      <view class="picker-value {{selectedSubject ? 'selected' : ''}}">
+        {{selectedSubject || '请选择学段学科'}}
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="form-item">
+    <text class="label">期望教师</text>
+    <picker mode="selector" range="{{teacherLevels}}" bindchange="onLevelChange">
+      <view class="picker-value {{selectedLevel ? 'selected' : ''}}">
+        {{selectedLevel || '请选择教师等级'}}
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="form-item">
+    <text class="label">悬赏金额</text>
+    <view class="price-input-wrap">
+      <text class="price-prefix">¥</text>
+      <input type="digit" placeholder="49 元起" class="price-input" placeholder-class="ph-color" bindinput="onPriceInput" value="{{priceAmount}}"></input>
+    </view>
+  </view>
+</view>
+
+<view class="tip-row">
+  <text class="tip-text">提交后将进入候单池，最快 30 分钟内有名师响应。</text>
+</view>
+
+<view class="btn-biz btn-primary submit-btn" bindtap="submitOrder">提交修改订单</view>
+</view>

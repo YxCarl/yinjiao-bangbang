@@ -1,0 +1,45 @@
+<view class="page-container">
+  <view class="page-header">
+    <text class="page-title">提问记录</text>
+    <text class="page-sub">每一次困惑都有名师回应</text>
+  </view>
+
+  <view class="tab-nav">
+    <view class="tab-item {{currentTab == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">全部</view>
+    <view class="tab-item {{currentTab == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">已解答</view>
+    <view class="tab-item {{currentTab == 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">等待中</view>
+  </view>
+
+  <view class="qa-list">
+    <view class="empty-state" wx:if="{{filtered.length === 0}}">
+      <view class="empty-mark">问</view>
+      <text class="empty-title">还没有提问记录</text>
+      <view class="btn-biz btn-primary empty-btn" bindtap="goAsk">前往问诊室</view>
+    </view>
+
+    <view class="biz-card qa-card" wx:for="{{filtered}}" wx:key="id">
+      <view class="q-header">
+        <text class="q-time">{{item.time}}</text>
+        <view class="chip {{item.answered ? 'chip-success' : 'chip-warning'}}">
+          {{item.answered ? '已解答' : '等待名师'}}
+        </view>
+      </view>
+      <view class="q-body">
+        <view class="text-badge q-icon badge-primary">问</view>
+        <text class="q-text">{{item.content}}</text>
+      </view>
+
+      <view class="a-body" wx:if="{{item.answered}}">
+        <view class="a-tag">{{item.teacher}} · 语音回复</view>
+        <view class="audio-box" bindtap="playAudio" data-dur="{{item.dur}}">
+          <view class="audio-wave">
+            <view class="wave-bar"></view>
+            <view class="wave-bar wave-bar-2"></view>
+            <view class="wave-bar wave-bar-3"></view>
+          </view>
+          <text class="audio-time">{{item.dur}}"</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

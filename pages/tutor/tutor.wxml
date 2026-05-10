@@ -1,0 +1,69 @@
+<view class="page-container">
+
+  <!-- 头部档案 -->
+  <view class="tutor-header">
+    <view class="t-bg-deco"></view>
+    <view class="text-badge t-avatar {{tutor.theme}}">{{tutor.char}}</view>
+    <text class="t-name">{{tutor.name}}</text>
+    <text class="t-title">{{tutor.title}}</text>
+    <view class="t-tags">
+      <text class="chip chip-accent" wx:for="{{tutor.tags}}" wx:key="*this">{{item}}</text>
+    </view>
+
+    <view class="t-stats">
+      <view class="stat-item">
+        <text class="s-num">{{tutor.orderCount}}</text>
+        <text class="s-label">指导次数</text>
+      </view>
+      <view class="divider"></view>
+      <view class="stat-item">
+        <text class="s-num text-accent">★ {{tutor.rating}}</text>
+        <text class="s-label">综合评分</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关于 -->
+  <view class="biz-card mt-24">
+    <view class="section-title">关于导师</view>
+    <text class="desc-text">{{tutor.desc}}</text>
+  </view>
+
+  <!-- 服务 -->
+  <view class="biz-card mt-24">
+    <view class="section-title">可提供服务</view>
+    <view class="service-item" wx:for="{{tutor.services}}" wx:key="name">
+      <view class="text-badge svc-icon {{item.theme}}">{{item.tag}}</view>
+      <view class="s-info">
+        <text class="s-name">{{item.name}}</text>
+        <text class="s-desc">{{item.desc}}</text>
+      </view>
+      <view class="s-price">¥{{item.price}}</view>
+    </view>
+  </view>
+
+  <!-- 评价 -->
+  <view class="biz-card mt-24" style="margin-bottom: 220rpx;">
+    <view class="section-title">学员评价</view>
+    <view class="review-item" wx:for="{{tutor.reviews}}" wx:key="name">
+      <view class="rv-row">
+        <text class="rv-name">{{item.name}}</text>
+        <text class="chip chip-muted">{{item.tag}}</text>
+      </view>
+      <text class="rv-text">{{item.text}}</text>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="bottom-bar">
+    <view class="bottom-icon-btn" bindtap="collectTutor">
+      <text class="bib-mark">★</text>
+      <text class="bib-text">收藏</text>
+    </view>
+    <view class="bottom-icon-btn" bindtap="chatTutor">
+      <text class="bib-mark">💬</text>
+      <text class="bib-text">私信</text>
+    </view>
+    <view class="btn-biz btn-primary flex-1 bottom-main-btn" bindtap="bookTutor">指定他指导</view>
+  </view>
+</view>

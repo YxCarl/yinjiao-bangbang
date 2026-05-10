@@ -1,0 +1,43 @@
+<view class="page-container">
+
+<view class="page-header">
+  <text class="page-title">学币钱包</text>
+  <text class="page-sub">支付指导服务 · 充值更划算</text>
+</view>
+
+<!-- 余额卡 -->
+<view class="balance-card">
+  <view class="balance-deco"></view>
+  <text class="b-title">当前余额 (元)</text>
+  <text class="b-amount">{{balance}}</text>
+  <view class="b-tag-row">
+    <text class="b-tag">学币可用于支付所有指导服务</text>
+  </view>
+</view>
+
+<view class="section-title mt-32">充值套餐</view>
+
+<view class="recharge-grid">
+  <view class="r-item {{selectedIndex === index ? 'active' : ''}}"
+        wx:for="{{rechargeOptions}}" wx:key="index"
+        bindtap="selectOption" data-index="{{index}}">
+    <text class="r-price">¥{{item.price}}</text>
+    <view class="r-give chip-accent chip" wx:if="{{item.give > 0}}">赠 ¥{{item.give}}</view>
+    <view class="r-give chip-muted chip" wx:else>无赠送</view>
+    <view class="check-icon" wx:if="{{selectedIndex === index}}">✓</view>
+  </view>
+</view>
+
+<view class="biz-card pay-channel mt-32">
+  <view class="form-item">
+    <text class="label">支付方式</text>
+    <view class="pay-method">
+      <view class="text-badge pay-icon badge-success">微</view>
+      <text class="pay-name">微信支付</text>
+    </view>
+  </view>
+</view>
+
+<view class="btn-biz btn-primary submit-btn" bindtap="payRecharge">立即充值</view>
+<view class="tips">点击充值即代表同意《充值服务协议》</view>
+</view>

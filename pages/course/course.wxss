@@ -1,0 +1,126 @@
+.page-container { padding: 32rpx 32rpx 40rpx; }
+
+.video-box { padding: 0; overflow: hidden; }
+.mock-player {
+  background: linear-gradient(135deg, #1F3D5C 0%, #2D5683 100%);
+  color: rgba(255,255,255,0.85);
+  width: 100%;
+  height: 380rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+  position: relative;
+  gap: 20rpx;
+}
+.mock-player::before {
+  content: '▶';
+  font-size: 44rpx;
+  color: var(--accent);
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-indent: 8rpx;
+  border: 2rpx solid rgba(255,255,255,0.18);
+}
+
+.c-info {
+  padding: 28rpx;
+  display: flex;
+  flex-direction: column;
+}
+.c-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 14rpx;
+  letter-spacing: 1rpx;
+}
+.c-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.c-tutor-avatar {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  font-size: 18rpx;
+  font-family: 'STSong','SimSun',serif;
+}
+.c-tutor-name {
+  font-size: 22rpx;
+  color: var(--text-2);
+  font-weight: 500;
+  margin-left: 4rpx;
+}
+.c-divider { color: var(--text-4); }
+.c-stats {
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+/* 章节 */
+.chapter-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  border-bottom: 1rpx dashed var(--divider);
+  border-radius: 12rpx;
+}
+.chapter-item:last-child { border-bottom: none; }
+.chapter-item.playing { background: var(--primary-soft); }
+.ch-idx {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 24rpx;
+  font-family: 'STSong','SimSun',serif;
+  width: 60rpx;
+}
+.ch-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.ch-name {
+  font-size: 28rpx;
+  color: var(--text-1);
+  font-weight: 500;
+  margin-bottom: 4rpx;
+}
+.ch-dur {
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+.ch-status {
+  font-size: 22rpx;
+  color: var(--text-3);
+  font-weight: 500;
+}
+.text-success { color: var(--success); }
+
+/* 底部 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: #FFFFFF;
+  border-top: 1rpx solid var(--border);
+  display: flex;
+}
+.bottom-bar .btn-biz {
+  font-size: 28rpx;
+  padding: 22rpx 0;
+}

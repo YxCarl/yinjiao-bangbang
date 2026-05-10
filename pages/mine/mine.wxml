@@ -1,0 +1,105 @@
+<view class="page-container">
+
+<!-- 顶部品牌头 + 个人资料 -->
+<view class="header-bg"></view>
+
+<view class="profile-card biz-card">
+  <view class="p-top">
+    <view class="text-badge user-avatar {{isMentor ? 'badge-accent' : 'badge-primary'}}">{{userInfo.avatar || userInfo.name[0] || '新'}}</view>
+    <view class="p-info">
+      <view class="p-name-row">
+        <text class="p-name">{{userInfo.name}}</text>
+        <view class="role-pill {{isMentor ? 'role-pill-mentor' : ''}}">
+          {{isMentor ? '银龄导师' : '学员'}}
+        </view>
+      </view>
+      <text class="p-role">{{userInfo.tag}}</text>
+      <text class="p-id">ID: {{userInfo.id}}</text>
+    </view>
+    <view class="btn-edit" bindtap="goToProfile">编辑</view>
+  </view>
+</view>
+
+<!-- 数据统计 -->
+<view class="biz-card stats-card">
+  <view class="stat-item" bindtap="goToOrder">
+    <text class="s-num">{{ongoingCount}}</text>
+    <text class="s-label">进行中</text>
+  </view>
+  <view class="stat-line"></view>
+  <view class="stat-item" bindtap="goToFavorite">
+    <text class="s-num">{{favoriteCount}}</text>
+    <text class="s-label">收藏</text>
+  </view>
+  <view class="stat-line"></view>
+  <view class="stat-item" bindtap="goToWallet">
+    <text class="s-num">¥{{balance}}</text>
+    <text class="s-label">钱包</text>
+  </view>
+</view>
+
+<!-- 服务列表 -->
+<view class="section-title">我的服务</view>
+<view class="biz-card list-card">
+  <view class="list-row" bindtap="goToOrder">
+    <view class="l-left">
+      <view class="text-badge list-icon badge-primary">单</view>
+      <text class="l-text">订单记录</text>
+    </view>
+    <view class="l-right">
+      <text class="l-tip">{{ongoingCount}} 进行中</text>
+      <view class="l-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="list-row" bindtap="goToQuestions">
+    <view class="l-left">
+      <view class="text-badge list-icon badge-info">问</view>
+      <text class="l-text">提问记录</text>
+    </view>
+    <view class="l-right">
+      <text class="l-tip">{{questionCount}} 条</text>
+      <view class="l-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="list-row" bindtap="goToFavorite">
+    <view class="l-left">
+      <view class="text-badge list-icon badge-accent">藏</view>
+      <text class="l-text">我的收藏</text>
+    </view>
+    <view class="l-arrow">›</view>
+  </view>
+
+  <view class="list-row" bindtap="goToWallet">
+    <view class="l-left">
+      <view class="text-badge list-icon badge-success">钱</view>
+      <text class="l-text">钱包余额</text>
+    </view>
+    <view class="l-right">
+      <text class="l-tip">¥ {{balance}}</text>
+      <view class="l-arrow">›</view>
+    </view>
+  </view>
+</view>
+
+<!-- 其它 -->
+<view class="section-title">设置与帮助</view>
+<view class="biz-card list-card">
+  <view class="list-row" bindtap="goToHelp">
+    <view class="l-left">
+      <view class="text-badge list-icon badge-muted">南</view>
+      <text class="l-text">使用指南</text>
+    </view>
+    <view class="l-arrow">›</view>
+  </view>
+  <view class="list-row" bindtap="doLogout">
+    <view class="l-left">
+      <view class="text-badge list-icon badge-muted">退</view>
+      <text class="l-text">退出登录</text>
+    </view>
+    <view class="l-arrow">›</view>
+  </view>
+</view>
+
+</view>

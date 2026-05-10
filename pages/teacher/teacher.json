@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "名师工作台",
+  "navigationBarBackgroundColor": "#37474F",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {}
+}
