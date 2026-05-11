@@ -1,0 +1,21 @@
+<view class="page-container">
+  <view class="notify-card" wx:for="{{notifications}}" wx:key="id" wx:if="{{item.id === currentId}}">
+    <view class="nc-header">
+      <view class="text-badge badge-info nc-icon">通</view>
+      <view class="nc-meta">
+        <text class="nc-title">{{item.title}}</text>
+        <text class="nc-time">{{item.time}}</text>
+      </view>
+    </view>
+    <view class="nc-body">
+      <text class="nc-content">{{item.full}}</text>
+    </view>
+    <view class="nc-footer">
+      <text class="nc-tip">此通知由系统自动发送</text>
+    </view>
+  </view>
+
+  <view class="empty-tip" wx:if="{{!currentId}}">
+    通知不存在
+  </view>
+</view>

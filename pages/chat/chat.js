@@ -1,22 +1,54 @@
 Page({
   data: {
+    conversationId: '',
     peerName: '名师',
     peerChar: '师',
     peerTheme: 'badge-primary',
     inputText: '',
-    messages: [
-      { id: 1, side: 'in', kind: 'voice', dur: 45, text: '语音 45"' },
-      { id: 2, side: 'in', kind: 'text', text: '这部分的板书设计还可以再精简一下，突出"重点字+逻辑箭头"的层次。' },
-      { id: 3, side: 'out', kind: 'text', text: '老师好，我明白了！那导入部分的提问设计您觉得还需要怎么改？' },
-      { id: 4, side: 'in', kind: 'text', text: '导入提问要更聚焦于学生已有经验，避免一上来抛大问题。可以从一个生活场景切入。' }
-    ]
+    messages: [],
+    userRole: 'student'
   },
 
   onLoad(options) {
     if (options.name) this.setData({ peerName: decodeURIComponent(options.name) })
     if (options.char) this.setData({ peerChar: decodeURIComponent(options.char) })
     if (options.theme) this.setData({ peerTheme: options.theme })
+    if (options.conversationId) this.setData({ conversationId: options.conversationId })
     wx.setNavigationBarTitle({ title: this.data.peerName })
+
+    const profile = wx.getStorageSync('myProfile')
+    if (profile && profile.role) this.setData({ userRole: profile.role })
+
+    this.loadMessages()
+  },
+
+  loadMessages() {
+    if (!this.data.conversationId) {
+      this.setData({
+        messages: [
+          { id: 1, side: 'in', kind: 'text', text: '欢迎开始对话，您的每条消息都将被记录。', createTime: '' }
+        ]
+      })
+      return
+    }
+
+    wx.cloud.callFunction({
+      name: 'getMessages',
+      data: { conversationId: this.data.conversationId },
+      success: (res) => {
+        if (res.result && res.result.code === 0 && res.result.data.length > 0) {
+          const msgs = res.result.data.map(m => ({
+            id: m._id,
+            side: m._openid === '' ? 'in' : 'out',
+            kind: m.kind || 'text',
+            text: m.content || '',
+            createTime: m.createTime || ''
+          }))
+          this.setData({ messages: msgs })
+        }
+      },
+      fail: () => {}
+    })
   },
 
   onInput(e) { this.setData({ inputText: e.detail.value }) },
@@ -28,18 +60,18 @@ Page({
     list.push({ id: Date.now(), side: 'out', kind: 'text', text })
     this.setData({ messages: list, inputText: '' })
 
-    // 模拟自动回复
-    setTimeout(() => {
-      const reply = {
-        id: Date.now() + 1,
-        side: 'in',
-        kind: 'text',
-        text: '收到，我一会儿仔细看下你的问题再回复你～'
-      }
-      const updated = this.data.messages.slice()
-      updated.push(reply)
-      this.setData({ messages: updated })
-    }, 1200)
+    if (this.data.conversationId) {
+      wx.cloud.callFunction({
+        name: 'sendMessage',
+        data: {
+          conversationId: this.data.conversationId,
+          kind: 'text',
+          content: text
+        },
+        success: () => {},
+        fail: () => {}
+      })
+    }
   },
 
   playVoice() {

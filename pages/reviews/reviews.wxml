@@ -1,0 +1,42 @@
+<view class="page-container">
+
+  <view class="review-summary">
+    <view class="rs-score-card">
+      <text class="rs-big-num">{{avgRating}}</text>
+      <view class="rs-stars">
+        <text class="rs-s active">★</text>
+        <text class="rs-s active">★</text>
+        <text class="rs-s active">★</text>
+        <text class="rs-s active">★</text>
+        <text class="rs-s half">★</text>
+      </view>
+      <text class="rs-total">共 {{totalCount}} 条评价</text>
+    </view>
+    <view class="rs-bars">
+      <view class="rs-bar-row" wx:for="{{[5,4,3,2,1]}}" wx:key="*this">
+        <text class="rb-label">{{item}}星</text>
+        <view class="rb-track">
+          <view class="rb-fill" style="width: {{ratingCounts[item] / totalCount * 100}}%"></view>
+        </view>
+        <text class="rb-count">{{ratingCounts[item]}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="review-list">
+    <view class="biz-card review-item" wx:for="{{reviews}}" wx:key="id">
+      <view class="ri-header">
+        <view class="text-badge badge-accent ri-avatar">{{item.name[0]}}</view>
+        <view class="ri-info">
+          <text class="ri-name">{{item.name}}</text>
+          <text class="ri-order">{{item.orderType}} · {{item.orderTitle}}</text>
+        </view>
+        <view class="ri-stars">
+          <text wx:for="{{item.rating}}" wx:key="*this" class="ri-s">★</text>
+        </view>
+      </view>
+      <text class="ri-text">{{item.text}}</text>
+      <text class="ri-time">{{item.time}}</text>
+    </view>
+  </view>
+</view>

@@ -95,58 +95,11 @@ Page({
     })
   },
 
-  showIncome() {
-    wx.showModal({
-      title: '收益明细',
-      content:
-        '今日收益：¥' + this.data.todayIncome + '\n' +
-        '本月预估：¥' + this.data.monthIncome + '\n' +
-        '累计收益：¥' + this.data.totalIncome,
-      showCancel: false,
-      confirmText: '我知道了',
-      confirmColor: '#2D5683'
-    })
-  },
-
-  showCert() {
-    wx.showModal({
-      title: '名师认证',
-      content: '您的资深教师认证已通过\n\n· 教师资格证 已上传\n· 学校/教研机构 已核验\n· 学科带头人 待补充材料',
-      showCancel: false,
-      confirmText: '知道了',
-      confirmColor: '#2D5683'
-    })
-  },
-
-  showSchedule() {
-    wx.showModal({
-      title: '排班设置',
-      content: '设置可接单的时间段，避免在休息时间收到打扰。\n（详细排班配置正在开发中）',
-      showCancel: false,
-      confirmText: '好的',
-      confirmColor: '#2D5683'
-    })
-  },
-
-  showReviews() {
-    wx.showModal({
-      title: '学员评价',
-      content: '★ 4.9 / 共 118 条评价\n\n· "讲解非常细致，受益匪浅" — 周同学\n· "板书设计的思路点拨到位" — 林老师\n· "语言表达建议很专业" — 王老师',
-      showCancel: false,
-      confirmText: '查看更多',
-      confirmColor: '#2D5683'
-    })
-  },
-
-  showHelp() {
-    wx.showModal({
-      title: '导师指引',
-      content: '· 在【工作台】查看并接单\n· 在【消息】中查看学员沟通\n· 长时间不在线请关闭「接单状态」\n· 收益满 1 元即可提现',
-      showCancel: false,
-      confirmText: '知道了',
-      confirmColor: '#2D5683'
-    })
-  },
+  showIncome() { wx.navigateTo({ url: '/pages/teacher-income/teacher-income' }) },
+  showCert() { wx.navigateTo({ url: '/pages/teacher-cert/teacher-cert' }) },
+  showSchedule() { wx.navigateTo({ url: '/pages/teacher-schedule/teacher-schedule' }) },
+  showReviews() { wx.navigateTo({ url: '/pages/reviews/reviews' }) },
+  showHelp() { wx.navigateTo({ url: '/pages/help/help' }) },
 
   doLogout() {
     wx.showModal({

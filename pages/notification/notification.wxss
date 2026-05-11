@@ -1,0 +1,18 @@
+.page-container { background: #F5F6FA; min-height: 100vh; padding: 24rpx 32rpx; }
+
+.notify-card { background: #FFF; border-radius: 16rpx; padding: 32rpx; }
+.nc-header { display: flex; align-items: center; margin-bottom: 32rpx; }
+.nc-icon { width: 80rpx; height: 80rpx; border-radius: 50%; font-size: 30rpx; margin-right: 20rpx; flex-shrink: 0; }
+.nc-title { font-size: 32rpx; font-weight: 700; color: var(--text-1); display: block; margin-bottom: 6rpx; }
+.nc-time { font-size: 24rpx; color: var(--text-4); }
+
+.nc-body {
+  border-top: 1rpx solid var(--divider);
+  border-bottom: 1rpx solid var(--divider);
+  padding: 32rpx 0;
+  margin-bottom: 24rpx;
+}
+.nc-content { font-size: 30rpx; color: var(--text-1); line-height: 1.9; }
+
+.nc-footer { display: flex; justify-content: center; }
+.nc-tip { font-size: 24rpx; color: var(--text-4); }

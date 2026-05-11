@@ -1,0 +1,41 @@
+.page-container { background: #F5F6FA; min-height: 100vh; padding-bottom: 40rpx; }
+
+.review-summary {
+  display: flex;
+  background: linear-gradient(135deg, #1F3D5C 0%, #2D5683 100%);
+  padding: 48rpx 32rpx;
+  color: #FFF;
+}
+.rs-score-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 40rpx;
+  min-width: 160rpx;
+}
+.rs-big-num { font-size: 72rpx; font-weight: 700; line-height: 1; }
+.rs-stars { display: flex; gap: 4rpx; margin: 12rpx 0 8rpx; }
+.rs-s { font-size: 28rpx; }
+.rs-s.active { color: #F5C885; }
+.rs-s.half { color: rgba(245,200,133,0.4); }
+.rs-total { font-size: 22rpx; color: rgba(255,255,255,0.6); }
+
+.rs-bars { flex: 1; display: flex; flex-direction: column; gap: 8rpx; justify-content: center; }
+.rs-bar-row { display: flex; align-items: center; }
+.rb-label { font-size: 20rpx; color: rgba(255,255,255,0.65); width: 36rpx; }
+.rb-track { flex: 1; height: 8rpx; background: rgba(255,255,255,0.15); border-radius: 4rpx; margin: 0 12rpx; overflow: hidden; }
+.rb-fill { height: 100%; background: #F5C885; border-radius: 4rpx; transition: width 0.3s; }
+.rb-count { font-size: 20rpx; color: rgba(255,255,255,0.5); width: 32rpx; text-align: right; }
+
+.review-list { padding: 24rpx 32rpx; display: flex; flex-direction: column; gap: 16rpx; }
+.review-item { padding: 28rpx; }
+.ri-header { display: flex; align-items: center; margin-bottom: 20rpx; }
+.ri-avatar { width: 72rpx; height: 72rpx; border-radius: 50%; font-size: 28rpx; margin-right: 16rpx; flex-shrink: 0; }
+.ri-info { flex: 1; min-width: 0; }
+.ri-name { font-size: 28rpx; font-weight: 600; color: var(--text-1); display: block; margin-bottom: 4rpx; }
+.ri-order { font-size: 22rpx; color: var(--text-4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.ri-stars { flex-shrink: 0; }
+.ri-s { font-size: 26rpx; color: #F5C885; }
+
+.ri-text { font-size: 28rpx; color: var(--text-2); line-height: 1.7; display: block; margin-bottom: 16rpx; }
+.ri-time { font-size: 22rpx; color: var(--text-4); }

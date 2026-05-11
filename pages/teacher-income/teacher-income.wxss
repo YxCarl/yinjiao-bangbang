@@ -1,0 +1,60 @@
+.page-container { background: #F5F6FA; min-height: 100vh; padding-bottom: 40rpx; }
+
+.income-header {
+  background: linear-gradient(135deg, #1F3D5C 0%, #2D5683 100%);
+  padding: 48rpx 32rpx 36rpx;
+  color: #FFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.ih-label { font-size: 24rpx; color: rgba(255,255,255,0.6); margin-bottom: 8rpx; }
+.ih-num { font-size: 64rpx; font-weight: 700; color: #F5C885; margin-bottom: 28rpx; letter-spacing: 2rpx; }
+.ih-row { display: flex; align-items: center; width: 100%; }
+.ih-item { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.ihi-num { font-size: 36rpx; font-weight: 700; }
+.ihi-label { font-size: 22rpx; color: rgba(255,255,255,0.5); margin-top: 6rpx; }
+.ih-div { width: 1rpx; height: 56rpx; background: rgba(255,255,255,0.15); }
+
+.tab-nav {
+  display: flex;
+  background: #FFF;
+  margin: 0 32rpx 20rpx;
+  padding: 0 16rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--border);
+}
+.tab-item {
+  flex: 1;
+  text-align: center;
+  font-size: 28rpx;
+  color: var(--text-2);
+  padding: 24rpx 0;
+  position: relative;
+  font-weight: 500;
+}
+.tab-item.active { color: var(--primary); font-weight: 700; }
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 8rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background: var(--accent);
+  border-radius: 2rpx;
+}
+
+.record-list { padding: 0 32rpx; display: flex; flex-direction: column; gap: 16rpx; }
+.record-item { padding: 24rpx 28rpx; }
+.rc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14rpx; }
+.rc-left { display: flex; align-items: center; gap: 12rpx; }
+.rc-student { font-size: 24rpx; color: var(--text-3); }
+.rc-amount { font-size: 36rpx; font-weight: 700; color: var(--success); }
+.rc-title { font-size: 28rpx; color: var(--text-1); font-weight: 500; display: block; margin-bottom: 14rpx; }
+.rc-bottom { display: flex; justify-content: space-between; align-items: center; }
+.rc-time { font-size: 22rpx; color: var(--text-4); }
+.rc-status { font-size: 22rpx; padding: 4rpx 14rpx; border-radius: 8rpx; }
+.rc-status.ok { background: #E5F4EC; color: var(--success); }
+.rc-status.pending { background: #FBEFDB; color: var(--warning); }

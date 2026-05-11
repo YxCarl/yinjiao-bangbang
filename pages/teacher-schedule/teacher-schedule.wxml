@@ -1,0 +1,57 @@
+<view class="page-container">
+
+  <view class="sch-header">
+    <text class="sh-title">排班设置</text>
+    <text class="sh-sub">设置可接单的时间段，避免休息时被打扰</text>
+  </view>
+
+  <view class="sch-section">
+    <view class="section-title">每周接单日</view>
+    <view class="day-grid">
+      <view
+        class="day-item {{item.active ? 'active' : ''}}"
+        wx:for="{{days}}"
+        wx:key="key"
+        bindtap="toggleDay"
+        data-key="{{item.key}}"
+      >{{item.label}}</view>
+    </view>
+  </view>
+
+  <view class="sch-section">
+    <view class="section-title">每日时间段</view>
+    <view class="slot-list">
+      <view
+        class="biz-card slot-item {{item.active ? 'slot-active' : ''}}"
+        wx:for="{{timeSlots}}"
+        wx:key="key"
+        bindtap="toggleSlot"
+        data-key="{{item.key}}"
+      >
+        <view class="si-left">
+          <text class="si-label">{{item.label}}</text>
+          <text class="si-time">{{item.time}}</text>
+        </view>
+        <view class="si-check {{item.active ? 'checked' : ''}}">
+          <text wx:if="{{item.active}}">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="sch-section">
+    <view class="section-title">每日接单上限</view>
+    <view class="max-picker">
+      <picker mode="selector" range="{{maxOptions}}" value="{{maxOptions.indexOf(maxOrders)}}" bindchange="onMaxChange">
+        <view class="biz-card picker-row">
+          <text class="pr-label">最多接单数</text>
+          <text class="pr-value">{{maxOrders}} 单/天 ›</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="sch-btn">
+    <view class="btn-biz btn-primary" bindtap="saveSchedule">保存排班</view>
+  </view>
+</view>

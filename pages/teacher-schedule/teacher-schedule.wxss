@@ -1,0 +1,60 @@
+.page-container { background: #F5F6FA; min-height: 100vh; padding-bottom: 160rpx; }
+
+.sch-header {
+  background: linear-gradient(135deg, #1F3D5C 0%, #2D5683 100%);
+  padding: 48rpx 32rpx 40rpx;
+  color: #FFF;
+}
+.sh-title { font-size: 36rpx; font-weight: 700; display: block; margin-bottom: 8rpx; }
+.sh-sub { font-size: 24rpx; color: rgba(255,255,255,0.55); }
+
+.sch-section { padding: 32rpx 32rpx 0; }
+.sch-section .section-title { margin-bottom: 20rpx; }
+
+.day-grid { display: flex; gap: 12rpx; }
+.day-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 14rpx;
+  background: #FFF;
+  font-size: 26rpx;
+  color: var(--text-2);
+  border: 2rpx solid var(--border);
+  transition: all 0.15s;
+}
+.day-item.active {
+  background: var(--primary);
+  color: #FFF;
+  border-color: var(--primary);
+}
+.day-item:active { opacity: 0.7; }
+
+.slot-list { display: flex; flex-direction: column; gap: 14rpx; }
+.slot-item { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 28rpx; transition: all 0.15s; }
+.slot-item:active { opacity: 0.7; }
+.slot-active { border-color: var(--primary); background: var(--primary-soft); }
+.si-left { display: flex; flex-direction: column; }
+.si-label { font-size: 30rpx; font-weight: 600; color: var(--text-1); margin-bottom: 6rpx; }
+.si-time { font-size: 24rpx; color: var(--text-3); }
+.si-check {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 3rpx solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #FFF;
+  transition: all 0.15s;
+}
+.si-check.checked { background: var(--primary); border-color: var(--primary); }
+
+.max-picker { margin-top: -8rpx; }
+.picker-row { display: flex; justify-content: space-between; align-items: center; padding: 28rpx; }
+.picker-row:active { opacity: 0.6; }
+.pr-label { font-size: 30rpx; color: var(--text-1); font-weight: 500; }
+.pr-value { font-size: 28rpx; color: var(--primary); font-weight: 600; }
+
+.sch-btn { padding: 48rpx 32rpx; }

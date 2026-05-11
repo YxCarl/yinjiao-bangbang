@@ -1,6 +1,7 @@
 Page({
   data: {
-    conversations: [
+    conversations: [],
+    fallbackConversations: [
       {
         id: 'sys',
         type: 'system',
@@ -13,16 +14,18 @@ Page({
       },
       {
         id: 'tutor-1',
+        conversationId: 'conv_demo_1',
         type: 'chat',
         char: '李',
         theme: 'badge-primary',
         name: '李建国 · 特级教师',
         time: '昨天 14:20',
-        preview: '[语音] 这部分的板书设计还可以再精简一下，突出重点……',
+        preview: '这部分的板书设计还可以再精简一下，突出重点……',
         unread: 0
       },
       {
         id: 'tutor-2',
+        conversationId: 'conv_demo_2',
         type: 'chat',
         char: '王',
         theme: 'badge-accent',
@@ -34,25 +37,64 @@ Page({
     ]
   },
 
+  onShow() {
+    this.loadConversations()
+  },
+
+  loadConversations() {
+    wx.cloud.callFunction({
+      name: 'getConversations',
+      success: (res) => {
+        if (res.result && res.result.code === 0 && res.result.data.length > 0) {
+          const list = res.result.data.map(c => ({
+            id: c._id,
+            conversationId: c.conversationId,
+            type: 'chat',
+            char: c.peerName ? c.peerName[0] : '学',
+            theme: c.peerTheme || 'badge-primary',
+            name: c.peerName || '学员',
+            time: this._formatTime(c.lastTime),
+            preview: c.lastMsg || '',
+            unread: c.unread || 0
+          }))
+          this.setData({ conversations: list })
+        } else {
+          this.setData({ conversations: this.data.fallbackConversations })
+        }
+      },
+      fail: () => {
+        this.setData({ conversations: this.data.fallbackConversations })
+      }
+    })
+  },
+
+  _formatTime(dateStr) {
+    if (!dateStr) return ''
+    const d = new Date(dateStr)
+    const now = new Date()
+    const diff = now - d
+    if (diff < 60000) return '刚刚'
+    if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前'
+    if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前'
+    return (d.getMonth() + 1) + '-' + d.getDate()
+  },
+
   openItem(e) {
     const id = e.currentTarget.dataset.id
     const item = this.data.conversations.find(c => c.id === id)
     if (!item) return
 
     if (item.type === 'system') {
-      wx.showModal({
-        title: '系统通知',
-        content: item.preview,
-        showCancel: false,
-        confirmText: '知道了',
-        confirmColor: '#2D5683'
-      })
       this._markRead(id)
+      wx.navigateTo({ url: '/pages/notification/notification?id=' + id })
     } else {
       this._markRead(id)
-      // 携带参数进入聊天页
+      const convId = item.conversationId || id
       wx.navigateTo({
-        url: '/pages/chat/chat?id=' + id + '&name=' + encodeURIComponent(item.name) + '&char=' + encodeURIComponent(item.char) + '&theme=' + item.theme
+        url: '/pages/chat/chat?conversationId=' + convId +
+          '&name=' + encodeURIComponent(item.name) +
+          '&char=' + encodeURIComponent(item.char) +
+          '&theme=' + item.theme
       })
     }
   },

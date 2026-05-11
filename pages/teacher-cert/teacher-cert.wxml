@@ -1,0 +1,29 @@
+<view class="page-container">
+
+  <view class="cert-header">
+    <view class="text-badge badge-accent ch-badge">师</view>
+    <text class="ch-title">名师认证</text>
+    <text class="ch-sub">资深教师资质核验</text>
+  </view>
+
+  <view class="cert-list">
+    <view class="biz-card cert-item" wx:for="{{items}}" wx:key="id">
+      <view class="ci-left">
+        <view class="text-badge ci-icon {{item.status === 'done' ? 'badge-success' : 'badge-muted'}}">{{item.icon}}</view>
+        <view class="ci-info">
+          <text class="ci-label">{{item.label}}</text>
+          <text class="ci-desc">{{item.desc}}</text>
+          <text class="ci-date">{{item.date}}</text>
+        </view>
+      </view>
+      <view class="ci-status">
+        <view class="cis-dot {{item.status === 'done' ? 'dot-ok' : 'dot-wait'}}"></view>
+        <text class="cis-text {{item.status === 'done' ? '' : 'pending'}}">{{item.status === 'done' ? '已通过' : '待补充'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="cert-footer">
+    <text class="cf-tip">认证材料审核通过即获得"名师认证"标识，享更高曝光权重</text>
+  </view>
+</view>

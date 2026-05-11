@@ -1,0 +1,44 @@
+<view class="page-container">
+
+  <view class="income-header">
+    <text class="ih-label">累计收益 (元)</text>
+    <text class="ih-num">{{totalIncome}}</text>
+    <view class="ih-row">
+      <view class="ih-item">
+        <text class="ihi-num">{{todayIncome}}</text>
+        <text class="ihi-label">今日</text>
+      </view>
+      <view class="ih-div"></view>
+      <view class="ih-item">
+        <text class="ihi-num">{{monthIncome}}</text>
+        <text class="ihi-label">本月</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tab-nav">
+    <view class="tab-item {{activeTab == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">全部</view>
+    <view class="tab-item {{activeTab == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">已到账</view>
+    <view class="tab-item {{activeTab == 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">提现中</view>
+  </view>
+
+  <view class="record-list">
+    <view class="empty-tip" wx:if="{{records.length === 0}}">暂无记录</view>
+    <view class="biz-card record-item" wx:for="{{records}}" wx:key="id">
+      <view class="rc-top">
+        <view class="rc-left">
+          <text class="chip chip-accent" wx:if="{{item.orderType === '磨课坊'}}">{{item.orderType}}</text>
+          <text class="chip chip-info" wx:elif="{{item.orderType === '诊课室'}}">{{item.orderType}}</text>
+          <text class="chip" wx:else>{{item.orderType}}</text>
+          <text class="rc-student">{{item.student}}</text>
+        </view>
+        <text class="rc-amount">+¥{{item.amount}}</text>
+      </view>
+      <text class="rc-title">{{item.title}}</text>
+      <view class="rc-bottom">
+        <text class="rc-time">{{item.time}}</text>
+        <text class="rc-status {{item.status === '已到账' ? 'ok' : 'pending'}}">{{item.status}}</text>
+      </view>
+    </view>
+  </view>
+</view>

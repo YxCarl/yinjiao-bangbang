@@ -1,0 +1,38 @@
+.page-container { background: #F5F6FA; min-height: 100vh; padding-bottom: 40rpx; }
+
+.cert-header {
+  background: linear-gradient(135deg, #1F3D5C 0%, #2D5683 100%);
+  padding: 56rpx 32rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #FFF;
+}
+.ch-badge {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  font-size: 40rpx;
+  margin-bottom: 20rpx;
+}
+.ch-title { font-size: 36rpx; font-weight: 700; margin-bottom: 6rpx; }
+.ch-sub { font-size: 24rpx; color: rgba(255,255,255,0.55); }
+
+.cert-list { padding: 24rpx 32rpx; display: flex; flex-direction: column; gap: 16rpx; }
+.cert-item { padding: 28rpx; display: flex; align-items: center; justify-content: space-between; }
+.ci-left { display: flex; align-items: center; flex: 1; min-width: 0; }
+.ci-icon { width: 68rpx; height: 68rpx; border-radius: 16rpx; font-size: 24rpx; margin-right: 20rpx; flex-shrink: 0; }
+.ci-info { display: flex; flex-direction: column; min-width: 0; }
+.ci-label { font-size: 30rpx; font-weight: 600; color: var(--text-1); margin-bottom: 6rpx; }
+.ci-desc { font-size: 24rpx; color: var(--text-2); margin-bottom: 4rpx; }
+.ci-date { font-size: 22rpx; color: var(--text-4); }
+
+.ci-status { display: flex; align-items: center; flex-shrink: 0; margin-left: 16rpx; }
+.cis-dot { width: 14rpx; height: 14rpx; border-radius: 50%; margin-right: 10rpx; }
+.dot-ok { background: var(--success); }
+.dot-wait { background: var(--warning); }
+.cis-text { font-size: 24rpx; color: var(--success); }
+.cis-text.pending { color: var(--warning); }
+
+.cert-footer { padding: 0 32rpx; display: flex; justify-content: center; }
+.cf-tip { font-size: 24rpx; color: var(--text-4); text-align: center; line-height: 1.6; }
