@@ -1,0 +1,56 @@
+<view class="page-container mentor-page-pad">
+
+  <!-- 顶部 -->
+  <view class="msg-header">
+    <view class="mh-row">
+      <text class="mh-title">消息中心</text>
+      <view class="mh-unread" wx:if="{{msgUnread > 0}}">
+        <text>{{msgUnread}} 条未读</text>
+      </view>
+    </view>
+    <text class="mh-sub">学员私信 · 订单沟通</text>
+  </view>
+
+  <!-- 会话列表 -->
+  <view class="msg-list">
+    <view
+      class="biz-card msg-item"
+      wx:for="{{filteredList}}"
+      wx:key="id"
+      bindtap="openChat"
+      data-id="{{item.id}}"
+    >
+      <view class="text-badge msg-avatar {{item.theme}}">{{item.char}}</view>
+      <view class="msg-body">
+        <view class="msg-top">
+          <text class="msg-name">{{item.name}}</text>
+          <text class="msg-time">{{item.time}}</text>
+        </view>
+        <text class="msg-desc">{{item.desc}}</text>
+        <text class="msg-preview">{{item.preview}}</text>
+      </view>
+      <view class="unread-dot" wx:if="{{item.unread > 0}}">{{item.unread}}</view>
+    </view>
+
+    <view class="empty-tip" wx:if="{{filteredList.length === 0}}">
+      暂无消息
+    </view>
+  </view>
+
+  <!-- 底部导航 -->
+  <view class="mentor-tabbar">
+    <view class="mentor-tab" bindtap="navHome">
+      <view class="mt-icon">工</view>
+      <text class="mt-label">工作台</text>
+    </view>
+    <view class="mentor-tab mt-active">
+      <view class="mt-icon">信</view>
+      <view class="mt-badge" wx:if="{{msgUnread > 0}}">{{msgUnread}}</view>
+      <text class="mt-label">消息</text>
+    </view>
+    <view class="mentor-tab" bindtap="navMine">
+      <view class="mt-icon">我</view>
+      <text class="mt-label">我的</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,226 @@
+.page-container {
+  background: #F5F6FA;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 40rpx;
+}
+
+/* 订单摘要 */
+.order-summary {
+  background: #FFF;
+  padding: 32rpx;
+  border-bottom: 1rpx solid var(--divider);
+}
+.os-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.os-price {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+.os-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text-1);
+  display: block;
+  margin-bottom: 12rpx;
+  line-height: 1.5;
+}
+.os-desc {
+  font-size: 26rpx;
+  color: var(--text-2);
+  line-height: 1.6;
+  display: block;
+  margin-bottom: 16rpx;
+}
+.os-student {
+  display: flex;
+  align-items: center;
+  padding-top: 16rpx;
+  border-top: 1rpx dashed var(--divider);
+}
+.oss-label {
+  font-size: 24rpx;
+  color: var(--text-4);
+  margin-right: 12rpx;
+}
+.oss-name {
+  font-size: 28rpx;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* 对话 */
+.chat-section {
+  flex: 1;
+  padding: 24rpx 32rpx;
+}
+.chat-title {
+  font-size: 24rpx;
+  color: var(--text-4);
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+.chat-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 32rpx;
+}
+.ci-in { align-items: flex-start; }
+.ci-out { align-items: flex-end; }
+
+.ci-bubble {
+  max-width: 82%;
+  padding: 20rpx 28rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--text-1);
+}
+.bub-in {
+  background: #FFF;
+  border: 1rpx solid var(--border);
+  border-bottom-left-radius: 6rpx;
+}
+.bub-out {
+  background: linear-gradient(135deg, #2D5683 0%, #1F3D5C 100%);
+  color: #FFF;
+  border-bottom-right-radius: 6rpx;
+}
+.voice-tag {
+  color: var(--primary);
+}
+.bub-out .voice-tag {
+  color: #FFE0A0;
+}
+.ci-time {
+  font-size: 20rpx;
+  color: var(--text-4);
+  margin-top: 8rpx;
+  padding: 0 12rpx;
+}
+
+/* 输入栏 */
+.input-bar {
+  background: #FFF;
+  border-top: 1rpx solid var(--border);
+  padding: 16rpx 24rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.ib-tabs {
+  display: flex;
+  margin-bottom: 16rpx;
+  gap: 28rpx;
+}
+.ib-tab {
+  font-size: 26rpx;
+  color: var(--text-3);
+  padding: 4rpx 0;
+  border-bottom: 3rpx solid transparent;
+  transition: all 0.15s;
+}
+.ib-tab.active {
+  color: var(--primary);
+  font-weight: 600;
+  border-bottom-color: var(--primary);
+}
+.ib-row {
+  display: flex;
+  align-items: center;
+}
+.ib-input {
+  flex: 1;
+  height: 72rpx;
+  background: var(--bg);
+  border-radius: 36rpx;
+  padding: 0 28rpx;
+  font-size: 28rpx;
+  color: var(--text-1);
+}
+.ib-send {
+  margin-left: 16rpx;
+  padding: 16rpx 28rpx;
+  background: linear-gradient(135deg, #2D5683 0%, #1F3D5C 100%);
+  color: #FFF;
+  border-radius: 36rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+.ib-send:active { opacity: 0.85; }
+
+.ib-voice-btn {
+  flex: 1;
+  text-align: center;
+  padding: 22rpx 0;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+.ib-voice-btn:active { opacity: 0.7; }
+
+/* 完成指导 */
+.finish-section {
+  padding: 0 32rpx 24rpx;
+}
+.btn-finish {
+  text-align: center;
+  padding: 24rpx 0;
+  border-radius: 14rpx;
+  background: #FFF;
+  color: var(--success);
+  font-size: 28rpx;
+  font-weight: 600;
+  border: 2rpx solid rgba(46, 158, 95, 0.2);
+}
+.btn-finish:active { background: #F5FAF7; }
+
+/* 评分弹窗 */
+.rating-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rating-card {
+  background: #FFF;
+  border-radius: 20rpx;
+  padding: 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 560rpx;
+}
+.rc-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 32rpx;
+}
+.rc-stars {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+.rc-star {
+  font-size: 60rpx;
+  color: #E8D5A0;
+  transition: color 0.15s;
+}
+.rc-star:active { color: #F5C885; }
+.rc-tip {
+  font-size: 24rpx;
+  color: var(--text-4);
+}

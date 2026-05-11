@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir D:\\\\miniprogram-师承杯)"
+      "Bash(dir D:\\\\miniprogram-师承杯)",
+      "Bash(Get-ChildItem -Path \"d:\\\\miniprogram-师承杯\" -Depth 1)",
+      "Bash(Select-Object Name, PSIsContainer)"
     ]
   }
 }

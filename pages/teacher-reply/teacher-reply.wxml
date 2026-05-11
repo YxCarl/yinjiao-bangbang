@@ -1,0 +1,91 @@
+<view class="page-container">
+
+  <!-- 订单信息卡片 -->
+  <view class="order-summary">
+    <view class="os-header">
+      <text class="chip chip-accent" wx:if="{{orderType === '磨课坊'}}">{{orderType}}</text>
+      <text class="chip chip-info" wx:elif="{{orderType === '诊课室'}}">{{orderType}}</text>
+      <text class="chip" wx:else>{{orderType}}</text>
+      <text class="os-price">¥{{orderPrice}}</text>
+    </view>
+    <text class="os-title">{{orderTitle}}</text>
+    <text class="os-desc">{{orderDesc}}</text>
+    <view class="os-student">
+      <text class="oss-label">学员</text>
+      <text class="oss-name">{{studentName}}</text>
+    </view>
+  </view>
+
+  <!-- 对话区域 -->
+  <view class="chat-section">
+    <view class="chat-title">指导记录</view>
+
+    <view class="chat-list">
+      <view
+        class="chat-item {{item.side === 'out' ? 'ci-out' : 'ci-in'}}"
+        wx:for="{{replies}}"
+        wx:key="index"
+      >
+        <view class="ci-bubble {{item.side === 'out' ? 'bub-out' : 'bub-in'}}">
+          <text wx:if="{{item.kind === 'voice'}}" class="voice-tag">🔊 语音 {{item.dur}}"</text>
+          <text wx:else>{{item.text}}</text>
+        </view>
+        <text class="ci-time">{{item.time}}</text>
+      </view>
+
+      <view class="empty-tip" wx:if="{{replies.length === 0}}">
+        暂无指导记录，开始回复吧
+      </view>
+    </view>
+  </view>
+
+  <!-- 输入区域 -->
+  <view class="input-bar">
+    <view class="ib-tabs">
+      <view
+        class="ib-tab {{replyMethod === 'text' ? 'active' : ''}}"
+        bindtap="switchMethod"
+        data-method="text"
+      >文字</view>
+      <view
+        class="ib-tab {{replyMethod === 'voice' ? 'active' : ''}}"
+        bindtap="switchMethod"
+        data-method="voice"
+      >语音</view>
+    </view>
+
+    <view class="ib-row" wx:if="{{replyMethod === 'text'}}">
+      <input
+        class="ib-input"
+        value="{{inputText}}"
+        placeholder="输入指导意见..."
+        bindinput="onInput"
+        confirm-type="send"
+        bindconfirm="sendText"
+      />
+      <view class="ib-send" bindtap="sendText">发送</view>
+    </view>
+
+    <view class="ib-row" wx:else>
+      <view class="ib-voice-btn" bindtap="startVoice">
+        <text>按住 开始录音</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 完成指导按钮 -->
+  <view class="finish-section">
+    <view class="btn-finish" bindtap="finishOrder">标记完成 · 结束指导</view>
+  </view>
+
+  <!-- 评分弹窗 -->
+  <view class="rating-mask" wx:if="{{showRating}}" catchtap="submitRating" data-rating="0">
+    <view class="rating-card" catchtap="">
+      <text class="rc-title">请为本次指导评分</text>
+      <view class="rc-stars">
+        <text class="rc-star" wx:for="{{[1,2,3,4,5]}}" wx:key="*this" bindtap="submitRating" data-rating="{{item}}">★</text>
+      </view>
+      <text class="rc-tip">点击星星评分</text>
+    </view>
+  </view>
+</view>

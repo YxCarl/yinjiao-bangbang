@@ -1,0 +1,113 @@
+.page-container {
+  background: #F5F6FA;
+  min-height: 100vh;
+  padding-bottom: 60rpx;
+}
+
+/* 顶部 */
+.msg-header {
+  background: #FFF;
+  padding: 40rpx 32rpx 32rpx;
+  border-bottom: 1rpx solid var(--divider);
+}
+.mh-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+.mh-title {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.mh-unread {
+  font-size: 24rpx;
+  color: var(--accent-dark);
+  background: var(--accent-light);
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+}
+.mh-sub {
+  font-size: 24rpx;
+  color: var(--text-3);
+}
+
+/* 会话列表 */
+.msg-list {
+  padding: 24rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.msg-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx;
+  position: relative;
+}
+.msg-item:active { background: #F8F9FB; }
+
+.msg-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  font-size: 34rpx;
+  font-weight: 600;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+.msg-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.msg-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6rpx;
+}
+.msg-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.msg-time {
+  font-size: 22rpx;
+  color: var(--text-4);
+}
+.msg-desc {
+  font-size: 24rpx;
+  color: var(--primary);
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.msg-preview {
+  font-size: 26rpx;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.unread-dot {
+  min-width: 32rpx;
+  height: 32rpx;
+  background: var(--danger);
+  color: #FFF;
+  font-size: 20rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8rpx;
+  position: absolute;
+  top: 28rpx;
+  right: 28rpx;
+  border: 2rpx solid #FFF;
+}
