@@ -15,9 +15,27 @@ Page({
   },
 
   onShow() {
-    this.loadUserInfo()
+    this.refreshFromCloud()
     this.loadOngoingOrders()
     this.loadBalance()
+  },
+
+  refreshFromCloud() {
+    const role = wx.getStorageSync('userRole')
+    wx.cloud.callFunction({
+      name: 'loginOrFetch',
+      data: { role: role || 'student' },
+      success: (res) => {
+        if (res.result && res.result.code === 0) {
+          wx.setStorageSync('myProfile', res.result.data)
+          wx.setStorageSync('userId', res.result.data._id)
+          this.loadUserInfo(res.result.data)
+        } else {
+          this.loadUserInfo()
+        }
+      },
+      fail: () => { this.loadUserInfo() }
+    })
   },
 
   loadOngoingOrders() {
@@ -27,16 +45,13 @@ Page({
   },
 
   loadBalance() {
-    let currentBalance = wx.getStorageSync('myBalance')
-    if (!currentBalance && currentBalance !== 0) {
-      currentBalance = 50.00
-      wx.setStorageSync('myBalance', currentBalance)
-    }
-    this.setData({ balance: parseFloat(currentBalance).toFixed(2) })
+    const profile = wx.getStorageSync('myProfile') || {}
+    const bal = parseFloat(profile.balance || 0)
+    this.setData({ balance: bal.toFixed(2) })
   },
 
-  loadUserInfo() {
-    const stored = wx.getStorageSync('myProfile')
+  loadUserInfo(stored) {
+    if (!stored) stored = wx.getStorageSync('myProfile')
     if (stored) {
       this.setData({
         userInfo: stored,

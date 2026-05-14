@@ -1,65 +1,82 @@
+const STORAGE_KEY = 'teacherConvData'
+
 Page({
   data: {
     msgUnread: 0,
     conversations: [],
-    filteredList: [],
-    fallbackConversations: [
-      {
-        id: 'tutor-1', conversationId: 'conv_demo_t1', type: 'chat',
-        char: '周', theme: 'badge-primary', name: '周同学',
-        desc: '小学语文《桂林山水》教案精修', time: '刚刚',
-        preview: '老师好，我已经把修改后的教案发过来了，麻烦您再看看。', unread: 1
-      },
-      {
-        id: 'tutor-2', conversationId: 'conv_demo_t2', type: 'chat',
-        char: '林', theme: 'badge-accent', name: '林老师',
-        desc: '试讲视频诊断（15分钟）', time: '10分钟前',
-        preview: '谢谢您的点评！关于教态方面我还有一些疑问想请教。', unread: 2
-      },
-      {
-        id: 'tutor-3', conversationId: 'conv_demo_t3', type: 'chat',
-        char: '张', theme: 'badge-info', name: '张同学',
-        desc: '初中数学《勾股定理》说课稿把关', time: '昨天 14:00',
-        preview: '好的，我明白了。感谢您的建议！', unread: 0
-      }
-    ]
+    filteredList: []
   },
+
+  fallbackData: [
+    {
+      id: 'tutor-1', conversationId: 'conv_demo_t1', type: 'chat',
+      char: '周', theme: 'badge-primary', name: '周同学',
+      desc: '小学语文《桂林山水》教案精修', time: '刚刚',
+      preview: '老师好，我已经把修改后的教案发过来了，麻烦您再看看。', unread: 1
+    },
+    {
+      id: 'tutor-2', conversationId: 'conv_demo_t2', type: 'chat',
+      char: '林', theme: 'badge-accent', name: '林老师',
+      desc: '试讲视频诊断（15分钟）', time: '10分钟前',
+      preview: '谢谢您的点评！关于教态方面我还有一些疑问想请教。', unread: 2
+    },
+    {
+      id: 'tutor-3', conversationId: 'conv_demo_t3', type: 'chat',
+      char: '张', theme: 'badge-info', name: '张同学',
+      desc: '初中数学《勾股定理》说课稿把关', time: '昨天 14:00',
+      preview: '好的，我明白了。感谢您的建议！', unread: 0
+    }
+  ],
 
   onShow() {
-    this.loadConversations()
+    this._render()
+    this._tryCloudSync()
   },
 
-  loadConversations() {
+  _getStored() {
+    let data = wx.getStorageSync(STORAGE_KEY)
+    if (data && data.length) return data
+    data = this.fallbackData.map(c => ({ ...c }))
+    wx.setStorageSync(STORAGE_KEY, data)
+    return data
+  },
+
+  _render() {
+    const list = this._getStored()
+    const unreadTotal = list.reduce((sum, c) => sum + (c.unread || 0), 0)
+    this.setData({ conversations: list, msgUnread: unreadTotal, filteredList: list })
+  },
+
+  _tryCloudSync() {
     wx.cloud.callFunction({
       name: 'getConversations',
       success: (res) => {
-        if (res.result && res.result.code === 0 && res.result.data.length > 0) {
-          const list = res.result.data.map(c => ({
+        if (!(res.result && res.result.code === 0 && res.result.data.length > 0)) return
+        const stored = this._getStored()
+        const storedMap = {}
+        stored.forEach(s => { storedMap[s.conversationId || s.id] = s })
+
+        const merged = res.result.data.map(c => {
+          const existing = storedMap[c.conversationId]
+          return {
             id: c._id,
             conversationId: c.conversationId,
             type: 'chat',
             char: c.peerName ? c.peerName[0] : '学',
             theme: c.peerTheme || 'badge-primary',
             name: c.peerName || '学员',
-            desc: c.orderTitle || '',
-            time: this._formatTime(c.lastTime),
-            preview: c.lastMsg || '',
-            unread: c.unread || 0
-          }))
-          const unreadTotal = list.reduce((sum, c) => sum + c.unread, 0)
-          this.setData({ conversations: list, msgUnread: unreadTotal, filteredList: list })
-        } else {
-          this._useFallback()
-        }
-      },
-      fail: () => { this._useFallback() }
-    })
-  },
+            desc: c.orderTitle || (existing ? existing.desc : ''),
+            time: this._formatTime(c.lastTime) || (existing ? existing.time : ''),
+            preview: c.lastMsg || (existing ? existing.preview : ''),
+            unread: existing ? existing.unread : (c.unread || 0)
+          }
+        })
 
-  _useFallback() {
-    const list = this.data.fallbackConversations
-    const unreadTotal = list.reduce((sum, c) => sum + c.unread, 0)
-    this.setData({ conversations: list, msgUnread: unreadTotal, filteredList: list })
+        wx.setStorageSync(STORAGE_KEY, merged)
+        this._render()
+      },
+      fail: () => {}
+    })
   },
 
   _formatTime(dateStr) {
@@ -75,7 +92,8 @@ Page({
 
   openChat(e) {
     const id = e.currentTarget.dataset.id
-    const item = this.data.conversations.find(c => c.id === id)
+    const list = this._getStored()
+    const item = list.find(c => c.id === id)
     if (!item) return
 
     this._markRead(id)
@@ -89,12 +107,24 @@ Page({
   },
 
   _markRead(id) {
-    const list = this.data.conversations.map(c => {
-      if (c.id === id) c.unread = 0
-      return c
+    const list = this._getStored()
+    let changed = false
+    list.forEach(c => {
+      if (c.id === id && c.unread > 0) { c.unread = 0; changed = true }
     })
-    const unreadTotal = list.reduce((sum, c) => sum + c.unread, 0)
-    this.setData({ conversations: list, msgUnread: unreadTotal, filteredList: list })
+    if (!changed) return
+
+    wx.setStorageSync(STORAGE_KEY, list)
+    this._render()
+
+    if (!id.startsWith('local_') && id !== 'sys') {
+      wx.cloud.callFunction({
+        name: 'sendMessage',
+        data: { conversationId: list.find(c => c.id === id)?.conversationId || '', kind: '_read', content: '' },
+        success: () => {},
+        fail: () => {}
+      })
+    }
   },
 
   navHome() { wx.redirectTo({ url: '/pages/teacher/teacher' }) },

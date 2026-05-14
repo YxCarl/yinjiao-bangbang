@@ -64,6 +64,7 @@
 .order-status { font-size: 24rpx; font-weight: 500; }
 .status-doing { color: var(--primary); }
 .status-done { color: var(--text-3); }
+.status-wait { color: var(--warning); }
 
 .order-body {
   border-bottom: 1rpx dashed var(--divider);

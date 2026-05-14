@@ -1,9 +1,11 @@
+const db = wx.cloud.database()
+
 Page({
   data: {
+    userId: '',
     name: '',
     tag: '',
     avatar: '新',
-    id: '',
     role: 'student',
     studentTags: ['在校师范生', '新入职教师(0-3年)', '合同制代课教师', '教培行业老师', '考编备考'],
     mentorTags: ['退休教师', '在岗资深教师', '学科带头人', '名师工作室主持人'],
@@ -18,11 +20,12 @@ Page({
   onLoad() {
     let stored = wx.getStorageSync('myProfile') || {}
     const role = stored.role || 'student'
+    const userId = wx.getStorageSync('userId') || stored._id || ''
     this.setData({
+      userId: userId,
       name: stored.name || '',
       tag: stored.tag || '',
       avatar: stored.avatar || (role === 'mentor' ? '师' : '新'),
-      id: stored.id || '',
       role: role,
       tags: role === 'mentor' ? this.data.mentorTags : this.data.studentTags,
       title: stored.title || '',
@@ -47,7 +50,6 @@ Page({
       name: this.data.name,
       tag: this.data.tag,
       avatar: this.data.name[0] || (this.data.role === 'mentor' ? '师' : '新'),
-      id: this.data.id,
       role: this.data.role
     })
     if (this.data.role === 'mentor') {
@@ -56,11 +58,26 @@ Page({
       newProfile.years = this.data.years
     }
 
-    setTimeout(() => {
-      wx.hideLoading()
-      wx.setStorageSync('myProfile', newProfile)
-      wx.showToast({ title: '档案已更新', icon: 'success' })
-      setTimeout(() => { wx.navigateBack() }, 1000)
-    }, 600)
+    wx.setStorageSync('myProfile', newProfile)
+    wx.hideLoading()
+    wx.showToast({ title: '档案已更新', icon: 'success' })
+
+    const userId = this.data.userId
+    if (userId && !userId.startsWith('local_')) {
+      db.collection('users').doc(userId).update({
+        data: {
+          name: newProfile.name,
+          tag: newProfile.tag,
+          avatar: newProfile.avatar,
+          title: newProfile.title || '',
+          subject: newProfile.subject || '',
+          years: newProfile.years || ''
+        },
+        success: () => {},
+        fail: () => {}
+      })
+    }
+
+    setTimeout(() => { wx.navigateBack() }, 800)
   }
 })

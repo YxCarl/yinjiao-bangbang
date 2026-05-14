@@ -22,21 +22,23 @@
   <view class="biz-card order-card" wx:for="{{filteredOrders}}" wx:key="_id">
     <view class="order-header">
       <text class="chip {{item.typeClass}}">{{item.typeText}}</text>
-      <text class="order-status {{item.status == 1 ? 'status-doing' : 'status-done'}}">
-        {{item.status == 1 ? '· 老师指导中' : '· 已完成'}}
+      <text class="order-status {{item.status == 1 ? 'status-doing' : item.status == 2 ? 'status-done' : 'status-wait'}}">
+        {{item.status == 0 ? '· 等待接单' : (item.status == 1 ? '· 老师指导中' : '· 已完成')}}
       </text>
     </view>
     <view class="order-body">
       <text class="course-name">{{item.title}}</text>
-      <view class="teacher-info" wx:if="{{item.teacher}}">接单老师：{{item.teacher}}</view>
+      <view class="teacher-info" wx:if="{{item.teacher}}">指导老师：{{item.teacher}}</view>
+      <view class="teacher-info" wx:elif="{{item.status == 0}}">等待名师接单中...</view>
     </view>
     <view class="order-footer">
       <view class="bounty-box">
         <text class="rmb">实付 ¥</text>
         <text class="bounty-num">{{item.price}}</text>
       </view>
-      <view class="btn-action btn-biz btn-outline" wx:if="{{item.status == 1}}" bindtap="remindOrder" data-id="{{item._id}}">催办一下</view>
-      <view class="btn-action btn-biz btn-ghost" wx:else bindtap="viewReport">查看报告</view>
+      <view class="btn-action btn-biz btn-primary" wx:if="{{item.status == 1}}" bindtap="openChat" data-id="{{item._id}}">进入对话</view>
+      <view class="btn-action btn-biz btn-outline" wx:elif="{{item.status == 0}}" bindtap="remindOrder" data-id="{{item._id}}">催办</view>
+      <view class="btn-action btn-biz btn-ghost" wx:else bindtap="openChat" data-id="{{item._id}}">查看详情</view>
     </view>
   </view>
 </view>

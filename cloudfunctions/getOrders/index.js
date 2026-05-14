@@ -4,16 +4,18 @@ const db = cloud.database()
 
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
+  const openid = wxContext.OPENID
+  const { scope } = event
+
   try {
-    // 只查询当前用户自己的订单，并按时间倒序排列
-    return await db.collection('orders')
-      .where({
-        _openid: wxContext.OPENID
-      })
-      .orderBy('createTime', 'desc')
-      .get()
+    let query = db.collection('orders').orderBy('createTime', 'desc').limit(50)
+    if (scope !== 'all') {
+      query = query.where({ _openid: openid })
+    }
+    const result = await query.get()
+    return { code: 0, data: result.data }
   } catch (e) {
     console.error(e)
-    return e
+    return { code: -1, error: e }
   }
 }

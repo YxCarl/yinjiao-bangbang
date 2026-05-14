@@ -114,6 +114,15 @@
         <text class="fi-arrow">›</text>
       </view>
     </view>
+    <view class="func-item" bindtap="doLogout">
+      <view class="fi-left">
+        <view class="fi-icon badge-muted">换</view>
+        <text class="fi-text">切换账号</text>
+      </view>
+      <view class="fi-right">
+        <text class="fi-arrow">›</text>
+      </view>
+    </view>
   </view>
 
   <!-- 退出登录 -->

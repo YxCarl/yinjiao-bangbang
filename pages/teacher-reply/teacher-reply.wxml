@@ -26,9 +26,12 @@
         wx:for="{{replies}}"
         wx:key="index"
       >
-        <view class="ci-bubble {{item.side === 'out' ? 'bub-out' : 'bub-in'}}">
-          <text wx:if="{{item.kind === 'voice'}}" class="voice-tag">🔊 语音 {{item.dur}}"</text>
-          <text wx:else>{{item.text}}</text>
+        <view class="ci-bubble {{item.side === 'out' ? 'bub-out' : 'bub-in'}}"
+              wx:if="{{item.kind === 'voice'}}" bindtap="playVoice" data-fileid="{{item.fileID}}">
+          <text class="voice-tag">🔊 语音 {{item.dur}}" {{item.fileID ? '点击播放' : ''}}</text>
+        </view>
+        <view class="ci-bubble {{item.side === 'out' ? 'bub-out' : 'bub-in'}}" wx:else>
+          <text>{{item.text}}</text>
         </view>
         <text class="ci-time">{{item.time}}</text>
       </view>
@@ -67,8 +70,12 @@
     </view>
 
     <view class="ib-row" wx:else>
-      <view class="ib-voice-btn" bindtap="startVoice">
-        <text>按住 开始录音</text>
+      <view
+        class="ib-voice-btn {{recording ? 'recording' : ''}}"
+        bindtouchstart="startRecord"
+        bindtouchend="stopRecord"
+      >
+        <text>{{recording ? '松开发送 · 录音中...' : '按住 开始录音'}}</text>
       </view>
     </view>
   </view>

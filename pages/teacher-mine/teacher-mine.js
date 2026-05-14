@@ -21,12 +21,30 @@ Page({
   },
 
   onShow() {
-    this.loadProfile()
+    this.refreshFromCloud()
     this.loadStats()
   },
 
-  loadProfile() {
-    const profile = wx.getStorageSync('myProfile')
+  refreshFromCloud() {
+    const role = wx.getStorageSync('userRole')
+    wx.cloud.callFunction({
+      name: 'loginOrFetch',
+      data: { role: role || 'mentor' },
+      success: (res) => {
+        if (res.result && res.result.code === 0) {
+          wx.setStorageSync('myProfile', res.result.data)
+          wx.setStorageSync('userId', res.result.data._id)
+          this.loadProfile(res.result.data)
+        } else {
+          this.loadProfile()
+        }
+      },
+      fail: () => { this.loadProfile() }
+    })
+  },
+
+  loadProfile(profile) {
+    if (!profile) profile = wx.getStorageSync('myProfile')
     if (profile && profile.role === 'mentor') {
       this.setData({
         profile: {
@@ -35,7 +53,7 @@ Page({
           subject: profile.subject || '待完善',
           years: profile.years || '0',
           avatar: profile.avatar || (profile.name ? profile.name[0] : '师'),
-          id: profile.id || 'UID000000',
+          id: profile._id || profile.id || 'UID000000',
           rating: profile.rating || '5.0'
         }
       })

@@ -32,19 +32,20 @@
 
   <view class="dash-data">
     <view class="data-item">
-      <text class="d-val">{{weeklyCount}}<text class="d-unit">/{{weeklyTotal}} 次</text></text>
-      <text class="d-label">本周指导</text>
+      <text class="d-val">{{orderCount}}<text class="d-unit"> 次</text></text>
+      <text class="d-label">累计指导</text>
     </view>
     <view class="d-divider"></view>
     <view class="data-item">
-      <text class="d-val">{{hours}}<text class="d-unit"> h</text></text>
-      <text class="d-label">护航时长</text>
+      <text class="d-val">{{completedCount}}<text class="d-unit"> 次</text></text>
+      <text class="d-label">已完成</text>
     </view>
   </view>
 
   <view class="progress-track">
     <view class="progress-bar" style="width: {{progress}}%;"></view>
   </view>
+  <text class="progress-tip" wx:if="{{orderCount === 0}}">发布第一个任务，开启你的提升之旅</text>
 
   <view class="dash-actions">
     <view class="btn-biz btn-primary flex-1" bindtap="startImprove">开始提升</view>

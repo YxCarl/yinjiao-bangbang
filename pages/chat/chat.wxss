@@ -95,12 +95,11 @@
 
 .chat-input-bar {
   display: flex;
-  align-items: center;
-  padding: 16rpx 24rpx;
+  flex-direction: column;
+  padding: 12rpx 24rpx 16rpx;
   padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
   border-top: 1rpx solid var(--border);
-  gap: 16rpx;
 }
 .chat-input {
   flex: 1;
@@ -117,3 +116,37 @@
   padding: 16rpx 28rpx;
   border-radius: 36rpx;
 }
+
+.cib-tabs {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 12rpx;
+}
+.cib-tab {
+  font-size: 24rpx;
+  color: var(--text-3);
+  padding: 4rpx 0;
+  border-bottom: 3rpx solid transparent;
+}
+.cib-tab.active {
+  color: var(--primary);
+  font-weight: 600;
+  border-bottom-color: var(--primary);
+}
+.cib-row {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+.voice-record-btn {
+  flex: 1;
+  text-align: center;
+  padding: 22rpx 0;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+.voice-record-btn:active { opacity: 0.7; }
+.voice-record-btn.recording { background: #FF5252; color: #FFF; }

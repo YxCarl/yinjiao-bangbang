@@ -3,6 +3,8 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
 exports.main = async (event, context) => {
+  const wxContext = cloud.getWXContext()
+  const openid = wxContext.OPENID
   const { conversationId } = event
 
   try {
@@ -11,7 +13,15 @@ exports.main = async (event, context) => {
       .orderBy('createTime', 'asc')
       .get()
 
-    return { code: 0, data: result.data }
+    const data = result.data.map(m => ({
+      _id: m._id,
+      side: m._openid === openid ? 'out' : 'in',
+      kind: m.kind || 'text',
+      content: m.content || '',
+      createTime: m.createTime
+    }))
+
+    return { code: 0, data: data }
   } catch (e) {
     console.error(e)
     return { code: -1, error: e }

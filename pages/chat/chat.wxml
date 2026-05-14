@@ -8,7 +8,7 @@
     </view>
   </view>
 
-  <scroll-view class="chat-list" scroll-y scroll-into-view="msg-{{messages[messages.length-1].id}}">
+  <scroll-view class="chat-list" scroll-y scroll-into-view="{{messages.length > 0 ? 'msg-' + messages[messages.length-1].id : ''}}">
     <view class="time-divider">今天</view>
 
     <view class="msg-row {{item.side === 'out' ? 'row-out' : 'row-in'}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}">
@@ -18,7 +18,7 @@
         {{item.text}}
       </view>
 
-      <view class="bubble bubble-voice {{item.side === 'out' ? 'bubble-out' : 'bubble-in'}}" wx:elif="{{item.kind === 'voice'}}" bindtap="playVoice">
+      <view class="bubble bubble-voice {{item.side === 'out' ? 'bubble-out' : 'bubble-in'}}" wx:elif="{{item.kind === 'voice'}}" bindtap="playVoice" data-fileid="{{item.fileID}}">
         <text class="voice-wave">▶</text>
         <text class="voice-dur">{{item.dur}}"</text>
       </view>
@@ -28,7 +28,20 @@
   </scroll-view>
 
   <view class="chat-input-bar">
-    <input class="chat-input" value="{{inputText}}" bindinput="onInput" placeholder="说点什么..." placeholder-class="ph-color" confirm-type="send" bindconfirm="sendMsg"/>
-    <view class="btn-send btn-biz btn-primary" bindtap="sendMsg">发送</view>
+    <view class="cib-tabs">
+      <view class="cib-tab {{replyMethod === 'text' ? 'active' : ''}}" bindtap="switchMethod" data-method="text">文字</view>
+      <view class="cib-tab {{replyMethod === 'voice' ? 'active' : ''}}" bindtap="switchMethod" data-method="voice">语音</view>
+    </view>
+
+    <view class="cib-row" wx:if="{{replyMethod === 'text'}}">
+      <input class="chat-input" value="{{inputText}}" bindinput="onInput" placeholder="说点什么..." placeholder-class="ph-color" confirm-type="send" bindconfirm="sendMsg"/>
+      <view class="btn-send btn-biz btn-primary" bindtap="sendMsg">发送</view>
+    </view>
+
+    <view class="cib-row" wx:else>
+      <view class="voice-record-btn {{recording ? 'recording' : ''}}" bindtouchstart="startRecord" bindtouchend="stopRecord">
+        <text>{{recording ? '松开发送 · 录音中...' : '按住 说话'}}</text>
+      </view>
+    </view>
   </view>
 </view>

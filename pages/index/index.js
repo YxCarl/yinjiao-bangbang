@@ -1,10 +1,9 @@
 Page({
   data: {
     userName: '同学',
-    weeklyCount: 3,
-    weeklyTotal: 10,
-    hours: '12.5',
-    progress: 30, // 百分比
+    orderCount: 0,
+    completedCount: 0,
+    progress: 0,
     banners: [
       { tag: '本周热门', title: '考编面试 · 名师真题逐帧拆解', sub: '李建国 特级教师 主讲' },
       { tag: '新手专享', title: '首次发单立减 ¥10', sub: '凡进入磨课坊订单自动抵扣' }
@@ -18,13 +17,43 @@ Page({
   },
 
   onShow() {
+    const role = wx.getStorageSync('userRole')
+    wx.cloud.callFunction({
+      name: 'loginOrFetch',
+      data: { role: role || 'student' },
+      success: (res) => {
+        if (res.result && res.result.code === 0) {
+          wx.setStorageSync('myProfile', res.result.data)
+          wx.setStorageSync('userId', res.result.data._id)
+        }
+        this._applyProfile()
+      },
+      fail: () => { this._applyProfile() }
+    })
+    this.loadStats()
+  },
+
+  _applyProfile() {
     const profile = wx.getStorageSync('myProfile')
     if (profile && profile.name) {
-      this.setData({
-        userName: profile.name,
-        progress: Math.min(100, Math.round((this.data.weeklyCount / this.data.weeklyTotal) * 100))
-      })
+      this.setData({ userName: profile.name })
     }
+  },
+
+  loadStats() {
+    wx.cloud.callFunction({
+      name: 'getOrders',
+      success: (res) => {
+        if (res.result && res.result.code === 0) {
+          const orders = res.result.data
+          const total = orders.length
+          const completed = orders.filter(o => o.status === 2).length
+          const progress = total > 0 ? Math.round(completed / total * 100) : 0
+          this.setData({ orderCount: total, completedCount: completed, progress: progress })
+        }
+      },
+      fail: () => {}
+    })
   },
 
   goToSearch() { wx.navigateTo({ url: '/pages/search/search' }) },

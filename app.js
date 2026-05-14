@@ -1,6 +1,5 @@
 App({
   onLaunch: function () {
-    // 1. 初始化云开发
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力')
     } else {
@@ -9,8 +8,6 @@ App({
         traceUser: true
       })
     }
-
-    // 2. 路由拦截：根据登录状态与角色路由
     this.checkLoginStatus()
   },
 
@@ -20,18 +17,34 @@ App({
 
     setTimeout(() => {
       if (!isLogged) {
-        // 未登录：直奔登录页
         wx.redirectTo({ url: '/pages/login/login' })
         return
       }
 
-      // 已登录：根据角色路由
-      if (role === 'mentor') {
-        wx.redirectTo({ url: '/pages/teacher/teacher' })
-      } else {
-        // 学员/默认：进入首页 tab
-        wx.switchTab({ url: '/pages/index/index' })
-      }
+      wx.cloud.callFunction({
+        name: 'loginOrFetch',
+        data: { role: role || 'student' },
+        success: (res) => {
+          if (res.result && res.result.code === 0) {
+            const user = res.result.data
+            wx.setStorageSync('myProfile', user)
+            wx.setStorageSync('userId', user._id)
+            wx.setStorageSync('userRole', user.role || role)
+          }
+          this._navigateByRole(role)
+        },
+        fail: () => {
+          this._navigateByRole(role)
+        }
+      })
     }, 100)
+  },
+
+  _navigateByRole(role) {
+    if (role === 'mentor') {
+      wx.redirectTo({ url: '/pages/teacher/teacher' })
+    } else {
+      wx.switchTab({ url: '/pages/index/index' })
+    }
   }
 })
