@@ -31,7 +31,7 @@ exports.main = async (event, context) => {
     let desc = ''
     if (detail) {
       if (detail.content) desc = detail.content
-      else if (detail.subject) desc = detail.subject + ' · ' + (detail.level || '')
+      else if (detail.subject) desc = (detail.grade || '') + detail.subject + ' · ' + (detail.level || '')
       else if (detail.videoName) desc = '视频诊断 · ' + detail.videoName
     }
 

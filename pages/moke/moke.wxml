@@ -23,10 +23,20 @@
 <view class="section-title mt-32">需求配置</view>
 <view class="biz-card form-card">
   <view class="form-item">
-    <text class="label">学段学科</text>
-    <picker mode="selector" range="{{subjects}}" bindchange="onSubjectChange">
+    <text class="label">学段</text>
+    <picker mode="selector" range="{{grades}}" bindchange="onGradeChange">
+      <view class="picker-value {{selectedGrade ? 'selected' : ''}}">
+        {{selectedGrade || '请选择学段'}}
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="form-item" wx:if="{{selectedGrade && currentSubjects.length > 0}}">
+    <text class="label">学科</text>
+    <picker mode="selector" range="{{currentSubjects}}" bindchange="onSubjectChange">
       <view class="picker-value {{selectedSubject ? 'selected' : ''}}">
-        {{selectedSubject || '请选择学段学科'}}
+        {{selectedSubject || '请选择学科'}}
         <text class="arrow">›</text>
       </view>
     </picker>

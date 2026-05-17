@@ -79,6 +79,7 @@
   gap: 8rpx;
 }
 .picker-value.selected { color: var(--primary); font-weight: 600; }
+.picker-value.disabled { color: var(--text-4); }
 .arrow { color: var(--text-4); font-size: 30rpx; }
 
 .price-input-wrap {
