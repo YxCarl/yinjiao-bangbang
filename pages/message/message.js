@@ -1,5 +1,4 @@
 const STORAGE_KEY = 'studentConvData'
-const db = wx.cloud.database()
 
 Page({
   data: {

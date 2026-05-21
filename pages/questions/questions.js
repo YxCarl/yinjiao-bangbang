@@ -25,7 +25,7 @@ Page({
 
   playAudio(e) {
     const dur = e.currentTarget.dataset.dur
-    wx.showToast({ title: '播放语音 ' + dur + '秒 (演示)', icon: 'none' })
+    wx.showToast({ title: '播放语音 ' + dur + '秒', icon: 'none' })
   },
 
   goAsk() {

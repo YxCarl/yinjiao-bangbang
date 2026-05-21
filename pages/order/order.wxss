@@ -87,6 +87,29 @@
   border-radius: 6rpx;
   display: inline-block;
 }
+.order-desc {
+  font-size: 24rpx;
+  color: var(--text-3);
+  display: block;
+  margin-bottom: 10rpx;
+  line-height: 1.5;
+}
+.file-tag {
+  display: flex;
+  align-items: center;
+  margin-top: 12rpx;
+  padding: 12rpx 16rpx;
+  background: var(--accent-light);
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  color: var(--accent-dark);
+}
+.file-tag:active { opacity: 0.7; }
+.file-tag-action {
+  margin-left: 12rpx;
+  font-weight: 600;
+  color: var(--primary);
+}
 
 .order-footer {
   display: flex;

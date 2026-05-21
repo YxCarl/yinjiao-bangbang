@@ -11,8 +11,16 @@
     <text class="os-title">{{orderTitle}}</text>
     <text class="os-desc">{{orderDesc}}</text>
     <view class="os-student">
-      <text class="oss-label">学员</text>
-      <text class="oss-name">{{studentName}}</text>
+      <view class="text-badge oss-avatar badge-primary">{{studentName ? studentName[0] : '学'}}</view>
+      <view>
+        <text class="oss-label">学员</text>
+        <text class="oss-name">{{studentName || '学员'}}</text>
+      </view>
+    </view>
+    <view class="os-file" wx:if="{{fileName}}" bindtap="downloadFile">
+      <text class="osf-icon">📎</text>
+      <text class="osf-name">{{fileName}}</text>
+      <text class="osf-action">点击下载</text>
     </view>
   </view>
 
@@ -26,6 +34,7 @@
         wx:for="{{replies}}"
         wx:key="index"
       >
+        <view class="text-badge ci-avatar badge-primary" wx:if="{{item.side === 'in'}}">{{studentName ? studentName[0] : '学'}}</view>
         <view class="ci-bubble {{item.side === 'out' ? 'bub-out' : 'bub-in'}}"
               wx:if="{{item.kind === 'voice'}}" bindtap="playVoice" data-fileid="{{item.fileID}}">
           <text class="voice-tag">🔊 语音 {{item.dur}}" {{item.fileID ? '点击播放' : ''}}</text>
@@ -33,6 +42,7 @@
         <view class="ci-bubble {{item.side === 'out' ? 'bub-out' : 'bub-in'}}" wx:else>
           <text>{{item.text}}</text>
         </view>
+        <view class="text-badge ci-avatar badge-accent" wx:if="{{item.side === 'out'}}">{{myAvatar}}</view>
         <text class="ci-time">{{item.time}}</text>
       </view>
 

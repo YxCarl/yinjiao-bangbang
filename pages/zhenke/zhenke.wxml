@@ -13,7 +13,7 @@
     <view class="upload-desc">支持 MP4 · 建议 15 - 20 分钟</view>
   </view>
   <view class="video-preview" wx:else>
-    <view class="mock-player">{{videoName}}</view>
+    <view class="video-preview-box">{{videoName}}</view>
     <view class="file-reupload">点击重新选择</view>
   </view>
 </view>
@@ -23,21 +23,20 @@
 <view class="biz-card ai-card">
   <view class="ai-header">
     <text class="ai-label">分析状态</text>
-    <view class="ai-status-pill {{aiStatus === 2 ? 'ai-done' : (aiStatus === 1 ? 'ai-loading' : 'ai-idle')}}">
-      {{aiStatus === 2 ? '已完成' : (aiStatus === 1 ? '处理中…' : '等待上传')}}
+    <view class="ai-status-pill {{aiStatus === 2 ? 'ai-done' : 'ai-idle'}}">
+      {{aiStatus === 2 ? '已完成' : '等待上传'}}
     </view>
   </view>
 
-  <view class="ai-progress" wx:if="{{aiStatus === 1}}">
-    <view class="ai-loading-bar"></view>
-  </view>
-
-  <view class="ai-timeline" wx:if="{{aiStatus === 2}}">
+  <scroll-view scroll-y class="ai-timeline-scroll" wx:if="{{aiStatus === 2}}">
     <view class="time-node" wx:for="{{aiTimeline}}" wx:key="index">
       <view class="t-time-pill">{{item.time}}</view>
-      <text class="node-label">{{item.label}}</text>
+      <view class="node-text">
+        <text class="node-label">{{item.label}}</text>
+        <text class="node-desc" wx:if="{{item.desc}}">{{item.desc}}</text>
+      </view>
     </view>
-  </view>
+  </scroll-view>
 
   <view class="ai-empty" wx:if="{{aiStatus === 0}}">
     上传视频后将自动定位关键教学环节，便于名师精准点评。

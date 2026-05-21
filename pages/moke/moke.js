@@ -85,11 +85,11 @@ Page({
           success: (res) => {
             wx.hideLoading()
             if (res.result.code === -2) {
-              return wx.showToast({ title: res.result.msg, icon: 'none', duration: 2000 })
+              return wx.showToast({ title: res.result.error, icon: 'none', duration: 2000 })
             }
             if (res.result.data && res.result.data.balance !== undefined) {
-              wx.setStorageSync('myBalance', res.result.data.balance)
-              const p = wx.getStorageSync('myProfile') || {}; p.balance = res.result.data.balance; wx.setStorageSync('myProfile', p)
+              const p = wx.getStorageSync('myProfile')
+              if (p) { p.balance = res.result.data.balance; wx.setStorageSync('myProfile', p) }
             }
             wx.showToast({ title: '发布成功', icon: 'success' })
             setTimeout(() => { wx.switchTab({ url: '/pages/order/order' }) }, 1500)

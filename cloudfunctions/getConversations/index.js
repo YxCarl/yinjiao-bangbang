@@ -15,6 +15,6 @@ exports.main = async (event, context) => {
     return { code: 0, data: result.data }
   } catch (e) {
     console.error(e)
-    return { code: -1, error: e }
+    return { code: -1, error: '加载会话失败' }
   }
 }

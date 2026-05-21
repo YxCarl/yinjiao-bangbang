@@ -44,11 +44,32 @@
   padding-top: 16rpx;
   border-top: 1rpx dashed var(--divider);
 }
+.oss-avatar {
+  width: 56rpx; height: 56rpx;
+  border-radius: 50%;
+  font-size: 22rpx;
+  margin-right: 14rpx;
+  flex-shrink: 0;
+}
 .oss-label {
   font-size: 24rpx;
   color: var(--text-4);
-  margin-right: 12rpx;
 }
+.oss-name {
+  display: block;
+}
+.os-file {
+  display: flex;
+  align-items: center;
+  margin-top: 16rpx;
+  padding: 16rpx 20rpx;
+  background: var(--primary-soft);
+  border-radius: 10rpx;
+}
+.os-file:active { opacity: 0.7; }
+.osf-icon { font-size: 28rpx; margin-right: 10rpx; }
+.osf-name { flex: 1; font-size: 24rpx; color: var(--primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.osf-action { font-size: 22rpx; color: var(--accent); font-weight: 500; }
 .oss-name {
   font-size: 28rpx;
   color: var(--primary);
@@ -73,6 +94,13 @@
 }
 .ci-in { align-items: flex-start; }
 .ci-out { align-items: flex-end; }
+.ci-avatar {
+  width: 52rpx; height: 52rpx;
+  border-radius: 50%;
+  font-size: 22rpx;
+  margin-bottom: 4rpx;
+  flex-shrink: 0;
+}
 
 .ci-bubble {
   max-width: 82%;

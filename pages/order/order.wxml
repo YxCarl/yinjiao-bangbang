@@ -28,8 +28,13 @@
     </view>
     <view class="order-body">
       <text class="course-name">{{item.title}}</text>
+      <text class="order-desc" wx:if="{{item.desc}}">{{item.desc}}</text>
       <view class="teacher-info" wx:if="{{item.teacher}}">指导老师：{{item.teacher}}</view>
       <view class="teacher-info" wx:elif="{{item.status == 0}}">等待名师接单中...</view>
+      <view class="file-tag" wx:if="{{item.detail && item.detail.fileName}}" bindtap="downloadFile" data-id="{{item._id}}">
+        <text>📎 {{item.detail.fileName || item.detail.videoName}}</text>
+        <text class="file-tag-action">查看</text>
+      </view>
     </view>
     <view class="order-footer">
       <view class="bounty-box">

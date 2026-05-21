@@ -12,7 +12,7 @@
     <view class="time-divider">今天</view>
 
     <view class="msg-row {{item.side === 'out' ? 'row-out' : 'row-in'}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}">
-      <view class="text-badge bubble-avatar {{item.side === 'out' ? 'badge-primary' : peerTheme}}" wx:if="{{item.side === 'in'}}">{{peerChar}}</view>
+      <view class="text-badge bubble-avatar {{peerTheme}}" wx:if="{{item.side === 'in'}}">{{peerChar}}</view>
 
       <view class="bubble {{item.side === 'out' ? 'bubble-out' : 'bubble-in'}}" wx:if="{{item.kind === 'text'}}">
         {{item.text}}
@@ -23,7 +23,7 @@
         <text class="voice-dur">{{item.dur}}"</text>
       </view>
 
-      <view class="text-badge bubble-avatar badge-primary" wx:if="{{item.side === 'out'}}">我</view>
+      <view class="text-badge bubble-avatar badge-primary" wx:if="{{item.side === 'out'}}">{{myAvatar}}</view>
     </view>
   </scroll-view>
 

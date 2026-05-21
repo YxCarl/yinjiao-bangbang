@@ -1,44 +1,34 @@
 <view class="page-container">
 
-  <view class="biz-card video-box">
-    <view class="mock-player">第1讲：无生试讲的互动技巧</view>
-    <view class="c-info">
-      <text class="c-title">无生试讲全攻略 (评委视角)</text>
-      <view class="c-meta">
-        <view class="text-badge c-tutor-avatar badge-primary">李</view>
-        <text class="c-tutor-name">李建国 · 特级教师</text>
-        <text class="c-divider">·</text>
-        <text class="c-stats">已学习 1.2 万人</text>
+  <block wx:if="{{course}}">
+    <view class="biz-card video-box">
+      <view class="video-player">{{course.title}}</view>
+      <view class="c-info">
+        <text class="c-title">{{course.title}}</text>
+        <view class="c-meta">
+          <view class="text-badge c-tutor-avatar badge-primary">师</view>
+          <text class="c-tutor-name">{{course.author || '名师'}}</text>
+          <text class="c-divider">·</text>
+          <text class="c-stats">{{course.viewCount || 0}} 人已学习</text>
+        </view>
       </view>
     </view>
-  </view>
 
-  <view class="biz-card mt-24" style="margin-bottom: 200rpx;">
-    <view class="section-title">课程大纲</view>
-    <view class="chapter-item playing">
-      <text class="ch-idx">01</text>
-      <view class="ch-meta">
-        <text class="ch-name">如何"假装"台下有学生？</text>
-        <text class="ch-dur">12 分钟</text>
+    <view class="biz-card mt-24" style="margin-bottom: 200rpx;" wx:if="{{course.chapters && course.chapters.length}}">
+      <view class="section-title">课程大纲</view>
+      <view class="chapter-item {{index === 0 ? 'playing' : ''}}" wx:for="{{course.chapters}}" wx:key="index">
+        <text class="ch-idx">{{index < 9 ? '0' : ''}}{{index + 1}}</text>
+        <view class="ch-meta">
+          <text class="ch-name">{{item.title}}</text>
+          <text class="ch-dur">{{item.dur || ''}}</text>
+        </view>
+        <text class="ch-status {{index === 0 ? 'text-success' : ''}}">{{index === 0 ? '播放中' : '未解锁'}}</text>
       </view>
-      <text class="ch-status text-success">播放中</text>
     </view>
-    <view class="chapter-item">
-      <text class="ch-idx">02</text>
-      <view class="ch-meta">
-        <text class="ch-name">评委最讨厌的三个雷区</text>
-        <text class="ch-dur">15 分钟</text>
-      </view>
-      <text class="ch-status">未解锁</text>
-    </view>
-    <view class="chapter-item">
-      <text class="ch-idx">03</text>
-      <view class="ch-meta">
-        <text class="ch-name">考场突发状况应对</text>
-        <text class="ch-dur">10 分钟</text>
-      </view>
-      <text class="ch-status">未解锁</text>
-    </view>
+  </block>
+
+  <view class="empty-tip" wx:elif="{{!loading}}">
+    课程加载失败，请稍后重试
   </view>
 
   <view class="bottom-bar">

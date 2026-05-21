@@ -83,6 +83,9 @@
           <text class="sl-label">学员</text>
           <text class="sl-name">{{item.student}}</text>
         </view>
+        <view class="file-indicator" wx:if="{{item.detail && item.detail.fileName}}">
+          <text>📎 {{item.detail.fileName || item.detail.videoName || '附件'}}</text>
+        </view>
       </view>
       <view class="order-footer">
         <view class="bounty-box"><text class="rmb">¥</text><text class="bounty-num">{{item.price}}</text></view>

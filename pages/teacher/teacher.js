@@ -44,7 +44,7 @@ Page({
   loadOrders() {
     wx.cloud.callFunction({
       name: 'getOrders',
-      data: { scope: 'all' },
+      data: { scope: 'all', role: 'mentor' },
       success: (res) => {
         if (res.result && res.result.code === 0) {
           const list = res.result.data.map(item => {
@@ -65,8 +65,8 @@ Page({
   _useFallbackOrders() {
     this.setData({
       orders: [
-        { _id: 'fb1', status: 0, typeClass: 'chip-accent', typeText: '磨课坊', time: '示例', title: '小学语文教案精修', desc: '请先创建真实订单。', price: 89, student: '示例学员' },
-        { _id: 'fb2', status: 1, typeClass: 'chip-info', typeText: '诊课室', time: '示例', title: '试讲视频诊断', desc: '接单后可进入回复。', price: 128, student: '示例学员' }
+        { _id: 'fb1', status: 0, typeClass: 'chip-accent', typeText: '磨课坊', title: '暂无订单，请学生端发布任务', desc: '任务发布后将在此处显示', price: 0, student: '' },
+        { _id: 'fb2', status: 1, typeClass: 'chip-info', typeText: '诊课室', title: '暂无进行中的订单', desc: '接单后订单将出现在此处', price: 0, student: '' }
       ],
       totalOrders: 2
     }, () => { this.filterData() })
@@ -92,12 +92,13 @@ Page({
         wx.showLoading({ title: '接单中...' })
         const profile = wx.getStorageSync('myProfile') || {}
         const teacherName = profile.name || '导师'
+        const teacherAvatar = profile.avatar || (teacherName[0] || '师')
+        const teacherId = wx.getStorageSync('userId') || ''
         db.collection('orders').doc(id).update({
-          data: { status: 1, teacher: teacherName },
+          data: { status: 1, teacher: teacherName, teacherId: teacherId, teacherAvatar: teacherAvatar },
           success: () => {
             wx.hideLoading()
             this._localGrab(id, teacherName)
-            this._createConversation(id, teacherName)
           },
           fail: () => {
             wx.hideLoading()
@@ -117,37 +118,23 @@ Page({
     wx.showToast({ title: '接单成功', icon: 'success' })
   },
 
-  _createConversation(orderId, teacherName) {
-    const profile = wx.getStorageSync('myProfile') || {}
-    const convId = 'order_' + orderId
-    const convData = {
-      conversationId: convId,
-      peerName: teacherName,
-      peerTheme: 'badge-primary',
-      orderId: orderId,
-      orderTitle: '',
-      lastMsg: '老师已接单，开始指导吧',
-      lastTime: new Date(),
-      unread: 1
-    }
-    db.collection('conversations').add({
-      data: Object.assign({}, convData, { _openid: '{openid}' }),
-      success: () => {},
-      fail: () => {}
-    })
-  },
 
   openReply(e) {
     const id = e.currentTarget.dataset.id
     const order = this.data.orders.find(o => o._id === id)
     if (!order) return
+    const detail = order.detail || {}
+    const fileID = detail.fileID || ''
+    const fileName = detail.fileName || detail.videoName || ''
     wx.navigateTo({
       url: '/pages/teacher-reply/teacher-reply?id=' + id +
         '&title=' + encodeURIComponent(order.title) +
         '&type=' + encodeURIComponent(order.typeText) +
         '&student=' + encodeURIComponent(order.student || '') +
         '&desc=' + encodeURIComponent(order.desc || '') +
-        '&price=' + (order.price || 0)
+        '&price=' + (order.price || 0) +
+        '&fileID=' + encodeURIComponent(fileID) +
+        '&fileName=' + encodeURIComponent(fileName)
     })
   },
 
@@ -166,6 +153,7 @@ Page({
   _fmt(dateStr) {
     if (!dateStr) return ''
     const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return ''
     const now = new Date()
     const diff = now - d
     if (diff < 60000) return '刚刚发布'

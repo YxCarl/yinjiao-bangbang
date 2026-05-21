@@ -47,14 +47,49 @@ Page({
   // 进入对话
   openChat(e) {
     const id = e.currentTarget.dataset.id
-    const order = this.data.orders.find(o => o._id === id)
-    if (!order) return
     const convId = 'order_' + id
-    wx.navigateTo({
-      url: '/pages/chat/chat?conversationId=' + convId +
-        '&name=' + encodeURIComponent(order.teacher || '名师') +
-        '&char=' + encodeURIComponent((order.teacher || '师')[0]) +
-        '&theme=badge-primary'
+
+    const nav = (teacherName) => {
+      const name = teacherName || '名师'
+      wx.navigateTo({
+        url: '/pages/chat/chat?conversationId=' + convId +
+          '&name=' + encodeURIComponent(name) +
+          '&char=' + encodeURIComponent(name[0] || '师') +
+          '&theme=badge-primary'
+      })
+    }
+
+    const order = this.data.orders.find(o => o._id === id)
+    if (order && order.teacher) {
+      nav(order.teacher)
+    } else {
+      wx.showLoading({ title: '加载中...' })
+      wx.cloud.callFunction({
+        name: 'getOrders',
+        success: (res) => {
+          wx.hideLoading()
+          if (res.result && res.result.code === 0) {
+            const fresh = res.result.data.find(o => o._id === id)
+            nav(fresh ? fresh.teacher : '')
+          } else { nav('') }
+        },
+        fail: () => { wx.hideLoading(); nav('') }
+      })
+    }
+  },
+
+  downloadFile(e) {
+    const id = e.currentTarget.dataset.id
+    const order = this.data.orders.find(o => o._id === id)
+    if (!order || !order.detail || !order.detail.fileID) return wx.showToast({ title: '文件不存在', icon: 'none' })
+    wx.showLoading({ title: '下载中...' })
+    wx.cloud.downloadFile({
+      fileID: order.detail.fileID,
+      success: (res) => {
+        wx.hideLoading()
+        wx.openDocument({ filePath: res.tempFilePath, showMenu: true, success: () => {}, fail: () => {} })
+      },
+      fail: () => { wx.hideLoading(); wx.showToast({ title: '下载失败', icon: 'none' }) }
     })
   },
 

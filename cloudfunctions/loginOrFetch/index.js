@@ -8,17 +8,14 @@ exports.main = async (event, context) => {
   const { role } = event
 
   try {
-    // 按 openid + role 查找，确保两端口账号独立
     const existResult = await db.collection('users')
       .where({ _openid: openid, role: role || 'student' })
       .get()
 
     if (existResult.data.length > 0) {
-      const user = existResult.data[0]
-      return { code: 0, data: user }
+      return { code: 0, data: existResult.data[0] }
     }
 
-    // 不存在：创建新用户
     const baseProfile = {
       _openid: openid,
       role: role || 'student',
@@ -51,6 +48,6 @@ exports.main = async (event, context) => {
     return { code: 0, data: Object.assign({}, newProfile, { _id: addResult._id }) }
   } catch (e) {
     console.error(e)
-    return { code: -1, error: e }
+    return { code: -1, error: '登录失败' }
   }
 }

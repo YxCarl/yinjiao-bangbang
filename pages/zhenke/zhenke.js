@@ -75,9 +75,9 @@ Page({
       success: (uploadRes) => {
         wx.hideLoading()
         this.setData({
-          videoPath: tempPath, videoName: name, fileID: uploadRes.fileID, aiStatus: 1
+          videoPath: tempPath, videoName: name, fileID: uploadRes.fileID
         })
-        this._analyzeVideo(uploadRes.fileID)
+        this._startAnalyze(uploadRes.fileID)
       },
       fail: (err) => {
         wx.hideLoading()
@@ -86,24 +86,72 @@ Page({
     })
   },
 
-  _analyzeVideo(fileID) {
-    wx.showLoading({ title: 'AI 智能分析中...' })
+  _startAnalyze(fileID) {
+    wx.showLoading({ title: '创建分析任务...', mask: true })
     wx.cloud.callFunction({
       name: 'analyzeVideo',
       data: { fileID: fileID },
       success: (res) => {
-        wx.hideLoading()
-        if (res.result && res.result.code === 0) {
-          this.setData({ aiStatus: 2, aiTimeline: res.result.data })
+        if (res.result && res.result.code === 0 && res.result.data) {
+          const { taskId, timeline } = res.result.data
+          if (timeline && timeline.length) {
+            wx.hideLoading()
+            this.setData({ aiStatus: 2, aiTimeline: timeline })
+          } else if (taskId) {
+            wx.showLoading({ title: 'AI 分析中...', mask: true })
+            this._pollResult(taskId, 0)
+          } else {
+            wx.hideLoading()
+            this.setData({ aiStatus: 0 })
+            wx.showToast({ title: '分析启动失败', icon: 'none' })
+          }
         } else {
-          wx.showToast({ title: '分析失败，可稍后重试', icon: 'none' })
+          wx.hideLoading()
+          const errMsg = (res.result && res.result.error) ? res.result.error : '分析失败'
+          this.setData({ aiStatus: 0 })
+          wx.showModal({ title: 'AI 分析失败', content: errMsg, showCancel: false, confirmText: '知道了' })
         }
       },
-      fail: () => {
+      fail: (err) => {
         wx.hideLoading()
-        wx.showToast({ title: 'AI 服务暂时不可用', icon: 'none' })
+        this.setData({ aiStatus: 0 })
+        wx.showModal({ title: '云函数调用失败', content: err.errMsg || err.message || '未知', showCancel: false, confirmText: '知道了' })
       }
     })
+  },
+
+  _pollResult(taskId, count) {
+    if (count > 30) {
+      wx.hideLoading()
+      this.setData({ aiStatus: 0 })
+      wx.showToast({ title: '分析超时，请重试', icon: 'none' })
+      return
+    }
+    setTimeout(() => {
+      wx.cloud.callFunction({
+        name: 'analyzeVideo',
+        data: { taskId: taskId },
+        success: (res) => {
+          if (res.result && res.result.code === 0 && res.result.data) {
+            const d = res.result.data
+            if (d.status === 'done') {
+              wx.hideLoading()
+              this.setData({ aiStatus: 2, aiTimeline: d.timeline || [] })
+            } else if (d.status === 'error') {
+              wx.hideLoading()
+              this.setData({ aiStatus: 0 })
+              wx.showModal({ title: 'AI 分析失败', content: d.error || '未知错误', showCancel: false, confirmText: '知道了' })
+            } else {
+              wx.showLoading({ title: 'AI 分析中(' + (count + 1) + ')...', mask: true })
+              this._pollResult(taskId, count + 1)
+            }
+          } else {
+            this._pollResult(taskId, count + 1)
+          }
+        },
+        fail: () => { this._pollResult(taskId, count + 1) }
+      })
+    }, 3000)
   },
 
   submitZhenke() {
@@ -125,11 +173,11 @@ Page({
       success: (res) => {
         wx.hideLoading()
         if (res.result.code === -2) {
-          return wx.showToast({ title: res.result.msg, icon: 'none', duration: 2000 })
+          return wx.showToast({ title: res.result.error, icon: 'none', duration: 2000 })
         }
         if (res.result.data && res.result.data.balance !== undefined) {
-          wx.setStorageSync('myBalance', res.result.data.balance)
-          const p = wx.getStorageSync('myProfile') || {}; p.balance = res.result.data.balance; wx.setStorageSync('myProfile', p)
+          const p = wx.getStorageSync('myProfile')
+          if (p) { p.balance = res.result.data.balance; wx.setStorageSync('myProfile', p) }
         }
         wx.showToast({ title: '发布成功', icon: 'success' })
         setTimeout(() => { wx.switchTab({ url: '/pages/order/order' }) }, 1500)

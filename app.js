@@ -25,13 +25,15 @@ App({
         name: 'loginOrFetch',
         data: { role: role || 'student' },
         success: (res) => {
-          if (res.result && res.result.code === 0) {
+          if (res.result && res.result.code === 0 && res.result.data) {
             const user = res.result.data
             wx.setStorageSync('myProfile', user)
             wx.setStorageSync('userId', user._id)
             wx.setStorageSync('userRole', user.role || role)
+            this._navigateByRole(role)
+          } else {
+            this._navigateByRole(role)
           }
-          this._navigateByRole(role)
         },
         fail: () => {
           this._navigateByRole(role)

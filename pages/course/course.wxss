@@ -1,7 +1,7 @@
 .page-container { padding: 32rpx 32rpx 40rpx; }
 
 .video-box { padding: 0; overflow: hidden; }
-.mock-player {
+.video-player {
   background: linear-gradient(135deg, #1F3D5C 0%, #2D5683 100%);
   color: rgba(255,255,255,0.85);
   width: 100%;
@@ -16,7 +16,7 @@
   position: relative;
   gap: 20rpx;
 }
-.mock-player::before {
+.video-player::before {
   content: '▶';
   font-size: 44rpx;
   color: var(--accent);

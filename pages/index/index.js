@@ -66,8 +66,8 @@ Page({
   goToMoke() { wx.navigateTo({ url: '/pages/moke/moke' }) },
   goToZhenke() { wx.navigateTo({ url: '/pages/zhenke/zhenke' }) },
   goToWenzhen() { wx.switchTab({ url: '/pages/wenzhen/wenzhen' }) },
-  goToCourse() { wx.navigateTo({ url: '/pages/course/course' }) },
-  goToDoc() { wx.navigateTo({ url: '/pages/doc/doc' }) },
+  goToCourse() { wx.navigateTo({ url: '/pages/course/course?id=course_default' }) },
+  goToDoc() { wx.navigateTo({ url: '/pages/doc/doc?id=doc_default' }) },
 
   onBannerChange(e) {
     this.setData({ bannerIndex: e.detail.current })

@@ -40,7 +40,7 @@
     </view>
 
     <view class="result-list" wx:if="{{searchResults.length > 0}}">
-      <view class="biz-card result-card" wx:for="{{searchResults}}" wx:key="id" bindtap="goToDetail" data-type="{{item.type}}">
+      <view class="biz-card result-card" wx:for="{{searchResults}}" wx:key="_id" bindtap="goToDetail" data-type="{{item.type}}" data-id="{{item._id}}">
         <view class="text-badge r-avatar {{item.type === 'tutor' ? 'badge-primary' : (item.type === 'doc' ? 'badge-accent' : 'badge-info')}}">{{item.char}}</view>
         <view class="r-info">
           <view class="r-name-row">

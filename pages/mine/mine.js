@@ -39,9 +39,16 @@ Page({
   },
 
   loadOngoingOrders() {
-    const orders = wx.getStorageSync('myOrders') || []
-    const ongoing = orders.filter(item => item.status === 1).length
-    this.setData({ ongoingCount: ongoing })
+    wx.cloud.callFunction({
+      name: 'getOrders',
+      success: (res) => {
+        if (res.result && res.result.code === 0) {
+          const ongoing = res.result.data.filter(item => item.status === 1).length
+          this.setData({ ongoingCount: ongoing })
+        }
+      },
+      fail: () => {}
+    })
   },
 
   loadBalance() {

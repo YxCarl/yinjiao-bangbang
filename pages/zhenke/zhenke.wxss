@@ -42,7 +42,7 @@
 }
 .upload-desc { font-size: 22rpx; color: var(--text-3); }
 
-.mock-player {
+.video-preview-box {
   background: #1F3D5C;
   color: #FFF;
   width: 100%;
@@ -56,7 +56,7 @@
   letter-spacing: 1rpx;
   margin-bottom: 16rpx;
 }
-.mock-player::before {
+.video-preview-box::before {
   content: '▶ ';
   color: var(--accent);
   margin-right: 12rpx;
@@ -129,11 +129,21 @@
   border-radius: 6rpx;
   font-weight: 600;
 }
+.node-text {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10rpx;
+}
 .node-label {
-  font-size: 24rpx;
-  color: var(--text-2);
-  margin-top: 12rpx;
-  font-weight: 500;
+  font-size: 26rpx;
+  color: var(--text-1);
+  font-weight: 600;
+}
+.node-desc {
+  font-size: 22rpx;
+  color: var(--text-3);
+  margin-top: 4rpx;
+  line-height: 1.4;
 }
 
 .tip-row { margin: 24rpx 4rpx 0; }

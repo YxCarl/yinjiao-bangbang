@@ -7,27 +7,26 @@ exports.main = async (event, context) => {
   const openid = wxContext.OPENID
   const { typeText, title, price, detail } = event
 
+  const numPrice = parseFloat(price)
+  if (!numPrice || numPrice <= 0) return { code: -1, error: '金额无效' }
+
   try {
-    // 1. 查学生用户余额
     const userResult = await db.collection('users').where({ _openid: openid, role: 'student' }).get()
     if (userResult.data.length === 0) {
-      return { code: -1, msg: '用户不存在' }
+      return { code: -1, error: '用户不存在' }
     }
     const user = userResult.data[0]
     const balance = parseFloat(user.balance || 0)
 
-    // 2. 扣费校验
-    if (balance < price) {
-      return { code: -2, msg: '余额不足，当前余额 ¥' + balance.toFixed(2) }
+    if (balance < numPrice) {
+      return { code: -2, error: '余额不足，当前余额 ¥' + balance.toFixed(2) }
     }
 
-    // 3. 扣费
-    const newBalance = balance - price
+    const newBalance = Math.round((balance - numPrice) * 100) / 100
     await db.collection('users').doc(user._id).update({
       data: { balance: newBalance }
     })
 
-    // 4. 拼描述
     let desc = ''
     if (detail) {
       if (detail.content) desc = detail.content
@@ -35,15 +34,16 @@ exports.main = async (event, context) => {
       else if (detail.videoName) desc = '视频诊断 · ' + detail.videoName
     }
 
-    // 5. 创建订单（status: 0 = 待接单, 1 = 进行中, 2 = 已完成）
     const orderResult = await db.collection('orders').add({
       data: {
         _openid: openid,
         typeText: typeText,
         title: title,
-        price: price,
+        price: numPrice,
         status: 0,
+        studentId: user._id,
         student: user.name || '学员',
+        studentAvatar: user.avatar || (user.name ? user.name[0] : '学'),
         desc: desc,
         createTime: db.serverDate(),
         detail: detail || {}
@@ -53,6 +53,6 @@ exports.main = async (event, context) => {
     return { code: 0, data: { _id: orderResult._id, balance: newBalance } }
   } catch (e) {
     console.error(e)
-    return { code: -1, msg: '服务器错误' }
+    return { code: -1, error: '创建订单失败' }
   }
 }
