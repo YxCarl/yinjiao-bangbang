@@ -16,14 +16,14 @@ Page({
     {
       id: 'tutor-1', conversationId: 'conv_demo_1', type: 'chat',
       char: '李', theme: 'badge-primary',
-      name: '李建国 · 特级教师', time: '昨天 14:20',
+      name: '李老师 · 特级教师', time: '昨天 14:20',
       preview: '这部分的板书设计还可以再精简一下，突出重点……',
       unread: 0
     },
     {
       id: 'tutor-2', conversationId: 'conv_demo_2', type: 'chat',
       char: '王', theme: 'badge-accent',
-      name: '王素芬 · 高级教师', time: '前天',
+      name: '王老师 · 高级教师', time: '前天',
       preview: '收到您的教案了，今晚我详细批注后回复你。',
       unread: 2
     }
