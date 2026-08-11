@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a reproducible problem without personal data or credentials.
+title: "[Bug]: "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach real student records, classroom videos, AppIDs, cloud IDs, API keys, or other sensitive data.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest sanitized sequence that reproduces the issue.
+    validations:
+      required: true
+  - type: input
+    id: tools-version
+    attributes:
+      label: WeChat Developer Tools version
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Student pages
+        - Mentor pages
+        - Cloud Functions
+        - Messaging
+        - Video analysis
+        - Documentation or setup
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation output
+      description: Paste sanitized `npm test` output or explain why it cannot run.

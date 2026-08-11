@@ -1,0 +1,14 @@
+{
+  "name": "yinjiao-bangbang",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source WeChat Mini Program reference implementation for educator mentoring workflows.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "check": "node scripts/validate-project.js",
+    "test": "node --test tests/*.test.js && npm run check"
+  }
+}

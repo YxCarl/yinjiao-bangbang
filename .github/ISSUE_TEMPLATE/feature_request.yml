@@ -1,0 +1,33 @@
+name: Feature request
+description: Propose a scoped improvement to the public project.
+title: "[Feature]: "
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Which educator, learner, contributor, or maintainer problem should be solved?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: Describe the smallest useful change and possible alternatives.
+    validations:
+      required: true
+  - type: checkboxes
+    id: data-impact
+    attributes:
+      label: Data and security impact
+      options:
+        - label: This changes authentication or authorization.
+        - label: This introduces or changes personal-data processing.
+        - label: This calls a new external service.
+        - label: This changes storage, retention, or deletion behavior.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence or use case
+      description: Link non-confidential examples, feedback, or measurements if available.
