@@ -1,85 +1,125 @@
-# 银教帮帮
+# Yinjiao Bangbang / 银教帮帮
 
-教学经验交流互助平台，为职前教师与资深教育工作者搭建代际传承的桥梁。
+[简体中文](README.zh-CN.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Roadmap](docs/ROADMAP.md)
 
-## 功能模块
+Yinjiao Bangbang is an open-source WeChat Mini Program reference implementation for connecting pre-service teachers and early-career educators with experienced mentors. It combines lesson-plan review, teaching-video analysis, anonymous questions, order workflows, and in-app messaging on WeChat Cloud Development.
 
-**学生端**
-- 磨课坊：上传教案文档，获取精修建议
-- 诊课室：上传试讲视频，AI 智能切片分析 + 逐帧诊断
-- 问诊室：匿名提交教学困惑，获取经验解答
-- 订单管理：追踪需求状态，实时对话交流
+> **Project status:** public reference implementation / early beta. It is suitable for learning, evaluation, and further development, but it is not a hosted production service. Payment and wallet behavior is simulated. Mentor identity is not yet independently verified; production deployments must add an approval workflow and restrictive database rules.
 
-**教师端**
-- 工作台：浏览需求大厅，接单并进入指导
-- 消息中心：与新手教师实时沟通
-- 个人管理：收益明细、排班设置、学员评价
+## Why this project exists
 
-## 技术栈
+Teaching experience is often shared through informal, closed channels. This project explores a reusable workflow for turning that exchange into a structured service:
 
-- 微信小程序原生框架
-- 微信云开发（云数据库 + 云存储 + 云函数）
-- 智谱 GLM-4V 视频分析
+- pre-service teachers can request feedback on lesson plans and trial lessons;
+- experienced educators can review requests and provide asynchronous guidance;
+- project teams can study a native Mini Program architecture built with Cloud Functions;
+- education developers can reuse documented workflows instead of starting from an empty scaffold.
 
-## 项目结构
+## Features
 
-```
-├── pages/                  # 页面文件
-│   ├── index/              # 首页
-│   ├── order/              # 指导订单
-│   ├── wenzhen/            # 问诊室
-│   ├── moke/               # 磨课坊
-│   ├── zhenke/             # 诊课室
-│   ├── mine/               # 我的（学生端）
-│   ├── teacher/            # 工作台（教师端）
-│   ├── teacher-mine/       # 我的（教师端）
-│   ├── teacher-msg/        # 消息中心（教师端）
-│   ├── teacher-reply/      # 指导回复（教师端）
-│   ├── chat/               # 对话页面
-│   ├── login/              # 登录页
-│   ├── profile/            # 编辑资料
-│   ├── wallet/             # 钱包
-│   ├── help/               # 使用指南
-│   ├── reviews/            # 学员评价
-│   ├── search/             # 搜索
-│   └── ...                 # 其他页面
-├── cloudfunctions/         # 云函数
-│   ├── addOrder/           # 创建订单
-│   ├── getOrders/          # 获取订单列表
-│   ├── sendMessage/        # 发送消息
-│   ├── getMessages/        # 获取消息
-│   ├── getConversations/   # 获取会话列表
-│   ├── loginOrFetch/       # 登录/获取用户信息
-│   ├── analyzeVideo/       # AI 视频分析
-│   └── getContents/        # 获取内容资源
-├── app.js                  # 小程序入口
-├── app.json                # 全局配置
-├── app.wxss                # 全局样式
-└── seed-contents.json      # 内容种子数据
+| Area | Current capability |
+| --- | --- |
+| Lesson-plan review | Upload a document and create a review request |
+| Teaching-video analysis | Upload a video and create an asynchronous analysis task |
+| Teaching Q&A | Submit teaching questions and browse educational content |
+| Mentor workspace | Browse, claim, reply to, and complete guidance orders |
+| Messaging | Per-order text and voice conversations with membership checks |
+| Profiles | Separate student and mentor profiles |
+| Offline preview | Local fallback data for interface exploration |
+
+The current video-analysis adapter calls Zhipu GLM-4V. It is isolated in `cloudfunctions/analyzeVideo` so that additional model providers can be added without changing the Mini Program pages.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[WeChat Mini Program] -->|callFunction| B[Cloud Functions]
+    A -->|upload/download| C[Cloud Storage]
+    B --> D[(Cloud Database)]
+    B -->|temporary video URL| E[Configured vision provider]
+    B -->|result/status| A
 ```
 
-## 本地开发
+Client pages handle presentation and local interaction. Mutations involving profiles, orders, conversations, and messages are routed through Cloud Functions, which derive the caller identity from WeChat `OPENID`. See [Architecture](docs/ARCHITECTURE.md) and [Deployment](docs/DEPLOYMENT.md) for the trust boundaries and collection model.
 
-1. 克隆仓库
-2. 使用微信开发者工具打开项目目录
-3. 在 `app.js` 中将 `env` 改为你自己的云环境 ID
-4. 在云开发控制台创建以下数据库集合：
-   - `users` — 用户表
-   - `orders` — 订单表
-   - `messages` — 消息表
-   - `conversations` — 会话表
-   - `contents` — 内容表
-   - `aiTasks` — AI 任务表
-   - `config` — 配置表（存储 API Key 等）
-5. 上传所有云函数并部署
-6. 如需 AI 视频分析功能，在 `config` 集合中添加 `ZHIPU_API_KEY` 记录
+## Repository structure
 
-## 开源协议
+```text
+.
+├── pages/                  # Mini Program pages
+├── cloudfunctions/         # Authenticated server-side operations
+├── docs/                   # Architecture, deployment, and roadmap
+├── scripts/                # Repository validation
+├── tests/                  # Structural tests
+├── app.js                  # Application entry point
+├── app.json                # Pages and global UI configuration
+├── project.config.json     # Generic WeChat DevTools configuration
+└── seed-contents.json      # Non-sensitive sample content
+```
 
-MIT License
+## Quick start
 
-## 注意事项
+### Prerequisites
 
-- 本项目为个人学习交流用途，如需商用请自行处理相关资质
-- 所有演示数据中的姓名为虚构，如有雷同纯属巧合
-- 云函数中的环境 ID 和 AppID 已公开，请勿在生产环境直接使用
+- WeChat Developer Tools with Cloud Development enabled
+- A WeChat Mini Program AppID for cloud features
+- Node.js 18 or newer for repository validation
+
+### 1. Clone and validate
+
+```bash
+git clone https://github.com/YxCarl/miniprogram----.git
+cd miniprogram----
+npm test
+```
+
+The repository uses `touristappid` and contains no production cloud-environment identifier. Configure your own AppID and select your own cloud environment locally before deploying.
+
+### 2. Create the database collections
+
+Create these collections in the Cloud Development console:
+
+- `users`
+- `orders`
+- `messages`
+- `conversations`
+- `contents`
+- `aiTasks`
+
+Do not grant public write access. Client pages should call Cloud Functions for protected mutations.
+
+### 3. Deploy Cloud Functions
+
+Upload and deploy every directory under `cloudfunctions/`. Install cloud dependencies when prompted by WeChat Developer Tools.
+
+To enable video analysis, configure `ZHIPU_API_KEY` as a server-side environment variable for the `analyzeVideo` Cloud Function. Never store provider keys in client code, public database collections, screenshots, issues, or commits.
+
+### 4. Load optional sample content
+
+Import `seed-contents.json` into the `contents` collection if you want the example resource pages to contain data.
+
+Detailed setup and a production-hardening checklist are available in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Security and privacy notes
+
+- A temporary URL for an uploaded teaching video is sent to the configured external model provider when analysis is enabled. Obtain informed consent and define a retention policy before processing real classroom recordings.
+- The demo login lets a user select a mentor role. A production deployment must verify mentor identity and authorization independently.
+- Database and storage rules are deployment-specific and are not safely inferred by this repository. Start with deny-by-default rules and allow only the minimum access required.
+- The wallet is a UI demonstration and does not implement payments, settlement, or financial accounting.
+- Do not use real student records, minors' data, classroom recordings, or credentials in a public test environment.
+
+Please read [SECURITY.md](SECURITY.md) before deploying or reporting a vulnerability.
+
+## Maintenance
+
+The public roadmap is tracked in [docs/ROADMAP.md](docs/ROADMAP.md). Changes should start with an issue and arrive through a focused pull request with validation results. Release notes are maintained in [CHANGELOG.md](CHANGELOG.md).
+
+The current primary maintainer is [@YxCarl](https://github.com/YxCarl). Maintainer responsibilities and decision rules are documented in [GOVERNANCE.md](GOVERNANCE.md).
+
+## Contributing
+
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), run `npm test`, and avoid including credentials or personal data in examples and fixtures.
+
+## License
+
+Licensed under the [MIT License](LICENSE).
