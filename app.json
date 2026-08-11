@@ -32,7 +32,7 @@
     "backgroundTextStyle": "light",
     "backgroundColor": "#F5F6FA",
     "navigationBarBackgroundColor": "#FFFFFF",
-    "navigationBarTitleText": "银教帮帮",
+    "navigationBarTitleText": "师傅在吗",
     "navigationBarTextStyle": "black",
     "enablePullDownRefresh": false
   },

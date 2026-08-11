@@ -2,7 +2,7 @@
   "name": "yinjiao-bangbang",
   "version": "0.1.0",
   "private": true,
-  "description": "Open-source WeChat Mini Program reference implementation for educator mentoring workflows.",
+  "description": "Shifu Zaima: an open-source WeChat Mini Program reference implementation for educator mentoring workflows.",
   "license": "MIT",
   "engines": {
     "node": ">=18"

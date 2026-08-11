@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+## [0.1.0] - 2026-08-11
+
 ### Added
 
 - English and Chinese project documentation.
@@ -25,3 +29,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Removed direct client writes for profiles, wallet balance, and order state.
 - Added bounded input handling for messages, profiles, video file IDs, and orders.
+
+[Unreleased]: https://github.com/YxCarl/miniprogram----/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/YxCarl/miniprogram----/releases/tag/v0.1.0

@@ -1,10 +1,16 @@
-# Yinjiao Bangbang / 银教帮帮
+# Shifu Zaima / 师傅在吗
 
 [简体中文](README.zh-CN.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Roadmap](docs/ROADMAP.md)
 
-Yinjiao Bangbang is an open-source WeChat Mini Program reference implementation for connecting pre-service teachers and early-career educators with experienced mentors. It combines lesson-plan review, teaching-video analysis, anonymous questions, order workflows, and in-app messaging on WeChat Cloud Development.
+Shifu Zaima is an open-source WeChat Mini Program reference implementation for connecting pre-service teachers and early-career educators with experienced mentors. The Mini Program uses the Chinese product name “师傅在吗”; `yinjiao-bangbang` is retained as the repository's historical code identifier. It combines lesson-plan review, teaching-video analysis, anonymous questions, order workflows, and in-app messaging on WeChat Cloud Development.
 
 > **Project status:** public reference implementation / early beta. It is suitable for learning, evaluation, and further development, but it is not a hosted production service. Payment and wallet behavior is simulated. Mentor identity is not yet independently verified; production deployments must add an approval workflow and restrictive database rules.
+
+## Interface preview
+
+![Sanitized overview of the Shifu Zaima Mini Program](docs/images/interface-overview.png)
+
+The overview combines the home, lesson-plan review, teaching Q&A, and profile screens. Identifiers and wallet balances are masked; all prices and account information shown in the interface are demo data rather than evidence of real transactions or users.
 
 ## Why this project exists
 
@@ -109,6 +115,15 @@ Detailed setup and a production-hardening checklist are available in [docs/DEPLO
 - Do not use real student records, minors' data, classroom recordings, or credentials in a public test environment.
 
 Please read [SECURITY.md](SECURITY.md) before deploying or reporting a vulnerability.
+
+
+## Releases and distribution
+
+This repository contains a complete Mini Program application, not an npm library or a desktop/mobile installer. GitHub Releases are tagged, reviewable source snapshots; GitHub automatically provides ZIP and TAR.GZ source archives for each release.
+
+To run a release, download its source archive, import the project into WeChat Developer Tools, configure your own AppID and cloud environment, and deploy the Cloud Functions. Uploading a version to the WeChat platform through Developer Tools or `miniprogram-ci` is a separate deployment step and requires credentials that must remain private.
+
+The project does not publish `.wxapkg`, AppID secrets, upload keys, production cloud identifiers, or real user data. See the [v0.1.0 release notes](docs/releases/v0.1.0.md) for the first public-beta scope and verification instructions.
 
 ## Maintenance
 

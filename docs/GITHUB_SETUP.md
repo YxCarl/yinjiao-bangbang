@@ -65,6 +65,23 @@ Preserve authorship of any pre-existing local changes and inspect each staged di
 
 ## First release
 
-Publish `v0.1.0` only after manual testing in WeChat Developer Tools. The release notes should state that it is a reference implementation, list the 11 Cloud Functions, link the deployment guide, and repeat the mentor-verification, simulated-wallet, and video-privacy limitations.
+Publish `v0.1.0` as a pre-release after automated validation and, when an AppID is available, manual testing in WeChat Developer Tools. Use [docs/releases/v0.1.0.md](releases/v0.1.0.md) as the release body. The notes explicitly distinguish the GitHub source release from deployment to the WeChat platform.
+
+Recommended commands:
+
+```bash
+git tag -a v0.1.0 -m "v0.1.0 public beta"
+git push origin v0.1.0
+```
+
+Then create a GitHub Release for `v0.1.0`, set the title to:
+
+```text
+v0.1.0 – Public Beta / 首个开源预览版
+```
+
+Mark it as a pre-release. GitHub supplies the source ZIP and TAR.GZ automatically, so no manually assembled package or `.wxapkg` asset is needed.
+
+The public showcase image is `docs/images/interface-overview.png`. It masks the profile identifier and wallet balances. Replace it only with equally sanitized screenshots.
 
 Do not publish user counts, school pilots, adoption, or security claims that cannot be verified publicly.
