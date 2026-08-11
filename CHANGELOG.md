@@ -30,5 +30,5 @@ No unreleased changes yet.
 - Removed direct client writes for profiles, wallet balance, and order state.
 - Added bounded input handling for messages, profiles, video file IDs, and orders.
 
-[Unreleased]: https://github.com/YxCarl/miniprogram----/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/YxCarl/miniprogram----/releases/tag/v0.1.0
+[Unreleased]: https://github.com/YxCarl/yinjiao-bangbang/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/YxCarl/yinjiao-bangbang/releases/tag/v0.1.0

@@ -74,8 +74,8 @@ Client pages handle presentation and local interaction. Mutations involving prof
 ### 1. Clone and validate
 
 ```bash
-git clone https://github.com/YxCarl/miniprogram----.git
-cd miniprogram----
+git clone https://github.com/YxCarl/yinjiao-bangbang.git
+cd yinjiao-bangbang
 npm test
 ```
 

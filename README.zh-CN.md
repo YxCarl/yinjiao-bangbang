@@ -74,8 +74,8 @@ flowchart LR
 ### 1. 克隆并校验
 
 ```bash
-git clone https://github.com/YxCarl/miniprogram----.git
-cd miniprogram----
+git clone https://github.com/YxCarl/yinjiao-bangbang.git
+cd yinjiao-bangbang
 npm test
 ```
 
