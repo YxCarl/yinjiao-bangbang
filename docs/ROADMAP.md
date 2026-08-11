@@ -1,33 +1,72 @@
-# Public roadmap
+# Public roadmap / 公开路线图
 
-The roadmap communicates intent, not a delivery guarantee. Work should be linked to public issues once the repository changes are published.
+**Last updated / 最后更新：2026-08-11**
 
-## Current: open-source baseline
+This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
-- [x] Remove committed deployment identifiers.
-- [x] Add an explicit license and maintainer governance.
-- [x] Route protected mutations through Cloud Functions.
-- [x] Add conversation-membership checks.
-- [x] Add structural validation and CI.
-- [ ] Publish sanitized screenshots or a short demo video.
-- [ ] Create the first tagged pre-release.
+本路线图用于说明当前优先级，不承诺具体交付日期。计划项在实施前应关联公开 Issue；完成项应提供测试、文档或其他可复现证据。
 
-## Next: security and reproducibility
+## Shipped: v0.1.0 open-source baseline / 已发布：v0.1.0 开源基线
 
-- [ ] Add an independently approved mentor-verification state.
-- [ ] Publish tested database and storage rule examples.
-- [ ] Add unit tests with a mocked Cloud Database adapter.
-- [ ] Add rate limiting and abuse controls for messages and AI tasks.
-- [ ] Add file-size, duration, retention, and deletion policies.
-- [ ] Standardize every Cloud Function on one tested SDK version.
-- [ ] Add a model-provider interface and an optional OpenAI-compatible adapter.
+Evidence: [v0.1.0 public beta](https://github.com/YxCarl/yinjiao-bangbang/releases/tag/v0.1.0) and the repository's `Validate` workflow.
 
-## Later: community and evidence
+- [x] Remove committed AppID-like deployment identifiers and cloud-environment IDs.
+- [x] Add the MIT license, maintainer governance, contribution guide, code of conduct, and security policy.
+- [x] Route protected profile, order, conversation, and message mutations through Cloud Functions.
+- [x] Add order-access and conversation-membership authorization checks.
+- [x] Add structural tests, repository validation, and GitHub Actions.
+- [x] Publish bilingual project, architecture, deployment, and release documentation.
+- [x] Publish a sanitized interface overview with identifiers and wallet balances masked.
+- [x] Publish the first tagged source pre-release with automatic ZIP and TAR.GZ archives.
 
-- [ ] Run a documented, consent-based pilot with educators.
-- [ ] Publish anonymized usage and reliability metrics.
-- [ ] Improve accessibility and conduct a keyboard/screen-reader review where supported.
-- [ ] Add contributor-focused example data and development fixtures.
-- [ ] Establish a regular release and issue-triage cadence.
+## Now: v0.2.0 secure and reproducible deployment / 当前：安全且可复现的部署
 
-Ideas and evidence should be proposed through GitHub issues. Do not add unverifiable adoption claims to the README.
+Priority order / 优先顺序：
+
+1. [ ] Perform and document a full smoke test in WeChat Developer Tools using a maintainer-owned AppID and isolated test cloud environment.
+2. [ ] Publish deny-by-default database and storage rule examples with automated rule tests.
+3. [ ] Replace self-selected mentor access with an independently approved mentor-verification state and authorization checks.
+4. [ ] Introduce a mockable Cloud Database adapter and add unit tests for critical Cloud Functions.
+5. [ ] Add rate limiting, idempotency, and abuse controls for messages, orders, file uploads, and AI tasks.
+6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies.
+7. [ ] Standardize Cloud Functions on one supported, tested SDK version and document the upgrade process.
+
+### v0.2.0 definition of done / 完成标准
+
+- A new contributor can deploy a test instance by following only the public documentation and supplying their own private credentials.
+- Authorization and storage-rule tests run in CI and cover negative as well as successful paths.
+- Security-sensitive limitations and migration steps are reflected in `SECURITY.md`, deployment documentation, and release notes.
+- A tagged `v0.2.0` pre-release records test results and known limitations without exposing production data.
+
+## Next: v0.3.0 maintainer and contributor experience / 下一阶段：维护与贡献体验
+
+- [ ] Add deterministic development fixtures and reset instructions for all demo collections.
+- [ ] Add an optional `miniprogram-ci` preview workflow with protected GitHub secrets and no credentials in logs or artifacts.
+- [ ] Publish a short, sanitized walkthrough showing clone, configuration, deployment, and the four core user flows.
+- [ ] Add Cloud Function dependency auditing and a documented update cadence.
+- [ ] Add a provider interface for video analysis and an optional OpenAI-compatible adapter without changing the client pages.
+- [ ] Document an opt-in, human-reviewed Codex workflow for issue triage, test generation, pull-request review, and release-note drafting.
+- [ ] Label and maintain scoped `good first issue` tasks backed by contributor fixtures and acceptance criteria.
+
+### v0.3.0 definition of done / 完成标准
+
+- A pull request from a new contributor can be installed, tested, and reviewed without access to production services.
+- Maintainer automation is reproducible, requires human approval for repository changes, and never exposes secrets.
+- The demo walkthrough and contributor documentation match the tagged release.
+
+## Later: v1.0 pilot readiness and maintenance evidence / 后续：试点准备与维护证据
+
+- [ ] Run a documented, consent-based pilot only after the v0.2.0 security controls are complete.
+- [ ] Publish anonymized aggregate usage and reliability metrics with collection methodology and limitations.
+- [ ] Complete accessibility checks for supported Mini Program interactions and document remaining platform constraints.
+- [ ] Publish backup, restore, rollback, data-export, and account-deletion procedures.
+- [ ] Establish a sustainable release, dependency-update, issue-triage, and vulnerability-response cadence.
+- [ ] Define the stability and migration guarantees required to remove the pre-release label.
+
+## How progress is tracked / 如何跟踪进度
+
+- Propose features and security work through [GitHub Issues](https://github.com/YxCarl/yinjiao-bangbang/issues/new/choose).
+- Keep one primary roadmap item per Issue and link the implementing pull request.
+- Mark an item complete only after the implementation and its verification evidence are public.
+- Do not publish unverifiable user counts, school pilots, adoption, security, or performance claims.
+- Security vulnerabilities should follow [SECURITY.md](../SECURITY.md), not a public Issue.
