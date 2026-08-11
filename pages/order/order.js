@@ -83,11 +83,22 @@ Page({
     const order = this.data.orders.find(o => o._id === id)
     if (!order || !order.detail || !order.detail.fileID) return wx.showToast({ title: '文件不存在', icon: 'none' })
     wx.showLoading({ title: '下载中...' })
-    wx.cloud.downloadFile({
-      fileID: order.detail.fileID,
+    wx.cloud.getTempFileURL({
+      fileList: [order.detail.fileID],
       success: (res) => {
-        wx.hideLoading()
-        wx.openDocument({ filePath: res.tempFilePath, showMenu: true, success: () => {}, fail: () => {} })
+        if (res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
+          wx.downloadFile({
+            url: res.fileList[0].tempFileURL,
+            success: (dlRes) => {
+              wx.hideLoading()
+              wx.openDocument({ filePath: dlRes.tempFilePath, showMenu: true, success: () => {}, fail: () => {} })
+            },
+            fail: () => { wx.hideLoading(); wx.showToast({ title: '下载失败', icon: 'none' }) }
+          })
+        } else {
+          wx.hideLoading()
+          wx.showToast({ title: '文件不存在', icon: 'none' })
+        }
       },
       fail: () => { wx.hideLoading(); wx.showToast({ title: '下载失败', icon: 'none' }) }
     })

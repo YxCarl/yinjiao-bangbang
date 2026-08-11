@@ -8,7 +8,11 @@ exports.main = async (event, context) => {
   const { typeText, title, price, detail } = event
 
   const numPrice = parseFloat(price)
-  if (!numPrice || numPrice <= 0) return { code: -1, error: '金额无效' }
+  if (!numPrice || numPrice <= 0 || numPrice > 10000) return { code: -1, error: '金额无效' }
+
+  const safeType = typeof typeText === 'string' ? typeText.trim().slice(0, 20) : ''
+  const safeTitle = typeof title === 'string' ? title.trim().slice(0, 100) : ''
+  if (!safeType || !safeTitle) return { code: -1, error: '订单类型和标题不能为空' }
 
   try {
     const userResult = await db.collection('users').where({ _openid: openid, role: 'student' }).get()
@@ -37,8 +41,8 @@ exports.main = async (event, context) => {
     const orderResult = await db.collection('orders').add({
       data: {
         _openid: openid,
-        typeText: typeText,
-        title: title,
+        typeText: safeType,
+        title: safeTitle,
         price: numPrice,
         status: 0,
         studentId: user._id,

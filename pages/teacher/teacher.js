@@ -1,5 +1,3 @@
-const db = wx.cloud.database()
-
 Page({
   data: {
     currentTab: 0,
@@ -44,7 +42,7 @@ Page({
   loadOrders() {
     wx.cloud.callFunction({
       name: 'getOrders',
-      data: { scope: 'all', role: 'mentor' },
+      data: { scope: 'all' },
       success: (res) => {
         if (res.result && res.result.code === 0) {
           const list = res.result.data.map(item => {
@@ -90,19 +88,25 @@ Page({
       success: (res) => {
         if (!res.confirm) return
         wx.showLoading({ title: '接单中...' })
-        const profile = wx.getStorageSync('myProfile') || {}
-        const teacherName = profile.name || '导师'
-        const teacherAvatar = profile.avatar || (teacherName[0] || '师')
-        const teacherId = wx.getStorageSync('userId') || ''
-        db.collection('orders').doc(id).update({
-          data: { status: 1, teacher: teacherName, teacherId: teacherId, teacherAvatar: teacherAvatar },
-          success: () => {
+        if (String(id).startsWith('fb')) {
+          wx.hideLoading()
+          this._localGrab(id, '演示导师')
+          return
+        }
+        wx.cloud.callFunction({
+          name: 'grabOrder',
+          data: { orderId: id },
+          success: (cloudRes) => {
             wx.hideLoading()
-            this._localGrab(id, teacherName)
+            if (cloudRes.result && cloudRes.result.code === 0) {
+              this._localGrab(id, cloudRes.result.data.teacher)
+            } else {
+              wx.showToast({ title: (cloudRes.result && cloudRes.result.error) || '接单失败', icon: 'none' })
+            }
           },
           fail: () => {
             wx.hideLoading()
-            this._localGrab(id, teacherName)
+            wx.showToast({ title: '接单失败，请重试', icon: 'none' })
           }
         })
       }

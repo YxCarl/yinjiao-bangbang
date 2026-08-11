@@ -1,5 +1,4 @@
 const recorderManager = wx.getRecorderManager()
-const db = wx.cloud.database()
 
 Page({
   data: {
@@ -56,7 +55,7 @@ Page({
   loadMessages() {
     wx.cloud.callFunction({
       name: 'getMessages',
-      data: { conversationId: this.data.conversationId, role: 'mentor' },
+      data: { conversationId: this.data.conversationId },
       success: (res) => {
         if (res.result && res.result.code === 0 && res.result.data.length > 0) {
           this.setData({ replies: res.result.data.map(m => ({
@@ -83,10 +82,16 @@ Page({
     wx.showToast({ title: '已发送', icon: 'success' })
   },
 
-  _sendToCloud(kind, content) {
+  _sendToCloud(kind, content, fileID, dur) {
     wx.cloud.callFunction({
       name: 'sendMessage',
-      data: { conversationId: this.data.conversationId, kind: kind, content: content, role: 'mentor' },
+      data: {
+        conversationId: this.data.conversationId,
+        kind: kind,
+        content: content,
+        fileID: fileID || '',
+        dur: dur || 0
+      },
       success: () => {}, fail: () => {}
     })
   },
@@ -115,7 +120,7 @@ Page({
         const msgs = this.data.replies.slice()
         msgs.forEach(m => { if (m.text === preview && !m.fileID) m.fileID = res.fileID })
         this.setData({ replies: msgs })
-        this._sendToCloud('voice', preview)
+        this._sendToCloud('voice', preview, res.fileID, dur)
       },
       fail: () => {
         wx.hideLoading()
@@ -146,11 +151,24 @@ Page({
       confirmColor: '#2D5683',
       success: (res) => {
         if (res.confirm) {
-          db.collection('orders').doc(this.data.orderId).update({
-            data: { status: 2 }, success: () => {}, fail: () => {}
+          wx.showLoading({ title: '提交中...' })
+          wx.cloud.callFunction({
+            name: 'completeOrder',
+            data: { orderId: this.data.orderId },
+            success: (cloudRes) => {
+              wx.hideLoading()
+              if (cloudRes.result && cloudRes.result.code === 0) {
+                this.setData({ showRating: true })
+                wx.showToast({ title: '已标记完成', icon: 'success' })
+              } else {
+                wx.showToast({ title: (cloudRes.result && cloudRes.result.error) || '提交失败', icon: 'none' })
+              }
+            },
+            fail: () => {
+              wx.hideLoading()
+              wx.showToast({ title: '提交失败，请稍后重试', icon: 'none' })
+            }
           })
-          this.setData({ showRating: true })
-          wx.showToast({ title: '已标记完成', icon: 'success' })
         }
       }
     })
@@ -165,18 +183,29 @@ Page({
   downloadFile() {
     if (!this.data.fileID) return wx.showToast({ title: '无附件', icon: 'none' })
     wx.showLoading({ title: '下载中...' })
-    wx.cloud.downloadFile({
-      fileID: this.data.fileID,
+    wx.cloud.getTempFileURL({
+      fileList: [this.data.fileID],
       success: (res) => {
-        wx.hideLoading()
-        wx.openDocument({
-          filePath: res.tempFilePath,
-          showMenu: true,
-          success: () => {},
-          fail: () => { wx.showToast({ title: '请在聊天中打开', icon: 'none' }) }
-        })
+        if (res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
+          wx.downloadFile({
+            url: res.fileList[0].tempFileURL,
+            success: (dlRes) => {
+              wx.hideLoading()
+              wx.openDocument({
+                filePath: dlRes.tempFilePath,
+                showMenu: true,
+                success: () => {},
+                fail: () => { wx.showToast({ title: '请在聊天中打开', icon: 'none' }) }
+              })
+            },
+            fail: (err) => { wx.hideLoading(); wx.showToast({ title: '下载失败: ' + (err.errMsg || ''), icon: 'none' }) }
+          })
+        } else {
+          wx.hideLoading()
+          wx.showToast({ title: '文件链接获取失败', icon: 'none' })
+        }
       },
-      fail: () => { wx.hideLoading(); wx.showToast({ title: '下载失败', icon: 'none' }) }
+      fail: (err) => { wx.hideLoading(); wx.showToast({ title: '文件访问失败: ' + (err.errMsg || ''), icon: 'none' }) }
     })
   },
 
@@ -189,7 +218,7 @@ Page({
       if (!this.data.conversationId) return
       wx.cloud.callFunction({
         name: 'getMessages',
-        data: { conversationId: this.data.conversationId, role: 'mentor' },
+        data: { conversationId: this.data.conversationId },
         success: (res) => {
           if (res.result && res.result.code === 0 && res.result.data) {
             const newMsgs = res.result.data.filter(m => {

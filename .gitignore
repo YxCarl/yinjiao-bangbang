@@ -1,2 +1,20 @@
 .claude/
+.DS_Store
+Thumbs.db
+*.log
+
+# Local WeChat Developer Tools configuration
 project.private.config.json
+
+# Dependencies and generated artifacts
+node_modules/
+miniprogram_npm/
+coverage/
+
+# Local credentials and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/

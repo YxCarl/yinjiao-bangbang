@@ -1,8 +1,8 @@
 {
-  "name": "login-or-fetch",
+  "name": "grab-order",
   "version": "0.1.0",
   "private": true,
-  "description": "Create or fetch a role-specific user profile.",
+  "description": "Claim an order and create authorized conversation memberships.",
   "main": "index.js",
   "license": "MIT",
   "dependencies": { "wx-server-sdk": "~3.0.4" }

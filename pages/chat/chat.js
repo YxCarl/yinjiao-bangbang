@@ -51,7 +51,7 @@ Page({
           const msgs = this.data.messages.slice()
           msgs.forEach(m => { if (m.text === preview && !m.fileID) m.fileID = uploadRes.fileID })
           this.setData({ messages: msgs })
-          this._sendToCloud('voice', preview)
+          this._sendToCloud('voice', preview, uploadRes.fileID, dur)
         },
         fail: () => { wx.showToast({ title: '语音上传失败，消息已保留', icon: 'none' }) }
       })
@@ -82,7 +82,7 @@ Page({
     if (!this.data.conversationId) return
     wx.cloud.callFunction({
       name: 'getMessages',
-      data: { conversationId: this.data.conversationId, role: this.data.userRole },
+      data: { conversationId: this.data.conversationId },
       success: (res) => {
         if (res.result && res.result.code === 0 && res.result.data.length > 0) {
           this.setData({ messages: res.result.data.map(m => ({
@@ -109,11 +109,17 @@ Page({
     this._sendToCloud('text', text)
   },
 
-  _sendToCloud(kind, content) {
+  _sendToCloud(kind, content, fileID, dur) {
     if (!this.data.conversationId) return
     wx.cloud.callFunction({
       name: 'sendMessage',
-      data: { conversationId: this.data.conversationId, kind: kind, content: content, role: this.data.userRole },
+      data: {
+        conversationId: this.data.conversationId,
+        kind: kind,
+        content: content,
+        fileID: fileID || '',
+        dur: dur || 0
+      },
       success: () => {}, fail: () => {}
     })
   },
@@ -161,7 +167,7 @@ Page({
       if (!this.data.conversationId) return
       wx.cloud.callFunction({
         name: 'getMessages',
-        data: { conversationId: this.data.conversationId, role: this.data.userRole },
+        data: { conversationId: this.data.conversationId },
         success: (res) => {
           if (res.result && res.result.code === 0 && res.result.data) {
             const currentIds = this.data.messages.map(m => m.id)

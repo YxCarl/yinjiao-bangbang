@@ -1,5 +1,3 @@
-const db = wx.cloud.database()
-
 Page({
   data: {
     userId: '',
@@ -58,26 +56,41 @@ Page({
       newProfile.years = this.data.years
     }
 
-    wx.setStorageSync('myProfile', newProfile)
-    wx.hideLoading()
-    wx.showToast({ title: '档案已更新', icon: 'success' })
-
     const userId = this.data.userId
-    if (userId && !userId.startsWith('local_')) {
-      db.collection('users').doc(userId).update({
-        data: {
-          name: newProfile.name,
-          tag: newProfile.tag,
-          avatar: newProfile.avatar,
-          title: newProfile.title || '',
-          subject: newProfile.subject || '',
-          years: newProfile.years || ''
-        },
-        success: () => {},
-        fail: () => {}
-      })
+    const finish = (profile) => {
+      wx.setStorageSync('myProfile', profile)
+      wx.hideLoading()
+      wx.showToast({ title: '档案已更新', icon: 'success' })
+      setTimeout(() => { wx.navigateBack() }, 800)
     }
 
-    setTimeout(() => { wx.navigateBack() }, 800)
+    if (!userId || userId.startsWith('local_')) {
+      finish(newProfile)
+      return
+    }
+
+    wx.cloud.callFunction({
+      name: 'updateProfile',
+      data: {
+        role: this.data.role,
+        name: newProfile.name,
+        tag: newProfile.tag,
+        title: newProfile.title || '',
+        subject: newProfile.subject || '',
+        years: newProfile.years || ''
+      },
+      success: (res) => {
+        if (res.result && res.result.code === 0) {
+          finish(res.result.data)
+        } else {
+          wx.hideLoading()
+          wx.showToast({ title: (res.result && res.result.error) || '保存失败', icon: 'none' })
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.showToast({ title: '保存失败，请稍后重试', icon: 'none' })
+      }
+    })
   }
 })

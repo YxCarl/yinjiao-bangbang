@@ -1,8 +1,8 @@
 {
-  "name": "get-messages",
+  "name": "update-profile",
   "version": "0.1.0",
   "private": true,
-  "description": "Read messages after conversation membership authorization.",
+  "description": "Update the authenticated user's public profile fields.",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {

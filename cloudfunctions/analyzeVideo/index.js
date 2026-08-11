@@ -1,4 +1,7 @@
 const cloud = require('wx-server-sdk')
+const https = require('https')
+const urlModule = require('url')
+
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
@@ -20,14 +23,12 @@ exports.main = async (event, context) => {
   }
 
   try {
-    let API_KEY = ''
-    try {
-      const cfg = await db.collection('config').where({ key: 'ZHIPU_API_KEY' }).get()
-      if (cfg.data.length > 0) API_KEY = cfg.data[0].value
-    } catch (e) {
-      return { code: -1, error: 'API配置读取失败' }
-    }
+    const API_KEY = process.env.ZHIPU_API_KEY || ''
     if (!API_KEY) return { code: -1, error: 'AI服务未配置' }
+
+    if (!fileID || typeof fileID !== 'string' || !fileID.startsWith('cloud://')) {
+      return { code: -1, error: '视频文件参数无效' }
+    }
 
     let videoUrl = ''
     try {
@@ -48,7 +49,7 @@ exports.main = async (event, context) => {
       }
     })
 
-    analyzeAsync(taskDoc._id, videoUrl, API_KEY)
+    analyzeAsync(taskDoc._id, videoUrl, API_KEY).catch(e => console.error(e))
 
     return { code: 0, data: { status: 'processing', taskId: taskDoc._id } }
   } catch (e) {
@@ -59,9 +60,6 @@ exports.main = async (event, context) => {
 
 async function analyzeAsync(taskId, videoUrl, API_KEY) {
   try {
-    const https = require('https')
-    const urlModule = require('url')
-
     const requestBody = JSON.stringify({
       model: 'glm-4v-plus',
       messages: [{

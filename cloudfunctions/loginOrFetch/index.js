@@ -5,11 +5,11 @@ const db = cloud.database()
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
-  const { role } = event
+  const role = (event.role === 'mentor') ? 'mentor' : 'student'
 
   try {
     const existResult = await db.collection('users')
-      .where({ _openid: openid, role: role || 'student' })
+      .where({ _openid: openid, role: role })
       .get()
 
     if (existResult.data.length > 0) {
@@ -18,7 +18,7 @@ exports.main = async (event, context) => {
 
     const baseProfile = {
       _openid: openid,
-      role: role || 'student',
+      role: role,
       createTime: db.serverDate()
     }
 
@@ -33,7 +33,8 @@ exports.main = async (event, context) => {
         years: '0',
         rating: '5.0',
         balance: '0.00',
-        orderCount: 0
+        orderCount: 0,
+        verificationStatus: 'unverified'
       })
     } else {
       newProfile = Object.assign({}, baseProfile, {

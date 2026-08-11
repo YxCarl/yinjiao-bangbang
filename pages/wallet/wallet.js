@@ -1,5 +1,3 @@
-const db = wx.cloud.database()
-
 Page({
   data: {
     balance: '0.00',
@@ -40,17 +38,7 @@ Page({
     wx.setStorageSync('myProfile', profile)
     this.setData({ balance: newBalance.toFixed(2) })
 
-    // 同步云端
-    const userId = wx.getStorageSync('userId')
-    if (userId && !userId.startsWith('local_')) {
-      db.collection('users').doc(userId).update({
-        data: { balance: newBalance },
-        success: () => {},
-        fail: () => {}
-      })
-    }
-
     wx.hideLoading()
-    wx.showToast({ title: '成功充值 ' + option.price + ' 元', icon: 'success' })
+    wx.showToast({ title: '演示余额已更新', icon: 'none' })
   }
 })
