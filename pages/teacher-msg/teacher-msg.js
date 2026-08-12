@@ -29,6 +29,14 @@ Page({
   ],
 
   onShow() {
+    const profile = wx.getStorageSync('myProfile') || {}
+    if (!(profile.role === 'mentor' && profile.mentorStatus === 'approved')) {
+      wx.showToast({ title: '导师身份尚未通过审核', icon: 'none' })
+      setTimeout(() => {
+        wx.redirectTo({ url: '/pages/teacher-cert/teacher-cert' })
+      }, 600)
+      return
+    }
     this._render()
     this._tryCloudSync()
   },

@@ -1,29 +1,51 @@
 <view class="page-container">
-
   <view class="cert-header">
     <view class="text-badge badge-accent ch-badge">师</view>
-    <text class="ch-title">名师认证</text>
-    <text class="ch-sub">资深教师资质核验</text>
+    <text class="ch-title">导师身份申请</text>
+    <text class="ch-sub">申请与授权相互独立</text>
   </view>
 
-  <view class="cert-list">
-    <view class="biz-card cert-item" wx:for="{{items}}" wx:key="id">
-      <view class="ci-left">
-        <view class="text-badge ci-icon {{item.status === 'done' ? 'badge-success' : 'badge-muted'}}">{{item.icon}}</view>
-        <view class="ci-info">
-          <text class="ci-label">{{item.label}}</text>
-          <text class="ci-desc">{{item.desc}}</text>
-          <text class="ci-date">{{item.date}}</text>
-        </view>
-      </view>
-      <view class="ci-status">
-        <view class="cis-dot {{item.status === 'done' ? 'dot-ok' : 'dot-wait'}}"></view>
-        <text class="cis-text {{item.status === 'done' ? '' : 'pending'}}">{{item.status === 'done' ? '已通过' : '待补充'}}</text>
-      </view>
+  <view class="status-card status-{{mentorStatus}}">
+    <text class="status-label">{{statusLabel}}</text>
+    <text class="status-description">{{statusDescription}}</text>
+  </view>
+
+  <view class="application-card" wx:if="{{!approved}}">
+    <text class="section-title">基本资历</text>
+
+    <view class="field">
+      <text class="field-label">姓名</text>
+      <input class="field-input" value="{{name}}" maxlength="30" placeholder="用于审核的真实姓名" data-field="name" bindinput="onFieldInput" disabled="{{!canSubmit}}" />
     </view>
+
+    <view class="field">
+      <text class="field-label">擅长学科</text>
+      <input class="field-input" value="{{subject}}" maxlength="40" placeholder="例如：初中语文" data-field="subject" bindinput="onFieldInput" disabled="{{!canSubmit}}" />
+    </view>
+
+    <view class="field">
+      <text class="field-label">教龄（年）</text>
+      <input class="field-input" value="{{years}}" maxlength="2" type="number" placeholder="0-60" data-field="years" bindinput="onFieldInput" disabled="{{!canSubmit}}" />
+    </view>
+
+    <view class="field field-summary">
+      <text class="field-label">资历说明</text>
+      <textarea class="field-textarea" value="{{summary}}" maxlength="500" placeholder="请说明任教学段、职称或可核验的教学经历（至少 10 个字）" data-field="summary" bindinput="onFieldInput" disabled="{{!canSubmit}}"></textarea>
+      <text class="field-count">{{summary.length}}/500</text>
+    </view>
+
+    <button class="submit-button" bindtap="submitApplication" loading="{{submitting}}" disabled="{{!canSubmit || submitting}}">
+      {{mentorStatus === 'rejected' ? '补充后重新提交' : (mentorStatus === 'pending' ? '等待审核' : '提交导师申请')}}
+    </button>
+  </view>
+
+  <view class="approved-card" wx:if="{{approved}}">
+    <text class="approved-title">导师权限已由服务端确认</text>
+    <button class="submit-button" bindtap="openWorkspace">进入导师工作台</button>
   </view>
 
   <view class="cert-footer">
-    <text class="cf-tip">认证材料审核通过即获得"名师认证"标识，享更高曝光权重</text>
+    <text class="cf-tip">小程序客户端不能批准导师身份。审核人员需在可信管理环境核验资料，并同时写入 approved 状态与 mentor 角色。</text>
+    <text class="student-link" bindtap="useStudentMode">先以学员身份使用</text>
   </view>
 </view>

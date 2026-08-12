@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-08-11**
+**Last updated / 最后更新：2026-08-12**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -25,7 +25,7 @@ Priority order / 优先顺序：
 
 1. [ ] Perform and document a full smoke test in WeChat Developer Tools using a maintainer-owned AppID and isolated test cloud environment.
 2. [ ] Publish deny-by-default database and storage rule examples with automated rule tests ([Issue #2](https://github.com/YxCarl/yinjiao-bangbang/issues/2), implementation in progress).
-3. [ ] Replace self-selected mentor access with an independently approved mentor-verification state and authorization checks.
+3. [ ] Replace self-selected mentor access with an independently approved mentor-verification state and authorization checks ([Issue #4](https://github.com/YxCarl/yinjiao-bangbang/issues/4), implementation in progress).
 4. [ ] Introduce a mockable Cloud Database adapter and add unit tests for critical Cloud Functions.
 5. [ ] Add rate limiting, idempotency, and abuse controls for messages, orders, file uploads, and AI tasks.
 6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies.

@@ -29,7 +29,7 @@ exports.main = async (event) => {
 
   try {
     const mentorResult = await db.collection('users')
-      .where({ _openid: openid, role: 'mentor' })
+      .where({ _openid: openid, role: 'mentor', mentorStatus: 'approved' })
       .limit(1)
       .get()
 
@@ -65,11 +65,13 @@ exports.main = async (event) => {
     const conversationId = 'order_' + orderId
     await Promise.all([
       ensureConversation(order._openid, conversationId, {
+        participantRole: 'student',
         peerName: mentor.name || '导师',
         peerTheme: 'badge-primary',
         orderTitle: order.title || ''
       }),
       ensureConversation(openid, conversationId, {
+        participantRole: 'mentor',
         peerName: order.student || '学员',
         peerTheme: 'badge-accent',
         orderTitle: order.title || ''

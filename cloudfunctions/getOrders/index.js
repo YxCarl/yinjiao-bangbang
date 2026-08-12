@@ -12,7 +12,7 @@ exports.main = async (event, context) => {
 
     if (scope === 'all') {
       const userRes = await db.collection('users')
-        .where({ _openid: openid, role: 'mentor' })
+        .where({ _openid: openid, role: 'mentor', mentorStatus: 'approved' })
         .limit(1)
         .get()
 

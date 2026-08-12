@@ -13,14 +13,22 @@ async function getLegacyOrderAccess(openid, conversationId) {
     const order = orderResult.data
     if (!order) return null
     if (order._openid === openid) {
-      return { peerName: order.teacher || '导师', orderTitle: order.title || '' }
+      return {
+        participantRole: 'student',
+        peerName: order.teacher || '导师',
+        orderTitle: order.title || ''
+      }
     }
 
     const mentors = await db.collection('users')
-      .where({ _openid: openid, role: 'mentor' })
+      .where({ _openid: openid, role: 'mentor', mentorStatus: 'approved' })
       .get()
     if (mentors.data.some(mentor => mentor._id === order.teacherId)) {
-      return { peerName: order.student || '学员', orderTitle: order.title || '' }
+      return {
+        participantRole: 'mentor',
+        peerName: order.student || '学员',
+        orderTitle: order.title || ''
+      }
     }
     return null
   } catch (_) {
@@ -41,16 +49,26 @@ exports.main = async (event, context) => {
       .limit(1)
       .get()
 
-    if (myConv.data.length === 0) {
-      const legacyAccess = await getLegacyOrderAccess(openid, conversationId)
-      if (!legacyAccess) return { code: -3, error: '无权访问此会话' }
+    const orderAccess = conversationId.startsWith('order_')
+      ? await getLegacyOrderAccess(openid, conversationId)
+      : null
+
+    if (conversationId.startsWith('order_') && !orderAccess) {
+      return { code: -3, error: '无权访问此会话' }
+    }
+    if (!conversationId.startsWith('order_') && myConv.data.length === 0) {
+      return { code: -3, error: '无权访问此会话' }
+    }
+
+    if (myConv.data.length === 0 && orderAccess) {
 
       const created = await db.collection('conversations').add({
         data: {
           _openid: openid,
           conversationId: conversationId,
-          peerName: legacyAccess.peerName,
-          orderTitle: legacyAccess.orderTitle,
+          participantRole: orderAccess.participantRole,
+          peerName: orderAccess.peerName,
+          orderTitle: orderAccess.orderTitle,
           lastMsg: '',
           lastTime: db.serverDate(),
           unread: 0

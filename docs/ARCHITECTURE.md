@@ -40,7 +40,7 @@ The configured video-analysis provider is an external processor. A temporary vid
 
 | Collection | Purpose | Sensitive fields or concerns |
 | --- | --- | --- |
-| `users` | Student and mentor profiles | `OPENID`, profile attributes, role, balance demo |
+| `users` | Student profiles, mentor applications, and approved mentor profiles | `OPENID`, profile attributes, role, approval state, balance demo |
 | `orders` | Guidance requests and assignments | Student/mentor identity, descriptions, attachment IDs |
 | `messages` | Per-conversation messages | Message content, voice-file IDs, sender `OPENID` |
 | `conversations` | Membership and message previews | Participant `OPENID`, unread count |
@@ -53,8 +53,10 @@ The configured video-analysis provider is an external processor. A temporary vid
 
 1. A student calls `addOrder`.
 2. The function resolves the caller, validates the request, and creates the order.
-3. A mentor calls `grabOrder`.
-4. The function verifies a mentor profile, updates the order, and creates one conversation-membership record for each participant.
+3. An applicant submits through `submitMentorApplication`, which records `pending` while retaining student permissions.
+4. A trusted operator independently verifies the application and records both `role: mentor` and `mentorStatus: approved` outside the client.
+5. An approved mentor calls `grabOrder`.
+6. The function verifies both approval fields, updates the order, and creates one conversation-membership record for each participant.
 
 Only the assigned mentor can later mark the order complete through `completeOrder`.
 
@@ -62,7 +64,8 @@ Only the assigned mentor can later mark the order complete through `completeOrde
 
 1. A participant supplies a conversation ID to `sendMessage` or `getMessages`.
 2. The function verifies a membership document matching the caller's `OPENID`.
-3. Only then does it read or append messages.
+3. For order conversations, an assigned mentor's approval is rechecked so revocation takes effect even when a membership document already exists.
+4. Only then does it read or append messages.
 
 ### Open a protected file
 

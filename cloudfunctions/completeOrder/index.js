@@ -10,7 +10,7 @@ exports.main = async (event) => {
 
   try {
     const mentorResult = await db.collection('users')
-      .where({ _openid: openid, role: 'mentor' })
+      .where({ _openid: openid, role: 'mentor', mentorStatus: 'approved' })
       .limit(1)
       .get()
 

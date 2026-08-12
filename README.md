@@ -4,7 +4,7 @@
 
 Shifu Zaima is an open-source WeChat Mini Program reference implementation for connecting pre-service teachers and early-career educators with experienced mentors. The Mini Program uses the Chinese product name “师傅在吗”; `yinjiao-bangbang` is retained as the repository's historical code identifier. It combines lesson-plan review, teaching-video analysis, anonymous questions, order workflows, and in-app messaging on WeChat Cloud Development.
 
-> **Project status:** public reference implementation / early beta. It is suitable for learning, evaluation, and further development, but it is not a hosted production service. Payment and wallet behavior is simulated. Mentor identity is not yet independently verified; production deployments must add an approval workflow and restrictive database rules.
+> **Project status:** public reference implementation / early beta. It is suitable for learning, evaluation, and further development, but it is not a hosted production service. Payment and wallet behavior is simulated. Mentor access uses an explicit approval state and server-side checks; production deployments must still provide a lawful identity-verification and audited reviewer process.
 
 ## Interface preview
 
@@ -30,7 +30,7 @@ Teaching experience is often shared through informal, closed channels. This proj
 | Teaching Q&A | Submit teaching questions and browse educational content |
 | Mentor workspace | Browse, claim, reply to, and complete guidance orders |
 | Messaging | Per-order text and voice conversations with membership checks |
-| Profiles | Separate student and mentor profiles |
+| Profiles | Student profiles plus independently approved mentor access |
 | Offline preview | Local fallback data for interface exploration |
 
 The current video-analysis adapter calls Zhipu GLM-4V. It is isolated in `cloudfunctions/analyzeVideo` so that additional model providers can be added without changing the Mini Program pages.
@@ -111,7 +111,7 @@ Detailed setup and a production-hardening checklist are available in [docs/DEPLO
 ## Security and privacy notes
 
 - A temporary URL for an uploaded teaching video is sent to the configured external model provider when analysis is enabled. Obtain informed consent and define a retention policy before processing real classroom recordings.
-- The demo login lets a user select a mentor role. A production deployment must verify mentor identity and authorization independently.
+- Selecting the mentor entry point creates no mentor privilege. Applications remain on student permissions until a trusted operator records explicit approval; see [Mentor approval](docs/MENTOR_APPROVAL.md).
 - Database and storage rules are deployment-specific and are not safely inferred by this repository. Start with deny-by-default rules and allow only the minimum access required.
 - The wallet is a UI demonstration and does not implement payments, settlement, or financial accounting.
 - Do not use real student records, minors' data, classroom recordings, or credentials in a public test environment.

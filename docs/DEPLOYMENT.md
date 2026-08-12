@@ -40,6 +40,7 @@ Deploy every directory below `cloudfunctions/`:
 - `grabOrder`
 - `loginOrFetch`
 - `sendMessage`
+- `submitMentorApplication`
 - `updateProfile`
 
 Use cloud-side dependency installation. Keep the SDK versions declared by each function until an upgrade is tested in a separate pull request.
@@ -66,7 +67,10 @@ npm test
 
 Then verify in WeChat Developer Tools:
 
-- both roles can enter their intended pages;
+- a client-selected mentor request creates only a student profile;
+- a pending mentor application cannot enter the mentor workspace or list mentor orders;
+- only a trusted console approval that sets both `role: mentor` and `mentorStatus: approved` grants mentor access;
+- revoking approval immediately blocks mentor order, conversation, and protected-file access;
 - unauthorized users cannot list mentor orders;
 - only order participants can read and send messages;
 - profile updates cannot change role or balance;
@@ -78,9 +82,11 @@ Then verify in WeChat Developer Tools:
 - arbitrary cloud file IDs do not receive a temporary URL;
 - logs do not contain credentials, full message bodies, or personal data.
 
+Follow [Mentor approval](MENTOR_APPROVAL.md) for the application states, trusted review operation, legacy-record migration, and two-account negative tests.
+
 ## Production-hardening checklist
 
-- [ ] Implement independent mentor verification and approval.
+- [ ] Replace the reference manual approval operation with a production-reviewed identity-verification and reviewer-audit process.
 - [ ] Replace simulated wallet behavior with no payment feature, or complete a separate regulated payment design.
 - [ ] Add rate limits and abuse monitoring.
 - [ ] Add content moderation and reporting flows.
