@@ -1,3 +1,5 @@
+const protectedFile = require('../../utils/protected-file')
+
 Page({
   data: {
     doc: null,
@@ -29,20 +31,18 @@ Page({
       return
     }
     wx.showLoading({ title: '下载中...' })
-    wx.cloud.downloadFile({
-      fileID: doc.fileID,
-      success: (res) => {
+    protectedFile.download('content', doc._id)
+      .then((result) => {
         wx.hideLoading()
         wx.openDocument({
-          filePath: res.tempFilePath,
+          filePath: result.tempFilePath,
           success: () => {},
           fail: () => { wx.showToast({ title: '请在小程序外打开', icon: 'none' }) }
         })
-      },
-      fail: () => {
+      })
+      .catch(() => {
         wx.hideLoading()
         wx.showToast({ title: '下载失败', icon: 'none' })
-      }
-    })
+      })
   }
 })

@@ -15,17 +15,17 @@ Do not commit your private tool configuration, credentials, or production identi
 
 Create `users`, `orders`, `messages`, `conversations`, `contents`, and `aiTasks`.
 
-Recommended baseline:
+Apply the deny-client-access rule from `security/database-rules.json` to every collection. The Mini Program uses Cloud Functions for database access, so ordinary client SDK requests should have neither read nor write access.
 
-- deny public writes to all collections;
-- permit protected writes only through Cloud Functions;
-- restrict `users`, `orders`, `messages`, `conversations`, and `aiTasks` by authenticated ownership or server-side authorization;
-- review indexes required by compound queries in the Cloud console;
-- keep `contents` read-only for ordinary users.
+Review the indexes required by compound queries in the Cloud console. The rules are configured per collection; do not assume that creating the JSON file deploys them automatically.
 
-Rules differ by deployment and must be tested against both authorized and unauthorized cases.
+## 3. Configure storage protection
 
-## 3. Deploy functions
+Deploy the updated client and `getProtectedFileURL` before applying `security/storage-rules.json`. The storage rule permits direct access only to the file creator. Cross-user access to order attachments and voice messages is issued by the Cloud Function only after order or conversation authorization.
+
+Follow [CloudBase security rules](SECURITY_RULES.md) for the safe rollout order and the required positive and negative tests.
+
+## 4. Deploy functions
 
 Deploy every directory below `cloudfunctions/`:
 
@@ -36,6 +36,7 @@ Deploy every directory below `cloudfunctions/`:
 - `getConversations`
 - `getMessages`
 - `getOrders`
+- `getProtectedFileURL`
 - `grabOrder`
 - `loginOrFetch`
 - `sendMessage`
@@ -43,7 +44,7 @@ Deploy every directory below `cloudfunctions/`:
 
 Use cloud-side dependency installation. Keep the SDK versions declared by each function until an upgrade is tested in a separate pull request.
 
-## 4. Configure video analysis
+## 5. Configure video analysis
 
 Set `ZHIPU_API_KEY` as an environment variable on `analyzeVideo`. Leave it unset to disable the feature safely.
 
@@ -55,7 +56,7 @@ Before enabling analysis for real recordings:
 - provide deletion and access-request procedures;
 - avoid recording unrelated students or sensitive classroom information.
 
-## 5. Validate
+## 6. Validate
 
 Run locally:
 
@@ -71,6 +72,10 @@ Then verify in WeChat Developer Tools:
 - profile updates cannot change role or balance;
 - only the assigned mentor can complete an order;
 - video tasks cannot be read by another user;
+- direct database reads and writes are rejected by every collection;
+- the assigned mentor can open a student attachment but an unrelated mentor cannot;
+- conversation members can play each other's voice messages but a non-member cannot;
+- arbitrary cloud file IDs do not receive a temporary URL;
 - logs do not contain credentials, full message bodies, or personal data.
 
 ## Production-hardening checklist

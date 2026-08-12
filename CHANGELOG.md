@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Updated the public roadmap after `v0.1.0` with versioned priorities and explicit completion criteria.
 - Added a GitHub Social Preview asset with sanitized interface data.
 - Removed the duplicate custom security-report link in favor of GitHub private vulnerability reporting.
+- Added deny-client-access database rules and owner-only Cloud Storage rules.
+- Routed order attachments, content documents, and voice downloads through an authorization Cloud Function.
+- Added automated negative authorization and rule-configuration tests.
+- Documented the security-rule rollout and isolated-environment verification matrix.
 
 ## [0.1.0] - 2026-08-11
 

@@ -1,0 +1,26 @@
+{
+  "users": {
+    "read": false,
+    "write": false
+  },
+  "orders": {
+    "read": false,
+    "write": false
+  },
+  "messages": {
+    "read": false,
+    "write": false
+  },
+  "conversations": {
+    "read": false,
+    "write": false
+  },
+  "contents": {
+    "read": false,
+    "write": false
+  },
+  "aiTasks": {
+    "read": false,
+    "write": false
+  }
+}

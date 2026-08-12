@@ -55,8 +55,10 @@ flowchart LR
 ├── pages/                  # 小程序页面
 ├── cloudfunctions/         # 服务端鉴权与业务操作
 ├── docs/                   # 架构、部署和路线图
+├── security/               # 数据库与云存储安全规则示例
 ├── scripts/                # 仓库校验脚本
 ├── tests/                  # 结构测试
+├── utils/                  # 小程序客户端共享工具
 ├── app.js                  # 小程序入口
 ├── app.json                # 页面和全局界面配置
 ├── project.config.json     # 通用开发者工具配置
@@ -98,7 +100,7 @@ npm test
 
 上传并部署 `cloudfunctions/` 下的全部目录，并在开发者工具提示时安装云端依赖。
 
-如需启用视频分析，请把 `ZHIPU_API_KEY` 配置为 `analyzeVideo` 云函数的服务端环境变量。不要把模型密钥写入客户端代码、公共数据库、截图、Issue 或 Git 提交。
+请先部署 `getProtectedFileURL`，再按照[安全规则文档](docs/SECURITY_RULES.md)的安全顺序和负向测试矩阵应用数据库及云存储规则。如需启用视频分析，请把 `ZHIPU_API_KEY` 配置为 `analyzeVideo` 云函数的服务端环境变量。不要把模型密钥写入客户端代码、公共数据库、截图、Issue 或 Git 提交。
 
 ### 4. 导入示例内容
 

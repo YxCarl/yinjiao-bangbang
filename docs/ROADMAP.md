@@ -24,7 +24,7 @@ Evidence: [v0.1.0 public beta](https://github.com/YxCarl/yinjiao-bangbang/releas
 Priority order / 优先顺序：
 
 1. [ ] Perform and document a full smoke test in WeChat Developer Tools using a maintainer-owned AppID and isolated test cloud environment.
-2. [ ] Publish deny-by-default database and storage rule examples with automated rule tests.
+2. [ ] Publish deny-by-default database and storage rule examples with automated rule tests ([Issue #2](https://github.com/YxCarl/yinjiao-bangbang/issues/2), implementation in progress).
 3. [ ] Replace self-selected mentor access with an independently approved mentor-verification state and authorization checks.
 4. [ ] Introduce a mockable Cloud Database adapter and add unit tests for critical Cloud Functions.
 5. [ ] Add rate limiting, idempotency, and abuse controls for messages, orders, file uploads, and AI tasks.

@@ -1,4 +1,5 @@
 const recorderManager = wx.getRecorderManager()
+const protectedFile = require('../../utils/protected-file')
 
 Page({
   data: {
@@ -132,16 +133,14 @@ Page({
   playVoice(e) {
     const fileID = e.currentTarget.dataset.fileid
     if (!fileID) return wx.showToast({ title: '语音文件不存在', icon: 'none' })
-    wx.cloud.downloadFile({
-      fileID: fileID,
-      success: (res) => {
+    protectedFile.download('message', this.data.conversationId, fileID)
+      .then((result) => {
         const audio = wx.createInnerAudioContext()
-        audio.src = res.tempFilePath; audio.play()
+        audio.src = result.tempFilePath; audio.play()
         audio.onEnded(() => { audio.destroy() })
         audio.onError(() => { audio.destroy() })
-      },
-      fail: () => { wx.showToast({ title: '加载语音失败', icon: 'none' }) }
-    })
+      })
+      .catch(() => { wx.showToast({ title: '加载语音失败', icon: 'none' }) })
   },
 
   finishOrder() {
@@ -183,30 +182,20 @@ Page({
   downloadFile() {
     if (!this.data.fileID) return wx.showToast({ title: '无附件', icon: 'none' })
     wx.showLoading({ title: '下载中...' })
-    wx.cloud.getTempFileURL({
-      fileList: [this.data.fileID],
-      success: (res) => {
-        if (res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
-          wx.downloadFile({
-            url: res.fileList[0].tempFileURL,
-            success: (dlRes) => {
-              wx.hideLoading()
-              wx.openDocument({
-                filePath: dlRes.tempFilePath,
-                showMenu: true,
-                success: () => {},
-                fail: () => { wx.showToast({ title: '请在聊天中打开', icon: 'none' }) }
-              })
-            },
-            fail: (err) => { wx.hideLoading(); wx.showToast({ title: '下载失败: ' + (err.errMsg || ''), icon: 'none' }) }
-          })
-        } else {
-          wx.hideLoading()
-          wx.showToast({ title: '文件链接获取失败', icon: 'none' })
-        }
-      },
-      fail: (err) => { wx.hideLoading(); wx.showToast({ title: '文件访问失败: ' + (err.errMsg || ''), icon: 'none' }) }
-    })
+    protectedFile.download('order', this.data.orderId)
+      .then((result) => {
+        wx.hideLoading()
+        wx.openDocument({
+          filePath: result.tempFilePath,
+          showMenu: true,
+          success: () => {},
+          fail: () => { wx.showToast({ title: '请在聊天中打开', icon: 'none' }) }
+        })
+      })
+      .catch(() => {
+        wx.hideLoading()
+        wx.showToast({ title: '文件访问失败', icon: 'none' })
+      })
   },
 
   goBack() { wx.navigateBack() },

@@ -55,8 +55,10 @@ Client pages handle presentation and local interaction. Mutations involving prof
 ├── pages/                  # Mini Program pages
 ├── cloudfunctions/         # Authenticated server-side operations
 ├── docs/                   # Architecture, deployment, and roadmap
+├── security/               # Database and storage security-rule examples
 ├── scripts/                # Repository validation
 ├── tests/                  # Structural tests
+├── utils/                  # Shared Mini Program client utilities
 ├── app.js                  # Application entry point
 ├── app.json                # Pages and global UI configuration
 ├── project.config.json     # Generic WeChat DevTools configuration
@@ -98,7 +100,7 @@ Do not grant public write access. Client pages should call Cloud Functions for p
 
 Upload and deploy every directory under `cloudfunctions/`. Install cloud dependencies when prompted by WeChat Developer Tools.
 
-To enable video analysis, configure `ZHIPU_API_KEY` as a server-side environment variable for the `analyzeVideo` Cloud Function. Never store provider keys in client code, public database collections, screenshots, issues, or commits.
+Apply the database and storage rules only after deploying `getProtectedFileURL`; follow the safe rollout and negative-test matrix in [Security rules](docs/SECURITY_RULES.md). To enable video analysis, configure `ZHIPU_API_KEY` as a server-side environment variable for the `analyzeVideo` Cloud Function. Never store provider keys in client code, public database collections, screenshots, issues, or commits.
 
 ### 4. Load optional sample content
 

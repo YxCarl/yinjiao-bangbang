@@ -1,4 +1,5 @@
 const recorderManager = wx.getRecorderManager()
+const protectedFile = require('../../utils/protected-file')
 
 Page({
   data: {
@@ -148,16 +149,14 @@ Page({
   playVoice(e) {
     const fileID = e.currentTarget.dataset.fileid
     if (!fileID) return
-    wx.cloud.downloadFile({
-      fileID: fileID,
-      success: (res) => {
+    protectedFile.download('message', this.data.conversationId, fileID)
+      .then((result) => {
         const audio = wx.createInnerAudioContext()
-        audio.src = res.tempFilePath; audio.play()
+        audio.src = result.tempFilePath; audio.play()
         audio.onEnded(() => { audio.destroy() })
         audio.onError(() => { audio.destroy() })
-      },
-      fail: () => { wx.showToast({ title: '播放失败', icon: 'none' }) }
-    })
+      })
+      .catch(() => { wx.showToast({ title: '播放失败', icon: 'none' }) })
   },
 
   _pollTimer: null,

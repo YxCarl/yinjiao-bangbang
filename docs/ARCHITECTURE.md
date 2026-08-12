@@ -32,7 +32,7 @@ flowchart TB
 
 The Mini Program client is untrusted. A caller can modify request payloads, local storage, role fields, document IDs, and page parameters. Cloud Functions therefore derive the caller's `OPENID` from `cloud.getWXContext()` and must authorize every protected record access.
 
-Database and storage rules form a second boundary. Production deployments should deny direct writes from the client and expose narrowly scoped mutations through Cloud Functions.
+Database and storage rules form a second boundary. The published baseline denies all direct client database access and permits direct storage access only to the file creator. Cross-user downloads go through `getProtectedFileURL`, which verifies the referenced order, conversation, message, or content record before issuing a temporary URL. See [Security rules](SECURITY_RULES.md).
 
 The configured video-analysis provider is an external processor. A temporary video URL and task instructions cross that boundary. Deployment owners must obtain consent, document the provider, and define retention and deletion behavior.
 
@@ -63,6 +63,13 @@ Only the assigned mentor can later mark the order complete through `completeOrde
 1. A participant supplies a conversation ID to `sendMessage` or `getMessages`.
 2. The function verifies a membership document matching the caller's `OPENID`.
 3. Only then does it read or append messages.
+
+### Open a protected file
+
+1. The client supplies a record reference, not a trusted access decision.
+2. `getProtectedFileURL` resolves the stored file ID from an order or content record, or verifies that a supplied voice file ID belongs to the authorized conversation.
+3. Order attachments require the student owner or assigned mentor; voice messages require conversation membership.
+4. The function returns a temporary URL only after authorization. The storage bucket remains non-public.
 
 ### Analyze a video
 
