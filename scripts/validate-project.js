@@ -36,6 +36,7 @@ const requiredFiles = [
   'docs/ARCHITECTURE.md',
   'docs/DEPLOYMENT.md',
   'docs/ROADMAP.md',
+  'docs/MENTOR_APPROVAL.md',
   'docs/SECURITY_RULES.md',
   'security/database-rules.json',
   'security/storage-rules.json',

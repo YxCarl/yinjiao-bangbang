@@ -14,7 +14,7 @@ async function canAccessLegacyOrder(openid, conversationId) {
     if (order._openid === openid) return true
 
     const mentors = await db.collection('users')
-      .where({ _openid: openid, role: 'mentor' })
+      .where({ _openid: openid, role: 'mentor', mentorStatus: 'approved' })
       .get()
     return mentors.data.some(mentor => mentor._id === order.teacherId)
   } catch (_) {
@@ -35,7 +35,11 @@ exports.main = async (event, context) => {
       .limit(1)
       .get()
 
-    if (membership.data.length === 0 && !(await canAccessLegacyOrder(openid, conversationId))) {
+    const hasAccess = conversationId.startsWith('order_')
+      ? await canAccessLegacyOrder(openid, conversationId)
+      : membership.data.length > 0
+
+    if (!hasAccess) {
       return { code: -3, error: '无权访问此会话' }
     }
 

@@ -18,21 +18,44 @@
 .ch-title { font-size: 36rpx; font-weight: 700; margin-bottom: 6rpx; }
 .ch-sub { font-size: 24rpx; color: rgba(255,255,255,0.55); }
 
-.cert-list { padding: 24rpx 32rpx; display: flex; flex-direction: column; gap: 16rpx; }
-.cert-item { padding: 28rpx; display: flex; align-items: center; justify-content: space-between; }
-.ci-left { display: flex; align-items: center; flex: 1; min-width: 0; }
-.ci-icon { width: 68rpx; height: 68rpx; border-radius: 16rpx; font-size: 24rpx; margin-right: 20rpx; flex-shrink: 0; }
-.ci-info { display: flex; flex-direction: column; min-width: 0; }
-.ci-label { font-size: 30rpx; font-weight: 600; color: var(--text-1); margin-bottom: 6rpx; }
-.ci-desc { font-size: 24rpx; color: var(--text-2); margin-bottom: 4rpx; }
-.ci-date { font-size: 22rpx; color: var(--text-4); }
+.status-card,
+.application-card,
+.approved-card {
+  margin: 24rpx 32rpx 0;
+  padding: 28rpx;
+  border-radius: 20rpx;
+  background: #FFF;
+  box-shadow: 0 8rpx 28rpx rgba(31, 61, 92, 0.06);
+}
 
-.ci-status { display: flex; align-items: center; flex-shrink: 0; margin-left: 16rpx; }
-.cis-dot { width: 14rpx; height: 14rpx; border-radius: 50%; margin-right: 10rpx; }
-.dot-ok { background: var(--success); }
-.dot-wait { background: var(--warning); }
-.cis-text { font-size: 24rpx; color: var(--success); }
-.cis-text.pending { color: var(--warning); }
+.status-card { border-left: 8rpx solid #8A92A6; }
+.status-pending { border-left-color: #C8924E; background: #FFF9F0; }
+.status-approved { border-left-color: #2EAD6B; background: #F2FBF6; }
+.status-rejected { border-left-color: #D14040; background: #FFF5F5; }
+.status-label { display: block; color: var(--text-1); font-size: 30rpx; font-weight: 700; }
+.status-description { display: block; margin-top: 10rpx; color: var(--text-3); font-size: 24rpx; line-height: 1.6; }
 
-.cert-footer { padding: 0 32rpx; display: flex; justify-content: center; }
-.cf-tip { font-size: 24rpx; color: var(--text-4); text-align: center; line-height: 1.6; }
+.section-title { display: block; margin-bottom: 16rpx; color: var(--text-1); font-size: 30rpx; font-weight: 700; }
+.field { padding: 20rpx 0; border-bottom: 1rpx solid #EEF0F4; }
+.field-summary { border-bottom: 0; }
+.field-label { display: block; margin-bottom: 12rpx; color: var(--text-2); font-size: 25rpx; }
+.field-input,
+.field-textarea { width: 100%; color: var(--text-1); font-size: 28rpx; box-sizing: border-box; }
+.field-textarea { height: 190rpx; line-height: 1.55; }
+.field-count { display: block; color: var(--text-4); font-size: 22rpx; text-align: right; }
+
+.submit-button {
+  margin-top: 24rpx;
+  border: 0;
+  border-radius: 14rpx;
+  background: #2D5683;
+  color: #FFF;
+  font-size: 28rpx;
+}
+.submit-button::after { border: 0; }
+.submit-button[disabled] { background: #B8C0CC; color: #FFF; }
+
+.approved-title { display: block; color: #287B50; font-size: 28rpx; font-weight: 600; text-align: center; }
+.cert-footer { padding: 28rpx 42rpx 0; display: flex; flex-direction: column; align-items: center; }
+.cf-tip { font-size: 23rpx; color: var(--text-4); text-align: center; line-height: 1.6; }
+.student-link { margin-top: 24rpx; color: #2D5683; font-size: 25rpx; }

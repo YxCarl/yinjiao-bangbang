@@ -38,11 +38,12 @@
         <view class="check-dot {{role === 'mentor' ? 'check-on' : ''}}"></view>
       </view>
     </view>
+    <text class="role-notice" wx:if="{{role === 'mentor'}}">导师身份需提交资历信息，并由可信管理员独立审核；选择此入口不会直接获得导师权限。</text>
   </view>
 
   <view class="login-actions">
     <view class="btn-biz {{role === 'mentor' ? 'btn-accent' : 'btn-primary'}}" bindtap="doLogin">
-      微信一键安全登录
+      {{role === 'mentor' ? '登录并查看导师申请' : '微信一键安全登录'}}
     </view>
     <view class="btn-biz btn-ghost mt-24" bindtap="goBack">暂不登录，先去逛逛</view>
   </view>

@@ -11,7 +11,7 @@ const db = cloud.database()
 
 async function getMentorProfiles(openid) {
   const result = await db.collection('users')
-    .where({ _openid: openid, role: 'mentor' })
+    .where({ _openid: openid, role: 'mentor', mentorStatus: 'approved' })
     .limit(5)
     .get()
   return result.data
@@ -46,7 +46,10 @@ async function resolveMessageFile(openid, conversationId, fileID) {
     .get()
 
   const isMember = hasConversationMembership(openid, membershipResult.data)
-  if (!isMember && !(await canAccessLegacyOrder(openid, conversationId))) return ''
+  const hasAccess = conversationId.startsWith('order_')
+    ? await canAccessLegacyOrder(openid, conversationId)
+    : isMember
+  if (!hasAccess) return ''
 
   const messageResult = await db.collection('messages')
     .where({ conversationId: conversationId, fileID: fileID, kind: 'voice' })

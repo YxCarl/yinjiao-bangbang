@@ -13,25 +13,39 @@ Page({
   },
 
   onShow() {
-    const role = wx.getStorageSync('userRole')
     wx.cloud.callFunction({
       name: 'loginOrFetch',
-      data: { role: role || 'mentor' },
+      data: { role: 'mentor' },
       success: (res) => {
-        if (res.result && res.result.code === 0) {
-          wx.setStorageSync('myProfile', res.result.data)
-          wx.setStorageSync('userId', res.result.data._id)
+        const profile = res.result && res.result.code === 0 ? res.result.data : null
+        if (!(profile && profile.role === 'mentor' && profile.mentorStatus === 'approved')) {
+          this._redirectToApplication()
+          return
         }
+        wx.setStorageSync('myProfile', profile)
+        wx.setStorageSync('userId', profile._id)
+        wx.setStorageSync('userRole', 'mentor')
         this._applyProfile()
+        this.loadOrders()
       },
-      fail: () => { this._applyProfile() }
+      fail: () => {
+        wx.showToast({ title: '暂时无法验证导师身份', icon: 'none' })
+        setTimeout(() => { wx.redirectTo({ url: '/pages/login/login' }) }, 600)
+      }
     })
-    this.loadOrders()
+  },
+
+  _redirectToApplication() {
+    wx.setStorageSync('userRole', 'student')
+    wx.showToast({ title: '导师身份尚未通过审核', icon: 'none' })
+    setTimeout(() => {
+      wx.redirectTo({ url: '/pages/teacher-cert/teacher-cert' })
+    }, 600)
   },
 
   _applyProfile() {
     const profile = wx.getStorageSync('myProfile')
-    if (profile && profile.role === 'mentor') {
+    if (profile && profile.role === 'mentor' && profile.mentorStatus === 'approved') {
       this.setData({
         teacherName: profile.name || '银龄导师',
         teacherTitle: (profile.title || '资深教师') + (profile.subject ? ' · ' + profile.subject : '')

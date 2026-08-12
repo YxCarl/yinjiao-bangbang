@@ -74,6 +74,17 @@
   margin-top: 80rpx;
 }
 
+.role-notice {
+  display: block;
+  margin-top: 18rpx;
+  padding: 18rpx 22rpx;
+  border-radius: 14rpx;
+  background: rgba(200, 146, 78, 0.1);
+  color: #8A622F;
+  font-size: 23rpx;
+  line-height: 1.55;
+}
+
 .role-title {
   font-size: 28rpx;
   color: #4A5570;

@@ -21,6 +21,7 @@ Please do not access data that is not yours, disrupt a deployment, or retain sen
 ## Security boundaries
 
 - Cloud Functions trust `OPENID` from the WeChat runtime, not identity fields supplied by pages.
+- Mentor-sensitive functions require both `role: mentor` and `mentorStatus: approved`; the public application flow cannot write approval.
 - Conversation reads and writes require a matching membership document.
 - Protected profile and order mutations are server-side operations.
 - Model-provider keys belong in Cloud Function environment variables.
@@ -28,7 +29,7 @@ Please do not access data that is not yours, disrupt a deployment, or retain sen
 
 ## Known limitations
 
-- Mentor roles are self-selected in the current demonstration flow. Production operators must add identity verification and an approval state before granting access to student requests.
+- The reference approval step is a manual trusted-operator operation. Production deployments still need a reviewed identity-verification channel, reviewer authorization, privacy controls, and auditable decisions.
 - The wallet is simulated and must not be connected to real payments.
 - Uploaded videos may be shared with the configured external model provider through temporary URLs. Consent, retention, deletion, and vendor terms must be handled by the deployer.
 - Rate limiting, abuse prevention, content moderation, audit logging, and automated deletion are not yet complete.

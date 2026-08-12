@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Routed order attachments, content documents, and voice downloads through an authorization Cloud Function.
 - Added automated negative authorization and rule-configuration tests.
 - Documented the security-rule rollout and isolated-environment verification matrix.
+- Replaced client-selected mentor privileges with a pending application flow and explicit server-side approval checks.
+- Revalidated approved-mentor status for order, conversation, and protected-file operations.
+- Documented mentor approval states, trusted review, legacy migration, and isolated-environment verification.
 
 ## [0.1.0] - 2026-08-11
 
