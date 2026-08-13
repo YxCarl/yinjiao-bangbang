@@ -108,6 +108,12 @@ Import `seed-contents.json` into the `contents` collection if you want the examp
 
 Detailed setup and a production-hardening checklist are available in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
+## Reproducible validation
+
+`npm test` runs repository validation, authorization-policy checks, and behavior-level tests for selected mentor order Cloud Functions. The behavior suite executes the same dependency-injected handlers exported by the deployed entry points, with a deterministic in-memory database adapter and no private cloud credentials.
+
+These tests establish local business and authorization behavior; they do not claim that CloudBase SDK queries, environment permissions, or deployed security rules have run. The evidence levels and isolated-environment matrix are documented in [Testing and evidence](docs/TESTING.md).
+
 ## Security and privacy notes
 
 - A temporary URL for an uploaded teaching video is sent to the configured external model provider when analysis is enabled. Obtain informed consent and define a retention policy before processing real classroom recordings.

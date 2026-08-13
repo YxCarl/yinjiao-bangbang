@@ -24,6 +24,8 @@ Thank you for helping improve Yinjiao Bangbang. Contributions to documentation, 
 6. Manually exercise affected pages in WeChat Developer Tools.
 7. Open a pull request using the repository template.
 
+See [Testing and evidence](docs/TESTING.md) when adding Cloud Function coverage. Keep business decisions in dependency-injected handlers, use purpose-specific adapters, and preserve separate isolated-environment checks for platform behavior.
+
 ## Pull-request expectations
 
 A useful pull request explains:

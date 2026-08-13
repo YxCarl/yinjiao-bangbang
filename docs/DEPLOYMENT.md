@@ -65,6 +65,8 @@ Run locally:
 npm test
 ```
 
+The local suite includes repository checks and behavior-level tests for selected deployed handlers using deterministic in-memory adapters. It requires no AppID or cloud credential. Read [Testing and evidence](TESTING.md) before interpreting the result: local tests do not validate SDK queries or deployed security rules.
+
 Then verify in WeChat Developer Tools:
 
 - a client-selected mentor request creates only a student profile;
