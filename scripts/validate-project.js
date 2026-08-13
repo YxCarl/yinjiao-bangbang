@@ -3,22 +3,23 @@ const fs = require('node:fs')
 const path = require('node:path')
 
 const root = path.resolve(__dirname, '..')
-const ignoredDirectories = new Set(['.git', 'node_modules', 'miniprogram_npm', 'coverage'])
 const errors = []
 
 function relative(file) {
   return path.relative(root, file).split(path.sep).join('/')
 }
 
-function walk(directory) {
-  const files = []
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue
-    const target = path.join(directory, entry.name)
-    if (entry.isDirectory()) files.push(...walk(target))
-    else files.push(target)
-  }
-  return files
+function repositoryFiles() {
+  const output = execFileSync(
+    'git',
+    ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+    { cwd: root, encoding: 'utf8' }
+  )
+  return output
+    .split('\0')
+    .filter(Boolean)
+    .map(file => path.join(root, file))
+    .filter(file => fs.existsSync(file) && fs.statSync(file).isFile())
 }
 
 function requireFile(file) {
@@ -45,7 +46,10 @@ const requiredFiles = [
 ]
 requiredFiles.forEach(requireFile)
 
-const files = walk(root)
+// Validate repository inputs, including untracked files that would be added by
+// Git, while excluding intentionally private or generated files from
+// .gitignore (for example project.private.config.json).
+const files = repositoryFiles()
 for (const file of files.filter(file => file.endsWith('.json'))) {
   try {
     JSON.parse(fs.readFileSync(file, 'utf8'))
@@ -90,7 +94,14 @@ if (projectConfig.appid !== 'touristappid') {
 }
 
 const cloudRoot = path.join(root, 'cloudfunctions')
-for (const entry of fs.readdirSync(cloudRoot, { withFileTypes: true }).filter(entry => entry.isDirectory())) {
+const cloudFunctions = fs.readdirSync(cloudRoot, { withFileTypes: true })
+  .filter(entry => entry.isDirectory())
+  // WeChat Developer Tools may materialize empty directories for functions
+  // that exist only in the selected remote environment. They cannot be
+  // committed and must not be treated as repository source directories.
+  .filter(entry => fs.readdirSync(path.join(cloudRoot, entry.name)).length > 0)
+
+for (const entry of cloudFunctions) {
   const functionRoot = path.join(cloudRoot, entry.name)
   for (const file of ['index.js', 'package.json', 'config.json']) {
     if (!fs.existsSync(path.join(functionRoot, file))) {
@@ -119,5 +130,5 @@ if (errors.length > 0) {
 }
 
 const pageCount = JSON.parse(fs.readFileSync(path.join(root, 'app.json'), 'utf8')).pages.length
-const functionCount = fs.readdirSync(cloudRoot, { withFileTypes: true }).filter(entry => entry.isDirectory()).length
+const functionCount = cloudFunctions.length
 console.log(`Validation passed: ${pageCount} pages, ${functionCount} Cloud Functions, ${files.length} files checked.`)
