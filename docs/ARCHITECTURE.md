@@ -38,7 +38,7 @@ The configured video-analysis provider is an external processor. A temporary vid
 
 ## Test boundary
 
-Critical mentor order functions separate their deployed entry point, Cloud Database adapter, and dependency-injected handler. The entry point obtains the trusted WeChat identity and wires the real SDK adapter. Behavior tests execute that same handler with a deterministic in-memory adapter, so authorization and state transitions can be tested without copying the business logic or requiring private cloud credentials.
+Critical mentor-order and messaging functions separate their deployed entry point, Cloud Database adapter, and dependency-injected handler. The entry point obtains the trusted WeChat identity and wires the real SDK adapter. Behavior tests execute that same handler with a deterministic in-memory adapter, so authorization and state transitions can be tested without copying the business logic or requiring private cloud credentials.
 
 This seam does not emulate CloudBase. SDK query behavior, indexes, environment permissions, identity context, and security rules still require the isolated deployment matrix. See [Testing and evidence](TESTING.md).
 
@@ -69,9 +69,10 @@ Only the assigned mentor can later mark the order complete through `completeOrde
 ### Exchange messages
 
 1. A participant supplies a conversation ID to `sendMessage` or `getMessages`.
-2. The function verifies a membership document matching the caller's `OPENID`.
-3. For order conversations, an assigned mentor's approval is rechecked so revocation takes effect even when a membership document already exists.
-4. Only then does it read or append messages.
+2. Non-order conversations require a membership document matching the caller's `OPENID`.
+3. Order conversations recheck the order owner or the assigned mentor's current approval; a stale or forged membership document never grants access.
+4. Message previews and unread counters are updated only for the currently authorized order participants.
+5. Only then does the function list, read, or append messages.
 
 ### Open a protected file
 

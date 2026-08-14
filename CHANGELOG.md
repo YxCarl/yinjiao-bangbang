@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Documented mentor approval states, trusted review, legacy migration, and isolated-environment verification.
 - Added dependency-injected handlers and Cloud Database adapters for mentor order listing, claiming, and completion.
 - Added deterministic behavior tests for approval, ownership, idempotency, and atomic state conflicts.
+- Added dependency-injected handlers and Cloud Database adapters for conversation listing, message reading, and message sending.
+- Tightened order-conversation authorization so stale, revoked, forged, or unassigned memberships cannot expose message previews or content.
 - Documented explicit evidence levels so local CI results are not presented as CloudBase deployment verification.
 
 ## [0.1.0] - 2026-08-11

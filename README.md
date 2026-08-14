@@ -110,7 +110,7 @@ Detailed setup and a production-hardening checklist are available in [docs/DEPLO
 
 ## Reproducible validation
 
-`npm test` runs repository validation, authorization-policy checks, and behavior-level tests for selected mentor order Cloud Functions. The behavior suite executes the same dependency-injected handlers exported by the deployed entry points, with a deterministic in-memory database adapter and no private cloud credentials.
+`npm test` runs repository validation, authorization-policy checks, and behavior-level tests for selected mentor-order and messaging Cloud Functions. The behavior suite executes the same dependency-injected handlers exported by the deployed entry points, with deterministic in-memory database adapters and no private cloud credentials.
 
 These tests establish local business and authorization behavior; they do not claim that CloudBase SDK queries, environment permissions, or deployed security rules have run. The evidence levels and isolated-environment matrix are documented in [Testing and evidence](docs/TESTING.md).
 

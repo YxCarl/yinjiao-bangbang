@@ -60,9 +60,9 @@ cloud-database-adapter.js   translates handler operations into Cloud Database ca
 handler.js                  contains authorization and business decisions
 ```
 
-Tests import `handler.js`, which is the same function factory used by `index.js`, and inject `tests/in-memory-order-database.js`. They do not copy the business rules into a test-only implementation.
+Tests import `handler.js`, which is the same function factory used by `index.js`, and inject the deterministic order or messaging in-memory adapter under `tests/`. They do not copy the business rules into a test-only implementation.
 
-测试直接导入 `index.js` 实际使用的 `handler.js` 工厂，并注入 `tests/in-memory-order-database.js`；业务规则不会在测试目录中复制一份。
+测试直接导入 `index.js` 实际使用的 `handler.js` 工厂，并注入 `tests/` 下确定性的订单或消息内存适配器；业务规则不会在测试目录中复制一份。
 
 Currently covered behavior:
 
@@ -74,6 +74,10 @@ Currently covered behavior:
 - a competing mentor cannot take an assigned order;
 - only the assigned approved mentor can complete an active order;
 - an atomic completion conflict cannot report a false success.
+- order-message content is visible only to the student owner or assigned approved mentor;
+- stale, revoked, unassigned, and forged order memberships are excluded from conversation lists;
+- unauthorized memberships cannot receive new order-message previews or unread-count updates;
+- text and voice messages are normalized only after authorization, and read actions update only the caller's membership.
 
 ## Adding coverage / 增加覆盖
 
