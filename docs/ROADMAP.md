@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-08-13**
+**Last updated / 最后更新：2026-08-14**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -20,6 +20,10 @@ Evidence: [v0.1.0 public beta](https://github.com/YxCarl/yinjiao-bangbang/releas
 - [x] Publish the first tagged source pre-release with automatic ZIP and TAR.GZ archives.
 
 ## Now: v0.2.0 secure and reproducible deployment / 当前：安全且可复现的部署
+
+Deployment checkpoint: on 2026-08-14, four additive Cloud Functions were deployed and queried as `Active` after an off-repository backup of the 14 pre-existing functions. This is recorded in [Testing and evidence](TESTING.md), but it does not complete the fresh-environment smoke test or its cross-account authorization matrix.
+
+部署检查点：2026-08-14，在对 14 个既有云函数完成仓库外备份后，4 个新增云函数已部署并查询为 `Active`。证据记录在[测试与证据](TESTING.md)中，但这并不等于已经完成全新环境烟雾测试或跨账号授权矩阵。
 
 Priority order / 优先顺序：
 

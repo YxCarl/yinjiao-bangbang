@@ -12,6 +12,22 @@ This project separates evidence into three levels. A passing lower level is usef
 | Handler behavior | Node.js tests with deterministic in-memory adapters | The same handlers exported by selected Cloud Functions enforce approval, ownership, atomic state checks, and expected success/error outcomes | WeChat identity injection, SDK query semantics, deployed indexes, permissions, or security rules |
 | Isolated deployment | Manual matrix in a fresh CloudBase environment | Real Developer Tools, Cloud Functions, database, storage, identity context, rules, and cross-account flows work together | Behavior in a different environment or future commit |
 
+## Maintainer deployment checkpoint / 维护者部署检查点
+
+On 2026-08-14, a maintainer used an authenticated WeChat Developer Tools session to:
+
+- query the selected CloudBase environment and its 14 pre-existing Cloud Functions;
+- download an off-repository backup of those functions and verify the source and configuration checksums;
+- deploy the four additive functions `updateProfile`, `submitMentorApplication`, `completeOrder`, and `getProtectedFileURL` with cloud-side dependency installation;
+- query all four deployed functions as `Active` and confirm that the environment then contained 18 functions;
+- leave the nine pre-existing same-name functions unchanged and retain five environment-specific legacy functions.
+
+2026-08-14，维护者通过已登录的微信开发者工具会话完成了环境与云函数清单查询、14 个既有云函数的仓库外备份，以及 4 个新增云函数的部署。部署后查询显示 4 个新增函数均为 `Active`，环境内共有 18 个函数；9 个同名既有函数未被覆盖，5 个环境专用历史函数也未删除。
+
+This checkpoint establishes successful backup, additive deployment, and post-deployment status queries. It does **not** establish successful business calls, Cloud Database compatibility, security-rule enforcement, cross-account authorization, or a reproducible fresh-environment deployment. Those claims remain pending the isolated deployment matrix.
+
+该检查点只证明备份、新增部署和部署后状态查询成功，并不证明业务调用、云数据库兼容性、安全规则、跨账号授权或全新环境复现已经通过；这些结论仍需完成隔离环境测试矩阵后才能给出。
+
 The original development environment and historical runtime experience provide project history, but public deployment evidence should be repeatable from the repository without private infrastructure. The isolated-deployment level therefore remains a separate recorded step.
 
 原开发环境和历史运行经历构成项目历史，但公开部署证据应当能够只依赖仓库重新复现，而不依赖私有历史基础设施。因此，隔离环境部署验证仍需单独执行和记录。
