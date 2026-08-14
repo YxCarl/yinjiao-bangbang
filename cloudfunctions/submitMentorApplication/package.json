@@ -5,5 +5,5 @@
   "description": "Submit a mentor application without granting mentor privileges.",
   "main": "index.js",
   "license": "MIT",
-  "dependencies": { "wx-server-sdk": "~3.0.4" }
+  "dependencies": { "wx-server-sdk": "3.0.4" }
 }

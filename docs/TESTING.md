@@ -66,6 +66,7 @@ Tests import `handler.js`, which is the same function factory used by `index.js`
 
 Currently covered behavior:
 
+- every Cloud Function pins the repository-wide `wx-server-sdk` baseline;
 - a student or pending mentor cannot list the demand hall;
 - students see only their own orders;
 - only an explicitly approved mentor can claim an open order;

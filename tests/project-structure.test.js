@@ -16,7 +16,7 @@ test('every configured page has the four Mini Program source files', () => {
   }
 })
 
-test('every Cloud Function has code, configuration, and a private MIT package', () => {
+test('every Cloud Function has code, configuration, and the pinned SDK', () => {
   const cloudRoot = path.join(root, 'cloudfunctions')
   const functions = fs.readdirSync(cloudRoot, { withFileTypes: true })
     .filter(entry => entry.isDirectory())
@@ -34,6 +34,11 @@ test('every Cloud Function has code, configuration, and a private MIT package', 
     const packageJson = JSON.parse(fs.readFileSync(path.join(functionRoot, 'package.json'), 'utf8'))
     assert.equal(packageJson.private, true, `${entry.name} must be private`)
     assert.equal(packageJson.license, 'MIT', `${entry.name} must use MIT`)
+    assert.equal(
+      packageJson.dependencies['wx-server-sdk'],
+      '3.0.4',
+      `${entry.name} must use the repository SDK baseline`
+    )
   }
 })
 

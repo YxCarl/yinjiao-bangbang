@@ -4,6 +4,7 @@ const path = require('node:path')
 
 const root = path.resolve(__dirname, '..')
 const errors = []
+const CLOUD_FUNCTION_SDK_VERSION = '3.0.4'
 
 function relative(file) {
   return path.relative(root, file).split(path.sep).join('/')
@@ -40,6 +41,7 @@ const requiredFiles = [
   'docs/MENTOR_APPROVAL.md',
   'docs/TESTING.md',
   'docs/SECURITY_RULES.md',
+  'docs/DEPENDENCIES.md',
   'security/database-rules.json',
   'security/storage-rules.json',
   '.github/workflows/validate.yml'
@@ -114,6 +116,12 @@ for (const entry of cloudFunctions) {
     const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'))
     if (packageJson.license !== 'MIT') errors.push(`Cloud Function ${entry.name} must declare the MIT license`)
     if (packageJson.private !== true) errors.push(`Cloud Function ${entry.name} must be marked private`)
+    const sdkVersion = packageJson.dependencies && packageJson.dependencies['wx-server-sdk']
+    if (sdkVersion !== CLOUD_FUNCTION_SDK_VERSION) {
+      errors.push(
+        `Cloud Function ${entry.name} must pin wx-server-sdk ${CLOUD_FUNCTION_SDK_VERSION}; found ${sdkVersion || 'missing'}`
+      )
+    }
   }
 }
 

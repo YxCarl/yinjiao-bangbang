@@ -47,6 +47,8 @@ Deploy the updated Mini Program pages and `addOrder` together. The updated funct
 
 Use cloud-side dependency installation. Keep the SDK versions declared by each function until an upgrade is tested in a separate pull request.
 
+All committed functions pin the same SDK baseline. Follow the review, isolated deployment, evidence, and rollback procedure in [Dependency policy](DEPENDENCIES.md) before changing it.
+
 ## 5. Configure video analysis
 
 Set `ZHIPU_API_KEY` as an environment variable on `analyzeVideo`. Leave it unset to disable the feature safely. `ZHIPU_VIDEO_MODEL` is optional and defaults to `glm-4v-plus`.
