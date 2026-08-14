@@ -38,7 +38,7 @@ The configured video-analysis provider is an external processor. A temporary vid
 
 ## Test boundary
 
-Critical mentor-order and messaging functions separate their deployed entry point, Cloud Database adapter, and dependency-injected handler. The entry point obtains the trusted WeChat identity and wires the real SDK adapter. Behavior tests execute that same handler with a deterministic in-memory adapter, so authorization and state transitions can be tested without copying the business logic or requiring private cloud credentials.
+Critical order and messaging functions separate their deployed entry point, Cloud Database adapter, and dependency-injected handler. The entry point obtains the trusted WeChat identity and wires the real SDK adapter. Behavior tests execute that same handler with a deterministic in-memory adapter, so authorization and state transitions can be tested without copying the business logic or requiring private cloud credentials.
 
 This seam does not emulate CloudBase. SDK query behavior, indexes, environment permissions, identity context, and security rules still require the isolated deployment matrix. See [Testing and evidence](TESTING.md).
 
@@ -57,12 +57,14 @@ This seam does not emulate CloudBase. SDK query behavior, indexes, environment p
 
 ### Create and claim an order
 
-1. A student calls `addOrder`.
-2. The function resolves the caller, validates the request, and creates the order.
-3. An applicant submits through `submitMentorApplication`, which records `pending` while retaining student permissions.
-4. A trusted operator independently verifies the application and records both `role: mentor` and `mentorStatus: approved` outside the client.
-5. An approved mentor calls `grabOrder`.
-6. The function verifies both approval fields, updates the order, and creates one conversation-membership record for each participant.
+1. The client creates a bounded request ID and reuses it when a network result is ambiguous.
+2. A student calls `addOrder`; the function derives the caller identity and strictly validates the request.
+3. A caller-scoped hash of the request ID becomes the deterministic order document ID.
+4. One Cloud Database transaction rechecks the student profile, detects a replay, checks the simulated balance, deducts it, and creates the order. The balance and order therefore commit or roll back together.
+5. An applicant submits through `submitMentorApplication`, which records `pending` while retaining student permissions.
+6. A trusted operator independently verifies the application and records both `role: mentor` and `mentorStatus: approved` outside the client.
+7. An approved mentor calls `grabOrder`.
+8. The function verifies both approval fields, updates the order, and creates one conversation-membership record for each participant.
 
 Only the assigned mentor can later mark the order complete through `completeOrder`.
 

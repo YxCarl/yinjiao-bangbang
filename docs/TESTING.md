@@ -78,6 +78,10 @@ Currently covered behavior:
 - stale, revoked, unassigned, and forged order memberships are excluded from conversation lists;
 - unauthorized memberships cannot receive new order-message previews or unread-count updates;
 - text and voice messages are normalized only after authorization, and read actions update only the caller's membership.
+- an order request and simulated balance deduction commit together in the behavior model;
+- retrying the same caller-scoped request returns one order without a second deduction;
+- insufficient balance and simulated order-write failure leave both order and balance state unchanged;
+- ambiguous amounts, malformed request IDs, unknown detail fields, and oversized detail values fail closed or are bounded.
 
 ## Adding coverage / 增加覆盖
 

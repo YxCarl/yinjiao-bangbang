@@ -43,6 +43,8 @@ Deploy every directory below `cloudfunctions/`:
 - `submitMentorApplication`
 - `updateProfile`
 
+Deploy the updated Mini Program pages and `addOrder` together. The updated function requires the bounded `requestId` sent by the client; this prevents an older or modified client from silently bypassing order idempotency. `addOrder` uses a server-side Cloud Database transaction, so its first isolated-environment test must cover both a new request and a replay of the same request ID.
+
 Use cloud-side dependency installation. Keep the SDK versions declared by each function until an upgrade is tested in a separate pull request.
 
 ## 5. Configure video analysis

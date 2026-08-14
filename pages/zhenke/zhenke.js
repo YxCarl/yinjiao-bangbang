@@ -1,3 +1,5 @@
+const { beginOrderRequest, finishOrderRequest } = require('../../utils/order-request')
+
 Page({
   data: {
     videoPath: '',
@@ -157,33 +159,44 @@ Page({
   submitZhenke() {
     if (!this.data.fileID) return wx.showToast({ title: '请先上传视频', icon: 'none' })
 
+    const order = {
+      typeText: '诊课室',
+      title: '试讲视频 逐帧诊断',
+      price: 128,
+      detail: {
+        videoName: this.data.videoName,
+        fileID: this.data.fileID,
+        aiTimeline: this.data.aiTimeline
+      }
+    }
+    const requestId = beginOrderRequest(this, order)
+    if (!requestId) return
+
     wx.showLoading({ title: '正在提交订单...' })
     wx.cloud.callFunction({
       name: 'addOrder',
-      data: {
-        typeText: '诊课室',
-        title: '试讲视频 逐帧诊断',
-        price: 128,
-        detail: {
-          videoName: this.data.videoName,
-          fileID: this.data.fileID,
-          aiTimeline: this.data.aiTimeline
-        }
-      },
+      data: Object.assign({ requestId: requestId }, order),
       success: (res) => {
         wx.hideLoading()
-        if (res.result.code === -2) {
-          return wx.showToast({ title: res.result.error, icon: 'none', duration: 2000 })
+        finishOrderRequest(this, true)
+        const result = res.result || {}
+        if (result.code !== 0) {
+          return wx.showToast({
+            title: result.error || '提交失败，请重试',
+            icon: 'none',
+            duration: 2000
+          })
         }
-        if (res.result.data && res.result.data.balance !== undefined) {
+        if (result.data && result.data.balance !== undefined) {
           const p = wx.getStorageSync('myProfile')
-          if (p) { p.balance = res.result.data.balance; wx.setStorageSync('myProfile', p) }
+          if (p) { p.balance = result.data.balance; wx.setStorageSync('myProfile', p) }
         }
         wx.showToast({ title: '发布成功', icon: 'success' })
         setTimeout(() => { wx.switchTab({ url: '/pages/order/order' }) }, 1500)
       },
       fail: () => {
         wx.hideLoading()
+        finishOrderRequest(this, false)
         wx.showToast({ title: '提交失败，请检查网络', icon: 'none' })
       }
     })
