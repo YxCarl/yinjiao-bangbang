@@ -25,6 +25,10 @@ Deployment checkpoint: on 2026-08-14, four additive Cloud Functions were deploye
 
 部署检查点：2026-08-14，在对 14 个既有云函数完成仓库外备份后，4 个新增云函数已部署并查询为 `Active`。证据记录在[测试与证据](TESTING.md)中，但这并不等于已经完成全新环境烟雾测试或跨账号授权矩阵。
 
+The first simulator-level negative calls reached the deployed validation paths successfully. A redacted, count-only data audit also identified migration blockers: an absent `contents` collection, client-readable historical data, legacy mentor records without approval status, and inconsistent legacy user/order state. Existing authorization-sensitive functions and deny-by-default rules remain intentionally undeployed until those records are reviewed.
+
+首轮模拟器负向调用已经成功到达已部署函数的参数校验路径。脱敏且仅计数的数据审计同时发现了迁移阻塞项：缺少 `contents` 集合、历史数据仍可由客户端读取、历史师傅缺少审核状态，以及用户与订单状态不一致。在这些记录完成复核前，既有授权敏感函数与默认拒绝规则仍不会部署。
+
 Priority order / 优先顺序：
 
 1. [ ] Perform and document a full smoke test in WeChat Developer Tools using a maintainer-owned AppID and isolated test cloud environment.

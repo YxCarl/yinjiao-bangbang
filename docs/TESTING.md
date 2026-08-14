@@ -28,6 +28,10 @@ This checkpoint establishes successful backup, additive deployment, and post-dep
 
 该检查点只证明备份、新增部署和部署后状态查询成功，并不证明业务调用、云数据库兼容性、安全规则、跨账号授权或全新环境复现已经通过；这些结论仍需完成隔离环境测试矩阵后才能给出。
 
+A follow-up, read-only simulator check reached `getProtectedFileURL` and `completeOrder` through `wx.cloud.callFunction`; empty inputs resolved with the expected `code: -1` validation response and did not enter a database write path. A count-only client audit confirmed the expected historical collections except `contents`, which was absent. The same audit showed that client-side reads were still permitted, every legacy mentor record lacked an approval state, and historical user/order data required review before enforcing the new authorization model. No document identifiers, profile fields, message bodies, or file references were exported.
+
+后续只读模拟器检查通过 `wx.cloud.callFunction` 调用了 `getProtectedFileURL` 和 `completeOrder`；空参数均返回预期的 `code: -1`，且没有进入数据库写入路径。仅计数的客户端审计确认了历史集合，但发现 `contents` 尚未创建、客户端读取仍可执行、所有历史师傅记录均缺少审核状态，并且历史用户与订单数据需要在启用新授权模型前人工复核。审计没有导出文档 ID、个人资料、消息正文或文件引用。
+
 The original development environment and historical runtime experience provide project history, but public deployment evidence should be repeatable from the repository without private infrastructure. The isolated-deployment level therefore remains a separate recorded step.
 
 原开发环境和历史运行经历构成项目历史，但公开部署证据应当能够只依赖仓库重新复现，而不依赖私有历史基础设施。因此，隔离环境部署验证仍需单独执行和记录。
