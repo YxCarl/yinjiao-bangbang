@@ -82,6 +82,11 @@ Currently covered behavior:
 - retrying the same caller-scoped request returns one order without a second deduction;
 - insufficient balance and simulated order-write failure leave both order and balance state unchanged;
 - ambiguous amounts, malformed request IDs, unknown detail fields, and oversized detail values fail closed or are bounded.
+- video-analysis tasks require a server-issued upload path and remain owner-bound across prepare, start, and status actions;
+- replaying a video request consumes one rate-limit slot, while a fourth new task in one hour is rejected;
+- arbitrary cloud file IDs, another caller's task ID, stale processing state, and provider failure fail closed;
+- asynchronous provider submission happens once, pending/transient result checks remain retryable, and completion is persisted through status polling;
+- provider output is bounded to 100 timeline entries, with bounded labels and descriptions.
 
 ## Adding coverage / 增加覆盖
 

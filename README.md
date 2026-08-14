@@ -93,6 +93,7 @@ Create these collections in the Cloud Development console:
 - `conversations`
 - `contents`
 - `aiTasks`
+- `rateLimits`
 
 Do not grant public write access. Client pages should call Cloud Functions for protected mutations.
 
@@ -100,7 +101,7 @@ Do not grant public write access. Client pages should call Cloud Functions for p
 
 Upload and deploy every directory under `cloudfunctions/`. Install cloud dependencies when prompted by WeChat Developer Tools.
 
-Apply the database and storage rules only after deploying `getProtectedFileURL`; follow the safe rollout and negative-test matrix in [Security rules](docs/SECURITY_RULES.md). To enable video analysis, configure `ZHIPU_API_KEY` as a server-side environment variable for the `analyzeVideo` Cloud Function. Never store provider keys in client code, public database collections, screenshots, issues, or commits.
+Apply the database and storage rules only after deploying `getProtectedFileURL`; follow the safe rollout and negative-test matrix in [Security rules](docs/SECURITY_RULES.md). To enable video analysis, configure `ZHIPU_API_KEY` as a server-side environment variable for the `analyzeVideo` Cloud Function. The video flow uses server-issued upload paths, three new tasks per caller per hour, an actual object-size check below 200MB, asynchronous provider jobs, resumable polling, and bounded provider requests. Never store provider keys in client code, public database collections, screenshots, issues, or commits.
 
 ### 4. Load optional sample content
 

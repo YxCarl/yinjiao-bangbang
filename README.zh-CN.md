@@ -93,6 +93,7 @@ npm test
 - `conversations`
 - `contents`
 - `aiTasks`
+- `rateLimits`
 
 不要开放公共写权限。受保护的数据修改应由页面调用云函数完成。
 
@@ -100,7 +101,7 @@ npm test
 
 上传并部署 `cloudfunctions/` 下的全部目录，并在开发者工具提示时安装云端依赖。
 
-请先部署 `getProtectedFileURL`，再按照[安全规则文档](docs/SECURITY_RULES.md)的安全顺序和负向测试矩阵应用数据库及云存储规则。如需启用视频分析，请把 `ZHIPU_API_KEY` 配置为 `analyzeVideo` 云函数的服务端环境变量。不要把模型密钥写入客户端代码、公共数据库、截图、Issue 或 Git 提交。
+请先部署 `getProtectedFileURL`，再按照[安全规则文档](docs/SECURITY_RULES.md)的安全顺序和负向测试矩阵应用数据库及云存储规则。如需启用视频分析，请把 `ZHIPU_API_KEY` 配置为 `analyzeVideo` 云函数的服务端环境变量。视频流程采用服务端签发上传路径、每账号每小时最多三个新任务、真实对象小于 200MB 校验、模型异步任务、可恢复轮询以及受限的模型请求。不要把模型密钥写入客户端代码、公共数据库、截图、Issue 或 Git 提交。
 
 ### 4. 导入示例内容
 

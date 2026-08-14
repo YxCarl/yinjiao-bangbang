@@ -49,7 +49,7 @@ Use two student accounts, two mentor accounts, and sanitized test files. Do not 
 
 | Check | Expected result |
 | --- | --- |
-| A client attempts a direct database query | Denied for all six collections |
+| A client attempts a direct database query | Denied for all seven collections |
 | A student uploads an order document or video | Allowed; the uploader owns the file |
 | The same student opens their order attachment | Allowed through `getProtectedFileURL` |
 | The assigned mentor opens that attachment | Allowed through order authorization |
@@ -72,7 +72,7 @@ npm test
 
 The automated suite verifies that:
 
-- all six collections are present and deny direct client reads and writes;
+- all seven collections are present and deny direct client reads and writes;
 - storage rules never grant public access;
 - Mini Program pages do not call direct Cloud Storage download or temporary-URL APIs;
 - order and conversation authorization helpers reject unrelated users and arbitrary URLs.

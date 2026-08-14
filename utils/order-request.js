@@ -1,11 +1,16 @@
 let sequence = 0
 
-function createOrderRequestId() {
+function createRequestId(prefix) {
   sequence = (sequence + 1) % 1679616
   const timestamp = Date.now().toString(36)
   const counter = sequence.toString(36).padStart(4, '0')
   const random = Math.random().toString(36).slice(2, 10).padEnd(8, '0')
-  return `order_${timestamp}_${counter}_${random}`
+  const safePrefix = /^[a-z][a-z0-9_-]{1,15}$/.test(prefix) ? prefix : 'request'
+  return `${safePrefix}_${timestamp}_${counter}_${random}`
+}
+
+function createOrderRequestId() {
+  return createRequestId('order')
 }
 
 function beginOrderRequest(page, payload) {
@@ -32,6 +37,7 @@ function finishOrderRequest(page, confirmed) {
 
 module.exports = {
   beginOrderRequest,
+  createRequestId,
   createOrderRequestId,
   finishOrderRequest
 }

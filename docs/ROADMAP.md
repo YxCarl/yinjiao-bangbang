@@ -35,8 +35,8 @@ Priority order / 优先顺序：
 2. [ ] Publish deny-by-default database and storage rule examples with automated rule tests ([Issue #2](https://github.com/YxCarl/yinjiao-bangbang/issues/2), implementation in progress).
 3. [ ] Replace self-selected mentor access with an independently approved mentor-verification state and authorization checks ([Issue #4](https://github.com/YxCarl/yinjiao-bangbang/issues/4), implementation in progress).
 4. [ ] Introduce mockable Cloud Database adapters and add behavior-level tests for critical Cloud Functions ([Issue #6](https://github.com/YxCarl/yinjiao-bangbang/issues/6), order creation, mentor-order, and messaging flows in progress).
-5. [ ] Add rate limiting, idempotency, and abuse controls for messages, orders, file uploads, and AI tasks (order creation idempotency implemented; rate and upload/AI controls pending).
-6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies.
+5. [ ] Add rate limiting, idempotency, and abuse controls for messages, orders, file uploads, and AI tasks (order idempotency and AI task rate limits implemented; message and general upload controls pending).
+6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies (video size, client/ticket duration, and task-expiry metadata implemented; automated deletion and consent UI pending).
 7. [ ] Standardize Cloud Functions on one supported, tested SDK version and document the upgrade process.
 
 ### v0.2.0 definition of done / 完成标准

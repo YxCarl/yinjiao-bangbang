@@ -13,7 +13,7 @@ Do not commit your private tool configuration, credentials, or production identi
 
 ## 2. Create collections
 
-Create `users`, `orders`, `messages`, `conversations`, `contents`, and `aiTasks`.
+Create `users`, `orders`, `messages`, `conversations`, `contents`, `aiTasks`, and `rateLimits`.
 
 Apply the deny-client-access rule from `security/database-rules.json` to every collection. The Mini Program uses Cloud Functions for database access, so ordinary client SDK requests should have neither read nor write access.
 
@@ -49,7 +49,9 @@ Use cloud-side dependency installation. Keep the SDK versions declared by each f
 
 ## 5. Configure video analysis
 
-Set `ZHIPU_API_KEY` as an environment variable on `analyzeVideo`. Leave it unset to disable the feature safely.
+Set `ZHIPU_API_KEY` as an environment variable on `analyzeVideo`. Leave it unset to disable the feature safely. `ZHIPU_VIDEO_MODEL` is optional and defaults to `glm-4v-plus`.
+
+The reference policy allows at most three new analysis tasks per caller per hour, rejects actual cloud objects at or above 200MB, limits declared duration to 10 minutes, and records seven-day expiry metadata on task documents. Analysis uses the provider's asynchronous submit/result APIs and closes tasks that remain processing for more than 15 minutes. Configure scheduled deletion for expired `aiTasks`, rate-limit records, and unreferenced uploads before processing real recordings; expiry metadata alone does not delete data.
 
 Before enabling analysis for real recordings:
 
@@ -81,6 +83,11 @@ Then verify in WeChat Developer Tools:
 - only the assigned mentor can complete an order;
 - video tasks cannot be read by another user;
 - direct database reads and writes are rejected by every collection;
+- a fourth new video-analysis task within one hour is rejected while replaying an existing request ID is allowed;
+- an arbitrary cloud file ID that does not match the server-issued task path is rejected;
+- an actual video object at or above 200MB is rejected before the external provider call;
+- a valid video starts as `processing`, survives a page reload through the locally retained task ID, and later reaches `done` through status polling;
+- status responses never return provider task IDs, temporary URLs, owner IDs, or server-side file metadata;
 - the assigned mentor can open a student attachment but an unrelated mentor cannot;
 - conversation members can play each other's voice messages but a non-member cannot;
 - arbitrary cloud file IDs do not receive a temporary URL;

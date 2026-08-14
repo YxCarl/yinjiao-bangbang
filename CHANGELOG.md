@@ -24,6 +24,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Tightened order-conversation authorization so stale, revoked, forged, or unassigned memberships cannot expose message previews or content.
 - Made order creation transactional and idempotent with caller-scoped deterministic order IDs.
 - Added client request-ID reuse, strict amount parsing, bounded order details, and rollback/replay behavior tests.
+- Reworked video analysis into an owner-bound prepare, upload, start, and status workflow.
+- Added transactional per-user AI task limits, replay-safe task IDs, real object-size checks, provider timeouts, response limits, and bounded timeline output.
+- Switched video inference to the provider's asynchronous submit/result protocol and added resumable client polling across page reloads.
 - Documented explicit evidence levels so local CI results are not presented as CloudBase deployment verification.
 
 ## [0.1.0] - 2026-08-11

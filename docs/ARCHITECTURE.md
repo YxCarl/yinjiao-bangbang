@@ -52,6 +52,7 @@ This seam does not emulate CloudBase. SDK query behavior, indexes, environment p
 | `conversations` | Membership and message previews | Participant `OPENID`, unread count |
 | `contents` | Public educational resources | Editorial integrity and publishing permissions |
 | `aiTasks` | Video-analysis task state | Owner `OPENID`, uploaded file ID, analysis output |
+| `rateLimits` | Server-only fixed-window counters | Owner `OPENID`, operation scope, expiry metadata |
 
 ## Main workflows
 
@@ -85,7 +86,11 @@ Only the assigned mentor can later mark the order complete through `completeOrde
 
 ### Analyze a video
 
-1. A user uploads a video to Cloud Storage.
-2. `analyzeVideo` validates the cloud file ID and creates an owner-bound task.
-3. The function obtains a temporary URL and calls the configured provider using a server-side environment variable.
-4. Polling the task requires the same owner `OPENID`.
+1. The client asks `analyzeVideo` to prepare an owner-bound task with bounded file metadata and a replay-safe request ID.
+2. A transaction creates the task and increments a caller-scoped hourly counter; repeated request IDs do not consume another slot.
+3. The server returns an unpredictable task-specific Cloud Storage path, and the client uploads only to that path.
+4. Starting analysis rechecks task ownership and requires the uploaded cloud file ID to match the server-issued path.
+5. Before invoking the configured external provider, the server verifies the actual object size through a one-byte range request and obtains a temporary URL.
+6. The Cloud Function submits an asynchronous provider job, stores only its server-side task ID, and returns without waiting for inference to finish.
+7. Owner-authenticated status calls query the provider job. Completed timelines are normalized and stored; transient query failures remain retryable, while provider failures and the 15-minute processing deadline fail closed.
+8. Polling returns only public task fields and requires the same owner `OPENID`.
