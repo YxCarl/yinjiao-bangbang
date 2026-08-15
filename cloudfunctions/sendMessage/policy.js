@@ -25,6 +25,16 @@ function validateRequestId(value) {
     : ''
 }
 
+function voicePathForMessage(messageId) {
+  return `chat/${messageId}.mp3`
+}
+
+function cloudFileMatchesVoicePath(fileID, expectedPath) {
+  return typeof fileID === 'string' &&
+    fileID.startsWith('cloud://') &&
+    fileID.endsWith(`/${expectedPath}`)
+}
+
 function normalizeConversationId(value) {
   if (typeof value !== 'string') return ''
   const normalized = value.trim()
@@ -77,8 +87,11 @@ function normalizeMessage(event) {
 module.exports = {
   MESSAGE_RATE_LIMIT,
   MESSAGE_RATE_WINDOW_MS,
+  cloudFileMatchesVoicePath,
   createMessageId,
   createMessageRateLimitId,
   normalizeConversationId,
-  normalizeMessage
+  normalizeMessage,
+  validateRequestId,
+  voicePathForMessage
 }

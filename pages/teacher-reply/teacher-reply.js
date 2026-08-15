@@ -84,10 +84,10 @@ Page({
     wx.showToast({ title: '已发送', icon: 'success' })
   },
 
-  _sendToCloud(kind, content, fileID, dur) {
+  _sendToCloud(kind, content, fileID, dur, existingRequestId) {
     const payload = {
       conversationId: this.data.conversationId,
-      requestId: createRequestId('message'),
+      requestId: existingRequestId || createRequestId('message'),
       kind: kind,
       content: content,
       fileID: fileID || '',
@@ -130,24 +130,45 @@ Page({
 
   _uploadVoice(tempPath, dur) {
     const preview = '语音 ' + dur + ' 秒'
+    const requestId = createRequestId('message')
     const list = this.data.replies.slice()
     list.push({ side: 'out', kind: 'voice', dur: dur, text: preview, fileID: '', time: '刚刚' })
     this.setData({ replies: list })
     this._sentTexts.push(preview)
-    wx.showLoading({ title: '上传语音...' })
-    wx.cloud.uploadFile({
-      cloudPath: 'chat/' + Date.now() + '.mp3',
-      filePath: tempPath,
-      success: (res) => {
-        wx.hideLoading()
-        const msgs = this.data.replies.slice()
-        msgs.forEach(m => { if (m.text === preview && !m.fileID) m.fileID = res.fileID })
-        this.setData({ replies: msgs })
-        this._sendToCloud('voice', preview, res.fileID, dur)
+    wx.showLoading({ title: '准备语音上传...', mask: true })
+    wx.cloud.callFunction({
+      name: 'sendMessage',
+      data: {
+        action: 'prepare_voice',
+        conversationId: this.data.conversationId,
+        requestId: requestId
+      },
+      success: (prepareRes) => {
+        const result = prepareRes.result || {}
+        const cloudPath = result.data && result.data.cloudPath
+        if (result.code !== 0 || !cloudPath) {
+          wx.hideLoading()
+          return wx.showToast({ title: result.error || '无法准备语音上传', icon: 'none' })
+        }
+        wx.cloud.uploadFile({
+          cloudPath: cloudPath,
+          filePath: tempPath,
+          success: (uploadRes) => {
+            wx.hideLoading()
+            const msgs = this.data.replies.slice()
+            msgs.forEach(m => { if (m.text === preview && !m.fileID) m.fileID = uploadRes.fileID })
+            this.setData({ replies: msgs })
+            this._sendToCloud('voice', preview, uploadRes.fileID, dur, requestId)
+          },
+          fail: () => {
+            wx.hideLoading()
+            wx.showToast({ title: '语音上传失败，消息已保留', icon: 'none' })
+          }
+        })
       },
       fail: () => {
         wx.hideLoading()
-        wx.showToast({ title: '语音上传失败，消息已保留', icon: 'none' })
+        wx.showToast({ title: '无法准备语音上传', icon: 'none' })
       }
     })
   },

@@ -75,8 +75,9 @@ Only the assigned mentor can later mark the order complete through `completeOrde
 2. Non-order conversations require a membership document matching the caller's `OPENID`.
 3. Order conversations recheck the order owner or the assigned mentor's current approval; a stale or forged membership document never grants access.
 4. New messages require a caller-scoped request ID and share a fixed one-minute rate counter.
-5. The message document, sender preview, authorized peer preview/unread count, and rate counter commit in one transaction; replaying the same request ID returns the existing result without another unread increment.
-6. Reads still return content only after the same order or membership authorization succeeds.
+5. Voice messages first request an owner-bound upload path derived from the same message ID; sending rejects any cloud file outside that exact path.
+6. The message document, sender preview, authorized peer preview/unread count, and rate counter commit in one transaction; replaying the same request ID returns the existing result without another unread increment.
+7. Reads still return content only after the same order or membership authorization succeeds.
 
 ### Open a protected file
 

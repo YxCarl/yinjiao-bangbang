@@ -47,7 +47,7 @@ Deploy the updated Mini Program pages together with `addOrder` and `sendMessage`
 
 The reference order policy permits 10 new orders per caller per hour. A replay does not consume another slot or deduct the simulated wallet twice.
 
-The reference message policy permits 30 new messages per caller per minute. A replay does not consume another slot or increment unread state twice. Voice messages must reference an MP3 below the `chat/` storage prefix and declare a duration from 1 to 60 seconds.
+The reference message policy permits 30 new messages per caller per minute. A replay does not consume another slot or increment unread state twice. Voice uploads use an owner-authorized, message-specific `chat/` path; the final send must reference that exact MP3 and declare a duration from 1 to 60 seconds.
 
 Use cloud-side dependency installation. Keep the SDK versions declared by each function until an upgrade is tested in a separate pull request.
 
@@ -89,6 +89,7 @@ Then verify in WeChat Developer Tools:
 - only order participants can read and send messages;
 - replaying one message request creates one document and increments peer unread state once;
 - a caller's thirty-first new message in one minute is rejected while an existing request ID remains replayable;
+- a voice upload prepared for one message cannot be attached to another message request;
 - profile updates cannot change role or balance;
 - only the assigned mentor can complete an order;
 - video tasks cannot be read by another user;

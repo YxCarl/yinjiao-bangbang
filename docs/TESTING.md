@@ -82,6 +82,7 @@ Currently covered behavior:
 - message retries create one caller-scoped document and increment peer unread state once;
 - the thirty-first new message per caller per minute is rejected, while replay does not consume a second rate slot;
 - invalid voice paths and out-of-range durations fail before the message transaction;
+- voice upload paths are caller- and request-scoped, and an unrelated `chat/` object is rejected;
 - an order request and simulated balance deduction commit together in the behavior model;
 - retrying the same caller-scoped request returns one order without a second deduction;
 - the eleventh new order per caller per hour is rejected, while replay does not consume a second rate slot;

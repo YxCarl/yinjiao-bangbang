@@ -1,10 +1,13 @@
 const {
   MESSAGE_RATE_LIMIT,
   MESSAGE_RATE_WINDOW_MS,
+  cloudFileMatchesVoicePath,
   createMessageId,
   createMessageRateLimitId,
   normalizeConversationId,
-  normalizeMessage
+  normalizeMessage,
+  validateRequestId,
+  voicePathForMessage
 } = require('./policy')
 
 function orderIdFromConversation(conversationId) {
@@ -79,6 +82,16 @@ function createSendMessageHandler(dependencies) {
         return { code: 0 }
       }
 
+      if (event.action === 'prepare_voice') {
+        const requestId = validateRequestId(event.requestId)
+        if (!requestId) return { code: -1, error: '消息请求标识无效，请更新小程序后重试' }
+        const messageId = createMessageId(openid, requestId)
+        return {
+          code: 0,
+          data: { messageId: messageId, cloudPath: voicePathForMessage(messageId) }
+        }
+      }
+
       const normalized = normalizeMessage(event)
       if (!normalized.ok) return { code: -1, error: normalized.error }
 
@@ -90,6 +103,15 @@ function createSendMessageHandler(dependencies) {
         orderAccess ? orderAccess.peerOpenids : null
       )
       const messageId = createMessageId(openid, normalized.value.requestId)
+      if (
+        normalized.value.kind === 'voice' &&
+        !cloudFileMatchesVoicePath(
+          normalized.value.fileID,
+          voicePathForMessage(messageId)
+        )
+      ) {
+        return { code: -3, error: '语音文件与消息任务不匹配' }
+      }
       const result = await database.commitMessage({
         messageId: messageId,
         rateLimitId: createMessageRateLimitId(openid, windowStartMs),

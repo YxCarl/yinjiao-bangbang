@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Pinned every Cloud Function to one validated `wx-server-sdk` baseline and added CI drift detection plus an upgrade/rollback policy.
 - Made message sends transactional and replay-safe, added a 30-per-minute caller limit, validated voice metadata, and reused request IDs for one client retry.
 - Added a transactional 10-per-hour caller limit to order creation without charging replayed requests twice.
+- Added owner-authorized, message-specific voice upload paths and aligned both student and mentor messaging pages with the prepare/upload/send flow.
 - Documented explicit evidence levels so local CI results are not presented as CloudBase deployment verification.
 
 ## [0.1.0] - 2026-08-11

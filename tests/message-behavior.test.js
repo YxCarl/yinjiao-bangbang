@@ -343,11 +343,28 @@ test('read receipts and voice metadata fail closed or normalize after authorizat
   })).code, -1)
   assert.equal(database.snapshot().messages.length, beforeVoice)
 
-  assert.equal((await sendMessage(database, 'mentor-openid')({
+  const voiceHandler = sendMessage(database, 'mentor-openid')
+  const voiceRequestId = 'message_voice_0001'
+  const prepared = await voiceHandler({
+    action: 'prepare_voice',
+    requestId: voiceRequestId,
+    conversationId: orderConversation
+  })
+  assert.equal(prepared.code, 0)
+  assert.equal((await voiceHandler({
+    requestId: voiceRequestId,
+    conversationId: orderConversation,
+    kind: 'voice',
+    fileID: 'cloud://example-env.voice/chat/unrelated.mp3',
+    dur: 60
+  })).code, -3)
+
+  assert.equal((await voiceHandler({
+    requestId: voiceRequestId,
     conversationId: orderConversation,
     kind: 'voice',
     content: '客户端不可控制此文本',
-    fileID: 'cloud://example-env.voice/chat/new.mp3',
+    fileID: `cloud://example-env.voice/${prepared.data.cloudPath}`,
     dur: 60
   })).code, 0)
 
@@ -355,7 +372,7 @@ test('read receipts and voice metadata fail closed or normalize after authorizat
   assert.equal(voice.kind, 'voice')
   assert.equal(voice.dur, 60)
   assert.equal(voice.content, '语音 60 秒')
-  assert.equal(voice.fileID, 'cloud://example-env.voice/chat/new.mp3')
+  assert.equal(voice.fileID, `cloud://example-env.voice/${prepared.data.cloudPath}`)
 })
 
 test('message retries are idempotent and increment unread only once', async () => {
@@ -457,6 +474,7 @@ test('both messaging pages send request IDs and retry once with the same payload
     assert.match(page, /createRequestId\('message'\)/)
     assert.match(page, /_callSendMessage\(payload, retryCount \+ 1\)/)
     assert.match(page, /data: payload/)
-    assert.match(page, /cloudPath: 'chat\/'/)
+    assert.match(page, /action: 'prepare_voice'/)
+    assert.match(page, /cloudPath: cloudPath/)
   }
 })
