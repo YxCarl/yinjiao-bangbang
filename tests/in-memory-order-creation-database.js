@@ -6,6 +6,7 @@ class InMemoryOrderCreationDatabase {
   constructor(fixtures = {}) {
     this.users = clone(fixtures.users || [])
     this.orders = clone(fixtures.orders || [])
+    this.rateLimits = clone(fixtures.rateLimits || [])
     this.clock = fixtures.clock || '2026-08-14T14:00:00.000Z'
     this.failAfterBalanceUpdate = false
   }
@@ -46,10 +47,30 @@ class InMemoryOrderCreationDatabase {
       }
     }
 
+    let rate = this.rateLimits.find(item => item._id === input.rateLimitId)
+    const currentCount = rate && rate.windowStartMs === input.windowStartMs
+      ? Number(rate.count || 0)
+      : 0
+    if (currentCount >= input.maximumOrders) {
+      return { status: 'rate-limited', balance: balance }
+    }
+
     const previousBalance = user.balance
     const previousOrderCount = this.orders.length
+    const previousRateLimits = clone(this.rateLimits)
     try {
       const newBalance = Math.round((balance - input.price) * 100) / 100
+      if (!rate) {
+        rate = { _id: input.rateLimitId }
+        this.rateLimits.push(rate)
+      }
+      Object.assign(rate, {
+        _openid: input.openid,
+        scope: 'addOrder',
+        windowStartMs: input.windowStartMs,
+        count: currentCount + 1,
+        expiresAt: new Date(input.rateLimitExpiresAtMs).toISOString()
+      })
       user.balance = newBalance
       if (this.failAfterBalanceUpdate) throw new Error('simulated order write failure')
 
@@ -72,12 +93,13 @@ class InMemoryOrderCreationDatabase {
     } catch (error) {
       user.balance = previousBalance
       this.orders.length = previousOrderCount
+      this.rateLimits = previousRateLimits
       throw error
     }
   }
 
   snapshot() {
-    return clone({ users: this.users, orders: this.orders })
+    return clone({ users: this.users, orders: this.orders, rateLimits: this.rateLimits })
   }
 }
 

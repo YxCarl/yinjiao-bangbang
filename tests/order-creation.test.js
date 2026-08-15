@@ -41,6 +41,7 @@ function addOrder(database, openid = 'student-openid') {
   return createAddOrderHandler({
     getOpenid: async () => openid,
     createOrderId: createOrderDocumentId,
+    now: () => Date.parse(database.clock),
     database: database,
     logger: silentLogger
   })
@@ -64,6 +65,7 @@ test('addOrder deploys the dependency-injected transactional handler', () => {
   assert.match(adapterSource, /db\.runTransaction\(/)
   assert.match(adapterSource, /userReference\.update\(/)
   assert.match(adapterSource, /orderReference\.set\(/)
+  assert.match(adapterSource, /collection\('rateLimits'\)/)
 })
 
 test('order document IDs are stable per caller and request without exposing OPENID', () => {
@@ -89,6 +91,7 @@ test('an order and its simulated balance deduction commit together', async () =>
   assert.equal(state.orders.length, 1)
   assert.equal(state.orders[0]._id, result.data._id)
   assert.equal(state.orders[0].requestId, 'order_request_0001')
+  assert.equal(state.rateLimits[0].count, 1)
 })
 
 test('replaying one request returns the existing order without charging twice', async () => {
@@ -105,6 +108,7 @@ test('replaying one request returns the existing order without charging twice', 
   assert.equal(retry.data._id, first.data._id)
   assert.equal(state.users[0].balance, 171)
   assert.equal(state.orders.length, 1)
+  assert.equal(state.rateLimits[0].count, 1)
 })
 
 test('insufficient balance creates no order and changes no balance', async () => {
@@ -124,6 +128,23 @@ test('a simulated order-write failure rolls the balance change back', async () =
   assert.equal(result.code, -1)
   assert.equal(database.snapshot().users[0].balance, 200)
   assert.equal(database.snapshot().orders.length, 0)
+  assert.equal(database.snapshot().rateLimits.length, 0)
+})
+
+test('the eleventh new order per caller per hour is rejected', async () => {
+  const database = new InMemoryOrderCreationDatabase(fixtures(1000))
+  const handler = addOrder(database)
+
+  for (let index = 0; index < 10; index += 1) {
+    const result = await handler(validEvent(`order_rate_request_${String(index).padStart(4, '0')}`))
+    assert.equal(result.code, 0)
+  }
+  const rejected = await handler(validEvent('order_rate_request_0010'))
+  const state = database.snapshot()
+  assert.equal(rejected.code, -4)
+  assert.equal(state.orders.length, 10)
+  assert.equal(state.rateLimits[0].count, 10)
+  assert.equal(state.users[0].balance, 710)
 })
 
 test('a corrupted stored balance fails closed without creating an order', async () => {

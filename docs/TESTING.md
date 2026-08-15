@@ -74,18 +74,19 @@ Currently covered behavior:
 - a retry by the assigned mentor is idempotent;
 - a competing mentor cannot take an assigned order;
 - only the assigned approved mentor can complete an active order;
-- an atomic completion conflict cannot report a false success.
+- an atomic completion conflict cannot report a false success;
 - order-message content is visible only to the student owner or assigned approved mentor;
 - stale, revoked, unassigned, and forged order memberships are excluded from conversation lists;
 - unauthorized memberships cannot receive new order-message previews or unread-count updates;
 - text and voice messages are normalized only after authorization, and read actions update only the caller's membership;
 - message retries create one caller-scoped document and increment peer unread state once;
 - the thirty-first new message per caller per minute is rejected, while replay does not consume a second rate slot;
-- invalid voice paths and out-of-range durations fail before the message transaction.
+- invalid voice paths and out-of-range durations fail before the message transaction;
 - an order request and simulated balance deduction commit together in the behavior model;
 - retrying the same caller-scoped request returns one order without a second deduction;
+- the eleventh new order per caller per hour is rejected, while replay does not consume a second rate slot;
 - insufficient balance and simulated order-write failure leave both order and balance state unchanged;
-- ambiguous amounts, malformed request IDs, unknown detail fields, and oversized detail values fail closed or are bounded.
+- ambiguous amounts, malformed request IDs, unknown detail fields, and oversized detail values fail closed or are bounded;
 - video-analysis tasks require a server-issued upload path and remain owner-bound across prepare, start, and status actions;
 - replaying a video request consumes one rate-limit slot, while a fourth new task in one hour is rejected;
 - arbitrary cloud file IDs, another caller's task ID, stale processing state, and provider failure fail closed;

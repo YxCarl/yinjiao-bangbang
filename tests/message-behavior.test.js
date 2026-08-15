@@ -448,9 +448,15 @@ test('an order owner can recreate a missing membership without granting outsider
   })).code, -3)
 })
 
-test('the chat page sends request IDs and retries once with the same payload', () => {
-  const page = fs.readFileSync(path.join(root, 'pages', 'chat', 'chat.js'), 'utf8')
-  assert.match(page, /createRequestId\('message'\)/)
-  assert.match(page, /_callSendMessage\(payload, retryCount \+ 1\)/)
-  assert.match(page, /data: payload/)
+test('both messaging pages send request IDs and retry once with the same payload', () => {
+  for (const pageName of ['chat', 'teacher-reply']) {
+    const page = fs.readFileSync(
+      path.join(root, 'pages', pageName, `${pageName}.js`),
+      'utf8'
+    )
+    assert.match(page, /createRequestId\('message'\)/)
+    assert.match(page, /_callSendMessage\(payload, retryCount \+ 1\)/)
+    assert.match(page, /data: payload/)
+    assert.match(page, /cloudPath: 'chat\/'/)
+  }
 })

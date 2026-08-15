@@ -1,3 +1,9 @@
+const {
+  ORDER_RATE_LIMIT,
+  ORDER_RATE_WINDOW_MS,
+  createOrderRateLimitId
+} = require('./rate-limit')
+
 function boundedText(value, maximumLength) {
   return typeof value === 'string' ? value.trim().slice(0, maximumLength) : ''
 }
@@ -52,7 +58,7 @@ function describeOrder(detail) {
 }
 
 function createAddOrderHandler(dependencies) {
-  const { getOpenid, createOrderId, database, logger } = dependencies
+  const { getOpenid, createOrderId, now, database, logger } = dependencies
 
   return async function addOrder(event = {}) {
     const openid = await getOpenid()
@@ -72,6 +78,8 @@ function createAddOrderHandler(dependencies) {
 
     const detail = normalizeDetail(event.detail)
     const orderId = createOrderId(openid, requestId)
+    const timestamp = now()
+    const windowStartMs = Math.floor(timestamp / ORDER_RATE_WINDOW_MS) * ORDER_RATE_WINDOW_MS
 
     try {
       const student = await database.findStudentProfile(openid)
@@ -81,8 +89,13 @@ function createAddOrderHandler(dependencies) {
         openid: openid,
         userId: student._id,
         orderId: orderId,
+        rateLimitId: createOrderRateLimitId(openid, windowStartMs),
         requestId: requestId,
         price: price,
+        createdAtMs: timestamp,
+        windowStartMs: windowStartMs,
+        maximumOrders: ORDER_RATE_LIMIT,
+        rateLimitExpiresAtMs: windowStartMs + (2 * ORDER_RATE_WINDOW_MS),
         order: {
           typeText: typeText,
           title: title,
@@ -101,6 +114,9 @@ function createAddOrderHandler(dependencies) {
           code: -2,
           error: `余额不足，当前余额 ¥${result.balance.toFixed(2)}`
         }
+      }
+      if (result.status === 'rate-limited') {
+        return { code: -4, error: '订单创建过于频繁，请稍后再试' }
       }
       if (result.status !== 'created' && result.status !== 'duplicate') {
         const unexpected = new Error('Unexpected atomic order result')

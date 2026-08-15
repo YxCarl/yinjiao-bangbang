@@ -9,6 +9,7 @@ const database = createCloudDatabaseAdapter(cloud.database({ throwOnNotFound: fa
 exports.main = createAddOrderHandler({
   getOpenid: () => cloud.getWXContext().OPENID,
   createOrderId: createOrderDocumentId,
+  now: () => Date.now(),
   database: database,
   logger: console
 })

@@ -1,5 +1,6 @@
 const recorderManager = wx.getRecorderManager()
 const protectedFile = require('../../utils/protected-file')
+const { createRequestId } = require('../../utils/order-request')
 
 Page({
   data: {
@@ -84,16 +85,37 @@ Page({
   },
 
   _sendToCloud(kind, content, fileID, dur) {
+    const payload = {
+      conversationId: this.data.conversationId,
+      requestId: createRequestId('message'),
+      kind: kind,
+      content: content,
+      fileID: fileID || '',
+      dur: dur || 0
+    }
+    this._callSendMessage(payload, 0)
+  },
+
+  _callSendMessage(payload, retryCount) {
     wx.cloud.callFunction({
       name: 'sendMessage',
-      data: {
-        conversationId: this.data.conversationId,
-        kind: kind,
-        content: content,
-        fileID: fileID || '',
-        dur: dur || 0
+      data: payload,
+      success: (res) => {
+        const result = res.result || {}
+        if (result.code === 0) return
+        wx.showToast({
+          title: result.error || '消息发送失败',
+          icon: 'none',
+          duration: 2500
+        })
       },
-      success: () => {}, fail: () => {}
+      fail: () => {
+        if (retryCount < 1) {
+          setTimeout(() => this._callSendMessage(payload, retryCount + 1), 800)
+          return
+        }
+        wx.showToast({ title: '消息发送失败，请检查网络', icon: 'none' })
+      }
     })
   },
 
@@ -107,14 +129,14 @@ Page({
   },
 
   _uploadVoice(tempPath, dur) {
-    const preview = '语音 ' + dur + '"'
+    const preview = '语音 ' + dur + ' 秒'
     const list = this.data.replies.slice()
     list.push({ side: 'out', kind: 'voice', dur: dur, text: preview, fileID: '', time: '刚刚' })
     this.setData({ replies: list })
     this._sentTexts.push(preview)
     wx.showLoading({ title: '上传语音...' })
     wx.cloud.uploadFile({
-      cloudPath: 'voice/' + Date.now() + '.mp3',
+      cloudPath: 'chat/' + Date.now() + '.mp3',
       filePath: tempPath,
       success: (res) => {
         wx.hideLoading()

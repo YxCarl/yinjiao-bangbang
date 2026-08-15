@@ -45,6 +45,8 @@ Deploy every directory below `cloudfunctions/`:
 
 Deploy the updated Mini Program pages together with `addOrder` and `sendMessage`. Both functions require bounded client request IDs. Order creation and message sending use server-side Cloud Database transactions, so isolated-environment testing must cover a new request, replay of the same request ID, and an ambiguous client retry.
 
+The reference order policy permits 10 new orders per caller per hour. A replay does not consume another slot or deduct the simulated wallet twice.
+
 The reference message policy permits 30 new messages per caller per minute. A replay does not consume another slot or increment unread state twice. Voice messages must reference an MP3 below the `chat/` storage prefix and declare a duration from 1 to 60 seconds.
 
 Use cloud-side dependency installation. Keep the SDK versions declared by each function until an upgrade is tested in a separate pull request.
@@ -82,6 +84,8 @@ Then verify in WeChat Developer Tools:
 - only a trusted console approval that sets both `role: mentor` and `mentorStatus: approved` grants mentor access;
 - revoking approval immediately blocks mentor order, conversation, and protected-file access;
 - unauthorized users cannot list mentor orders;
+- replaying one order request creates one order and applies one simulated balance deduction;
+- a caller's eleventh new order in one hour is rejected while an existing request ID remains replayable;
 - only order participants can read and send messages;
 - replaying one message request creates one document and increments peer unread state once;
 - a caller's thirty-first new message in one minute is rejected while an existing request ID remains replayable;

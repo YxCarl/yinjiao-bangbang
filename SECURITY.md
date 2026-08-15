@@ -32,6 +32,6 @@ Please do not access data that is not yours, disrupt a deployment, or retain sen
 - The reference approval step is a manual trusted-operator operation. Production deployments still need a reviewed identity-verification channel, reviewer authorization, privacy controls, and auditable decisions.
 - The wallet is simulated and must not be connected to real payments.
 - Uploaded videos may be shared with the configured external model provider through temporary URLs. Consent, retention, deletion, and vendor terms must be handled by the deployer.
-- Video analysis and message sending have caller-scoped rate limits and bounded requests; message retries are idempotent. Order/general-upload rate limits, broader abuse monitoring, content moderation, audit logging, and automated deletion are not yet complete.
+- Order creation, message sending, and video analysis have caller-scoped rate limits and bounded inputs; order and message retries are idempotent. General-upload controls, broader abuse monitoring, content moderation, audit logging, and automated deletion are not yet complete.
 
 These limitations are tracked in [docs/ROADMAP.md](docs/ROADMAP.md).

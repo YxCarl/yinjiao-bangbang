@@ -63,7 +63,26 @@ function createCloudDatabaseAdapter(db) {
           }
         }
 
+        const rateReference = transaction.collection('rateLimits').doc(input.rateLimitId)
+        const rateResult = await rateReference.get()
+        const rate = documentData(rateResult)
+        const currentCount = rate && rate.windowStartMs === input.windowStartMs
+          ? Number(rate.count || 0)
+          : 0
+        if (currentCount >= input.maximumOrders) {
+          return { status: 'rate-limited', balance: balance }
+        }
+
         const newBalance = Math.round((balance - input.price) * 100) / 100
+        await rateReference.set({
+          data: {
+            _openid: input.openid,
+            scope: 'addOrder',
+            windowStartMs: input.windowStartMs,
+            count: currentCount + 1,
+            expiresAt: new Date(input.rateLimitExpiresAtMs)
+          }
+        })
         await userReference.update({ data: { balance: newBalance } })
         await orderReference.set({
           data: {
