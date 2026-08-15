@@ -1,5 +1,6 @@
 const recorderManager = wx.getRecorderManager()
 const protectedFile = require('../../utils/protected-file')
+const { createRequestId } = require('../../utils/order-request')
 
 Page({
   data: {
@@ -39,7 +40,7 @@ Page({
       this.setData({ recording: false })
       if (res.duration < 1000) return wx.showToast({ title: '录音时间太短', icon: 'none' })
       const dur = Math.round(res.duration / 1000)
-      const preview = '语音 ' + dur + '"'
+      const preview = '语音 ' + dur + ' 秒'
       const list = this.data.messages.slice()
       list.push({ id: Date.now(), side: 'out', kind: 'voice', dur: dur, text: preview, fileID: '' })
       this.setData({ messages: list })
@@ -112,16 +113,37 @@ Page({
 
   _sendToCloud(kind, content, fileID, dur) {
     if (!this.data.conversationId) return
+    const payload = {
+      conversationId: this.data.conversationId,
+      requestId: createRequestId('message'),
+      kind: kind,
+      content: content,
+      fileID: fileID || '',
+      dur: dur || 0
+    }
+    this._callSendMessage(payload, 0)
+  },
+
+  _callSendMessage(payload, retryCount) {
     wx.cloud.callFunction({
       name: 'sendMessage',
-      data: {
-        conversationId: this.data.conversationId,
-        kind: kind,
-        content: content,
-        fileID: fileID || '',
-        dur: dur || 0
+      data: payload,
+      success: (res) => {
+        const result = res.result || {}
+        if (result.code === 0) return
+        wx.showToast({
+          title: result.error || '消息发送失败',
+          icon: 'none',
+          duration: 2500
+        })
       },
-      success: () => {}, fail: () => {}
+      fail: () => {
+        if (retryCount < 1) {
+          setTimeout(() => this._callSendMessage(payload, retryCount + 1), 800)
+          return
+        }
+        wx.showToast({ title: '消息发送失败，请检查网络', icon: 'none' })
+      }
     })
   },
 

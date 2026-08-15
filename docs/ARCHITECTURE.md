@@ -74,8 +74,9 @@ Only the assigned mentor can later mark the order complete through `completeOrde
 1. A participant supplies a conversation ID to `sendMessage` or `getMessages`.
 2. Non-order conversations require a membership document matching the caller's `OPENID`.
 3. Order conversations recheck the order owner or the assigned mentor's current approval; a stale or forged membership document never grants access.
-4. Message previews and unread counters are updated only for the currently authorized order participants.
-5. Only then does the function list, read, or append messages.
+4. New messages require a caller-scoped request ID and share a fixed one-minute rate counter.
+5. The message document, sender preview, authorized peer preview/unread count, and rate counter commit in one transaction; replaying the same request ID returns the existing result without another unread increment.
+6. Reads still return content only after the same order or membership authorization succeeds.
 
 ### Open a protected file
 

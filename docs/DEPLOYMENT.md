@@ -43,7 +43,9 @@ Deploy every directory below `cloudfunctions/`:
 - `submitMentorApplication`
 - `updateProfile`
 
-Deploy the updated Mini Program pages and `addOrder` together. The updated function requires the bounded `requestId` sent by the client; this prevents an older or modified client from silently bypassing order idempotency. `addOrder` uses a server-side Cloud Database transaction, so its first isolated-environment test must cover both a new request and a replay of the same request ID.
+Deploy the updated Mini Program pages together with `addOrder` and `sendMessage`. Both functions require bounded client request IDs. Order creation and message sending use server-side Cloud Database transactions, so isolated-environment testing must cover a new request, replay of the same request ID, and an ambiguous client retry.
+
+The reference message policy permits 30 new messages per caller per minute. A replay does not consume another slot or increment unread state twice. Voice messages must reference an MP3 below the `chat/` storage prefix and declare a duration from 1 to 60 seconds.
 
 Use cloud-side dependency installation. Keep the SDK versions declared by each function until an upgrade is tested in a separate pull request.
 
@@ -81,6 +83,8 @@ Then verify in WeChat Developer Tools:
 - revoking approval immediately blocks mentor order, conversation, and protected-file access;
 - unauthorized users cannot list mentor orders;
 - only order participants can read and send messages;
+- replaying one message request creates one document and increments peer unread state once;
+- a caller's thirty-first new message in one minute is rejected while an existing request ID remains replayable;
 - profile updates cannot change role or balance;
 - only the assigned mentor can complete an order;
 - video tasks cannot be read by another user;
@@ -101,7 +105,7 @@ Follow [Mentor approval](MENTOR_APPROVAL.md) for the application states, trusted
 
 - [ ] Replace the reference manual approval operation with a production-reviewed identity-verification and reviewer-audit process.
 - [ ] Replace simulated wallet behavior with no payment feature, or complete a separate regulated payment design.
-- [ ] Add rate limits and abuse monitoring.
+- [ ] Add the remaining order/general-upload rate limits and broader abuse monitoring.
 - [ ] Add content moderation and reporting flows.
 - [ ] Define retention and automated deletion for files, messages, and AI tasks.
 - [ ] Review database and storage rules with negative authorization tests.

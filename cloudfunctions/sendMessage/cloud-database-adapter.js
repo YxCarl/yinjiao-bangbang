@@ -1,3 +1,16 @@
+function documentData(result) {
+  if (!result) return null
+  if (Array.isArray(result.data)) return result.data[0] || null
+  return result.data || null
+}
+
+function transactionValue(result) {
+  if (result && result.result && typeof result.result.status === 'string') {
+    return result.result
+  }
+  return result
+}
+
 function createCloudDatabaseAdapter(db) {
   const command = db.command
 
@@ -58,44 +71,89 @@ function createCloudDatabaseAdapter(db) {
       })
     },
 
-    async addMessage(message) {
-      await db.collection('messages').add({
-        data: {
-          _openid: message.openid,
-          conversationId: message.conversationId,
-          kind: message.kind,
-          content: message.content,
-          fileID: message.fileID,
-          dur: message.dur,
-          isRead: false,
-          createTime: db.serverDate()
-        }
-      })
-    },
-
-    async updateMembershipPreview(membershipId, preview) {
-      await db.collection('conversations').doc(membershipId).update({
-        data: { lastMsg: preview, lastTime: db.serverDate() }
-      })
-    },
-
-    async incrementPeerUnread(conversationId, senderOpenid, preview, allowedPeerOpenids) {
+    async listPeerMembershipIds(conversationId, senderOpenid, allowedPeerOpenids) {
       const result = await db.collection('conversations')
         .where({ conversationId: conversationId })
         .get()
-      const updates = result.data
+      return result.data
         .filter(item => (
           item._openid !== senderOpenid &&
           (allowedPeerOpenids === null || allowedPeerOpenids.includes(item._openid))
         ))
-        .map(item => db.collection('conversations').doc(item._id).update({
-          data: {
-            lastMsg: preview,
-            lastTime: db.serverDate(),
-            unread: command.inc(1)
+        .map(item => item._id)
+    },
+
+    async commitMessage(input) {
+      if (!Array.isArray(input.peerMembershipIds) || input.peerMembershipIds.length > 20) {
+        const invalidPeers = new Error('Conversation has too many peer memberships')
+        invalidPeers.code = 'PEER_MEMBERSHIP_LIMIT'
+        throw invalidPeers
+      }
+      const result = await db.runTransaction(async transaction => {
+        const messageReference = transaction.collection('messages').doc(input.messageId)
+        const rateReference = transaction.collection('rateLimits').doc(input.rateLimitId)
+        const existingResult = await messageReference.get()
+        const existing = documentData(existingResult)
+
+        if (existing) {
+          if (
+            existing._openid !== input.openid ||
+            existing.requestId !== input.requestId ||
+            existing.conversationId !== input.conversationId
+          ) {
+            const collision = new Error('Deterministic message ID collision')
+            collision.code = 'MESSAGE_ID_COLLISION'
+            throw collision
           }
-        }))
-      await Promise.all(updates)
+          return { status: 'duplicate' }
+        }
+
+        const rateResult = await rateReference.get()
+        const rate = documentData(rateResult)
+        const currentCount = rate && rate.windowStartMs === input.windowStartMs
+          ? Number(rate.count || 0)
+          : 0
+        if (currentCount >= input.maximumMessages) return { status: 'rate-limited' }
+
+        await rateReference.set({
+          data: {
+            _openid: input.openid,
+            scope: 'sendMessage',
+            windowStartMs: input.windowStartMs,
+            count: currentCount + 1,
+            expiresAt: new Date(input.rateLimitExpiresAtMs)
+          }
+        })
+
+        await messageReference.set({
+          data: {
+            _openid: input.openid,
+            requestId: input.requestId,
+            conversationId: input.conversationId,
+            kind: input.kind,
+            content: input.content,
+            fileID: input.fileID,
+            dur: input.dur,
+            isRead: false,
+            createTime: db.serverDate()
+          }
+        })
+
+        await transaction.collection('conversations').doc(input.membershipId).update({
+          data: { lastMsg: input.preview, lastTime: db.serverDate() }
+        })
+        for (const membershipId of input.peerMembershipIds) {
+          await transaction.collection('conversations').doc(membershipId).update({
+            data: {
+              lastMsg: input.preview,
+              lastTime: db.serverDate(),
+              unread: command.inc(1)
+            }
+          })
+        }
+        return { status: 'created' }
+      })
+      return transactionValue(result)
     }
   }
 }

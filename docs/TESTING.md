@@ -78,7 +78,10 @@ Currently covered behavior:
 - order-message content is visible only to the student owner or assigned approved mentor;
 - stale, revoked, unassigned, and forged order memberships are excluded from conversation lists;
 - unauthorized memberships cannot receive new order-message previews or unread-count updates;
-- text and voice messages are normalized only after authorization, and read actions update only the caller's membership.
+- text and voice messages are normalized only after authorization, and read actions update only the caller's membership;
+- message retries create one caller-scoped document and increment peer unread state once;
+- the thirty-first new message per caller per minute is rejected, while replay does not consume a second rate slot;
+- invalid voice paths and out-of-range durations fail before the message transaction.
 - an order request and simulated balance deduction commit together in the behavior model;
 - retrying the same caller-scoped request returns one order without a second deduction;
 - insufficient balance and simulated order-write failure leave both order and balance state unchanged;

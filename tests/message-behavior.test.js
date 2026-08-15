@@ -6,11 +6,13 @@ const path = require('node:path')
 const { createGetConversationsHandler } = require('../cloudfunctions/getConversations/handler')
 const { createGetMessagesHandler } = require('../cloudfunctions/getMessages/handler')
 const { createSendMessageHandler } = require('../cloudfunctions/sendMessage/handler')
+const { createMessageId } = require('../cloudfunctions/sendMessage/policy')
 const { InMemoryMessageDatabase } = require('./in-memory-message-database')
 
 const root = path.resolve(__dirname, '..')
 const silentLogger = { error() {} }
 const orderConversation = 'order_order-1'
+let messageRequestSequence = 0
 
 function fixtures() {
   return {
@@ -166,11 +168,15 @@ function getMessages(database, openid) {
 }
 
 function sendMessage(database, openid) {
-  return createSendMessageHandler({
+  const handler = createSendMessageHandler({
     getOpenid: async () => openid,
+    now: () => Date.parse(database.clock),
     database: database,
     logger: silentLogger
   })
+  return event => handler(Object.assign({
+    requestId: `message_request_${String(++messageRequestSequence).padStart(4, '0')}`
+  }, event))
 }
 
 test('message entry points export their dependency-injected handlers', () => {
@@ -186,8 +192,15 @@ test('message entry points export their dependency-injected handlers', () => {
       'utf8'
     )
     assert.match(source, new RegExp(`exports\\.main = ${factoryName}\\(`))
-    assert.match(source, /createCloudDatabaseAdapter\(cloud\.database\(\)\)/)
+    assert.match(source, /createCloudDatabaseAdapter\(cloud\.database\(/)
   }
+
+  const adapter = fs.readFileSync(
+    path.join(root, 'cloudfunctions', 'sendMessage', 'cloud-database-adapter.js'),
+    'utf8'
+  )
+  assert.match(adapter, /db\.runTransaction\(/)
+  assert.match(adapter, /collection\('rateLimits'\)/)
 })
 
 test('order messages require the owner or the assigned approved mentor', async () => {
@@ -308,7 +321,7 @@ test('sending an order message updates only the two currently authorized partici
   assert.equal(memberships['outsider-openid'].lastMsg, '不得更新')
 })
 
-test('read receipts and voice metadata are normalized after authorization', async () => {
+test('read receipts and voice metadata fail closed or normalize after authorization', async () => {
   const database = new InMemoryMessageDatabase(fixtures())
 
   assert.equal((await sendMessage(database, 'mentor-openid')({
@@ -320,18 +333,99 @@ test('read receipts and voice metadata are normalized after authorization', asyn
     0
   )
 
+  const beforeVoice = database.snapshot().messages.length
   assert.equal((await sendMessage(database, 'mentor-openid')({
     conversationId: orderConversation,
     kind: 'voice',
     content: '语音 90 秒',
-    fileID: 'cloud://example-env.voice/new.mp3',
+    fileID: 'cloud://example-env.voice/chat/new.mp3',
     dur: 90
+  })).code, -1)
+  assert.equal(database.snapshot().messages.length, beforeVoice)
+
+  assert.equal((await sendMessage(database, 'mentor-openid')({
+    conversationId: orderConversation,
+    kind: 'voice',
+    content: '客户端不可控制此文本',
+    fileID: 'cloud://example-env.voice/chat/new.mp3',
+    dur: 60
   })).code, 0)
 
   const voice = database.snapshot().messages.at(-1)
   assert.equal(voice.kind, 'voice')
   assert.equal(voice.dur, 60)
-  assert.equal(voice.fileID, 'cloud://example-env.voice/new.mp3')
+  assert.equal(voice.content, '语音 60 秒')
+  assert.equal(voice.fileID, 'cloud://example-env.voice/chat/new.mp3')
+})
+
+test('message retries are idempotent and increment unread only once', async () => {
+  const database = new InMemoryMessageDatabase(fixtures())
+  const handler = sendMessage(database, 'student-openid')
+  const event = {
+    requestId: 'message_retry_0001',
+    conversationId: orderConversation,
+    kind: 'text',
+    content: '只发送一次'
+  }
+  const before = database.snapshot()
+  const first = await handler(event)
+  const replay = await handler(event)
+  const after = database.snapshot()
+
+  assert.equal(first.code, 0)
+  assert.equal(first.data.duplicate, false)
+  assert.equal(replay.code, 0)
+  assert.equal(replay.data.duplicate, true)
+  assert.equal(after.messages.length, before.messages.length + 1)
+  assert.equal(after.rateLimits[0].count, 1)
+  assert.equal(
+    after.conversations.find(item => item._id === 'mentor-conversation').unread,
+    before.conversations.find(item => item._id === 'mentor-conversation').unread + 1
+  )
+})
+
+test('message IDs are deterministic per caller without exposing OPENID', () => {
+  const requestId = 'message_identity_0001'
+  const ownerId = createMessageId('student-openid', requestId)
+  assert.equal(ownerId, createMessageId('student-openid', requestId))
+  assert.notEqual(ownerId, createMessageId('outsider-openid', requestId))
+  assert.doesNotMatch(ownerId, /student-openid/)
+})
+
+test('message sending rejects invalid requests and the thirty-first message per minute', async () => {
+  const database = new InMemoryMessageDatabase(fixtures())
+  const handler = sendMessage(database, 'student-openid')
+
+  assert.equal((await handler({
+    requestId: '',
+    conversationId: orderConversation,
+    kind: 'text',
+    content: '缺少请求标识'
+  })).code, -1)
+  assert.equal((await handler({
+    conversationId: orderConversation,
+    kind: 'voice',
+    content: '伪造语音',
+    fileID: 'cloud://example-env.voice/orders/not-chat.mp3',
+    dur: 3
+  })).code, -1)
+
+  for (let index = 0; index < 30; index += 1) {
+    const result = await handler({
+      requestId: `message_rate_${String(index).padStart(4, '0')}`,
+      conversationId: orderConversation,
+      kind: 'text',
+      content: `消息 ${index}`
+    })
+    assert.equal(result.code, 0)
+  }
+  assert.equal((await handler({
+    requestId: 'message_rate_0030',
+    conversationId: orderConversation,
+    kind: 'text',
+    content: '超出频率'
+  })).code, -4)
+  assert.equal(database.snapshot().rateLimits[0].count, 30)
 })
 
 test('an order owner can recreate a missing membership without granting outsiders access', async () => {
@@ -352,4 +446,11 @@ test('an order owner can recreate a missing membership without granting outsider
     kind: 'text',
     content: '仍然禁止'
   })).code, -3)
+})
+
+test('the chat page sends request IDs and retries once with the same payload', () => {
+  const page = fs.readFileSync(path.join(root, 'pages', 'chat', 'chat.js'), 'utf8')
+  assert.match(page, /createRequestId\('message'\)/)
+  assert.match(page, /_callSendMessage\(payload, retryCount \+ 1\)/)
+  assert.match(page, /data: payload/)
 })
