@@ -34,6 +34,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added caller- and request-bound lesson-plan upload paths, actual object-size verification, replay-safe attachment handling, and negative behavior tests.
 - Documented the project's non-novel primitives, related public work, specific reusable contribution, and provenance expectations without unsupported originality claims.
 - Documented explicit evidence levels so local CI results are not presented as CloudBase deployment verification.
+- Added a versioned video-processing acknowledgement and server-side consent timestamp to AI task preparation.
+- Bound diagnosis orders atomically to one caller-owned completed analysis task and replaced client-authored timelines with the stored provider result.
+- Added a disabled-by-default daily cleanup function for expired unbound AI tasks/videos and rate counters, with dry run, bounded batches, atomic claims, retries, and manual-review handling.
+- Published the reference data lifecycle, cleanup enablement sequence, and remaining deletion-policy boundaries.
+- Excluded repository-only documentation, tests, security examples, and maintainer metadata from the Mini Program package to keep preview builds below the platform's main-package limit.
 
 ## [0.1.0] - 2026-08-11
 

@@ -48,3 +48,16 @@ test('the public project configuration contains no deployment AppID', () => {
   const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8')
   assert.doesNotMatch(appSource, /cloud\d+-[a-z0-9]{10,}/i)
 })
+
+test('repository-only assets are excluded from the Mini Program package', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(root, 'project.config.json'), 'utf8'))
+  const ignoredFolders = new Set(
+    (config.packOptions && config.packOptions.ignore || [])
+      .filter(item => item.type === 'folder')
+      .map(item => item.value)
+  )
+
+  for (const folder of ['.github', 'docs', 'scripts', 'security', 'tests']) {
+    assert.equal(ignoredFolders.has(folder), true, `${folder} must not enter the Mini Program package`)
+  }
+})

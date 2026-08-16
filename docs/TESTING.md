@@ -36,6 +36,16 @@ The original development environment and historical runtime experience provide p
 
 原开发环境和历史运行经历构成项目历史，但公开部署证据应当能够只依赖仓库重新复现，而不依赖私有历史基础设施。因此，隔离环境部署验证仍需单独执行和记录。
 
+## WeChat platform compile checkpoint / 微信平台编译检查点
+
+On 2026-08-16, WeChat Developer Tools `2.01.2510290` compiled the working branch through its authenticated CLI and created a preview successfully. The first attempt exposed platform error `80051`: repository documentation and test assets made the source package 2075KB, above the 2MB main-package limit. After adding explicit `packOptions.ignore` entries for repository-only material, the same preview command succeeded with a 210,305-byte (205.4KB) package.
+
+2026-08-16，微信开发者工具 `2.01.2510290` 通过已登录 CLI 完成了当前分支的真实编译与预览。首次预览暴露出平台错误 `80051`：仓库文档和测试素材使源码包达到 2075KB，超过主包 2MB 限制。在 `packOptions.ignore` 中明确排除仅用于仓库的内容后，同一预览命令成功，包体为 210,305 字节（205.4KB）。
+
+This checkpoint proves platform parsing, compilation, packaging, AppID association through private configuration, and preview upload for the current source. It does not deploy Cloud Functions, exercise Cloud Database queries, enable cleanup, validate rules, or provide the two-account authorization evidence required by the isolated-deployment level. The authenticated account currently exposes one historical environment with the same 18 functions recorded above, not a second fresh environment.
+
+该检查点证明当前源码能通过平台解析、编译、打包、私有 AppID 关联和预览上传。它不会部署云函数，也不会验证云数据库查询、定时清理、安全规则或双账号授权。当前已登录账号只列出上文记录的含 18 个函数的历史环境，尚无第二个全新环境。
+
 ## Run locally / 本地运行
 
 Requirements: Node.js 18 or newer. No AppID, CloudBase environment, account credential, or provider key is required.
@@ -95,6 +105,9 @@ Currently covered behavior:
 - arbitrary cloud file IDs, another caller's task ID, stale processing state, and provider failure fail closed;
 - asynchronous provider submission happens once, pending/transient result checks remain retryable, and completion is persisted through status polling;
 - provider output is bounded to 100 timeline entries, with bounded labels and descriptions.
+- video preparation requires the current acknowledgement version and records it with a server timestamp;
+- diagnosis orders use only caller-owned completed analysis tasks, replace client-authored timelines with server results, and bind each task to at most one order;
+- cleanup is disabled by default, dry run is non-mutating, timer batches exclude order-bound tasks, failed storage deletion is retryable, and unverifiable legacy uploads require manual review.
 
 ## Adding coverage / 增加覆盖
 
