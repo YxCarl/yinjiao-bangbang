@@ -69,6 +69,14 @@ This seam does not emulate CloudBase. SDK query behavior, indexes, environment p
 
 Only the assigned mentor can later mark the order complete through `completeOrder`.
 
+### Upload a lesson plan
+
+1. The client creates or reuses the order request ID and sends the document name and declared byte size to `addOrder` with `prepare_document`.
+2. The function accepts only DOC, DOCX, or PDF metadata up to 50MB and derives a caller- and request-scoped storage path without exposing `OPENID`.
+3. The client uploads to that exact path and includes the resulting cloud file ID plus the original byte size in the final order request.
+4. Before a new order is created, `addOrder` rejects any other object path, obtains a temporary URL server-side, and verifies the actual object size with a bounded range request.
+5. A confirmed replay returns the existing order without requiring the attachment to remain remotely available or charging the simulated wallet again.
+
 ### Exchange messages
 
 1. A participant supplies a conversation ID to `sendMessage` or `getMessages`.

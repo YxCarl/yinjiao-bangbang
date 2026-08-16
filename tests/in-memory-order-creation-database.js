@@ -18,6 +18,11 @@ class InMemoryOrderCreationDatabase {
     return student ? clone(student) : null
   }
 
+  async getOrder(orderId) {
+    const order = this.orders.find(item => item._id === orderId)
+    return order ? clone(order) : null
+  }
+
   async createOrderAtomically(input) {
     const user = this.users.find(item => item._id === input.userId)
     if (!user || user._openid !== input.openid || user.role !== 'student') {

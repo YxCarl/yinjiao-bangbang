@@ -25,6 +25,11 @@ function createCloudDatabaseAdapter(db) {
       return result.data[0] || null
     },
 
+    async getOrder(orderId) {
+      const result = await db.collection('orders').doc(orderId).get()
+      return documentData(result)
+    },
+
     async createOrderAtomically(input) {
       const result = await db.runTransaction(async transaction => {
         const userReference = transaction.collection('users').doc(input.userId)

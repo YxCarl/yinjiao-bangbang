@@ -4,6 +4,13 @@ const fs = require('node:fs')
 const path = require('node:path')
 
 const { createAddOrderHandler } = require('../cloudfunctions/addOrder/handler')
+const {
+  MAX_DOCUMENT_BYTES,
+  cloudFileMatchesDocumentPath,
+  documentUploadPath,
+  normalizeDocumentMetadata,
+  remoteSizeFromHeaders
+} = require('../cloudfunctions/addOrder/document-upload')
 const { createOrderDocumentId } = require('../cloudfunctions/addOrder/order-id')
 const {
   beginOrderRequest,
@@ -37,14 +44,32 @@ function validEvent(requestId = 'order_request_0001') {
   }
 }
 
-function addOrder(database, openid = 'student-openid') {
+function addOrder(database, openid = 'student-openid', overrides = {}) {
   return createAddOrderHandler({
     getOpenid: async () => openid,
     createOrderId: createOrderDocumentId,
+    getCloudFileSize: overrides.getCloudFileSize,
     now: () => Date.parse(database.clock),
     database: database,
     logger: silentLogger
   })
+}
+
+function documentEvent(requestId, cloudPath, fileSize = 2048) {
+  return {
+    requestId: requestId,
+    typeText: '磨课坊',
+    title: '小学语文 教案精修',
+    price: 49,
+    detail: {
+      grade: '小学',
+      subject: '语文',
+      level: '高级教师',
+      fileName: 'lesson-plan.docx',
+      fileSize: fileSize,
+      fileID: `cloud://test-env.example/${cloudPath}`
+    }
+  }
 }
 
 test('addOrder deploys the dependency-injected transactional handler', () => {
@@ -77,6 +102,100 @@ test('order document IDs are stable per caller and request without exposing OPEN
   assert.notEqual(first, otherCaller)
   assert.match(first, /^order_[a-f0-9]{32}$/)
   assert.doesNotMatch(first, /student-openid/)
+})
+
+test('document upload preparation returns a caller-scoped request path', async () => {
+  const database = new InMemoryOrderCreationDatabase(fixtures())
+  const firstHandler = addOrder(database)
+  const otherHandler = addOrder(database, 'other-openid')
+  const event = {
+    action: 'prepare_document',
+    requestId: 'document_request_0001',
+    fileName: 'lesson-plan.DOCX',
+    fileSize: 2048
+  }
+
+  const first = await firstHandler(event)
+  const retry = await firstHandler(event)
+  const otherCaller = await otherHandler(event)
+
+  assert.equal(first.code, 0)
+  assert.equal(first.data.cloudPath, retry.data.cloudPath)
+  assert.notEqual(first.data.cloudPath, otherCaller.data.cloudPath)
+  assert.match(first.data.cloudPath, /^moke\/doc_[a-f0-9]{32}\.docx$/)
+  assert.doesNotMatch(first.data.cloudPath, /student-openid/)
+})
+
+test('document metadata and remote-size headers fail closed', () => {
+  assert.equal(normalizeDocumentMetadata('lesson.pdf', 1).ok, true)
+  assert.equal(normalizeDocumentMetadata('../lesson.pdf', 1).ok, false)
+  assert.equal(normalizeDocumentMetadata('lesson.exe', 1).ok, false)
+  assert.equal(normalizeDocumentMetadata('lesson.pdf', MAX_DOCUMENT_BYTES + 1).ok, false)
+  assert.equal(remoteSizeFromHeaders(206, { 'content-range': 'bytes 0-0/2048' }), 2048)
+  assert.equal(remoteSizeFromHeaders(200, { 'content-length': '4096' }), 4096)
+  assert.equal(remoteSizeFromHeaders(206, { 'content-length': '1' }), 1)
+  assert.equal(remoteSizeFromHeaders(500, {}), 0)
+})
+
+test('a document order accepts only its server-issued object and verified size', async () => {
+  const database = new InMemoryOrderCreationDatabase(fixtures())
+  const requestId = 'document_request_0002'
+  const cloudPath = documentUploadPath('student-openid', requestId, 'docx')
+  const seen = []
+  const handler = addOrder(database, 'student-openid', {
+    getCloudFileSize: async fileID => {
+      seen.push(fileID)
+      return 2048
+    }
+  })
+
+  const result = await handler(documentEvent(requestId, cloudPath))
+  const state = database.snapshot()
+
+  assert.equal(result.code, 0)
+  assert.equal(seen.length, 1)
+  assert.equal(state.orders.length, 1)
+  assert.equal(state.orders[0].detail.fileSize, 2048)
+  assert.equal(cloudFileMatchesDocumentPath(seen[0], cloudPath), true)
+})
+
+test('a document order rejects unrelated paths and mismatched actual sizes', async () => {
+  const database = new InMemoryOrderCreationDatabase(fixtures())
+  const requestId = 'document_request_0003'
+  const cloudPath = documentUploadPath('student-openid', requestId, 'docx')
+  const handler = addOrder(database, 'student-openid', {
+    getCloudFileSize: async () => 1024
+  })
+
+  const unrelated = await handler(documentEvent(requestId, `other/${cloudPath}`))
+  const mismatched = await handler(documentEvent(requestId, cloudPath))
+
+  assert.equal(unrelated.code, -1)
+  assert.equal(mismatched.code, -1)
+  assert.equal(database.snapshot().orders.length, 0)
+})
+
+test('replaying a document order skips another remote object check', async () => {
+  const database = new InMemoryOrderCreationDatabase(fixtures())
+  const requestId = 'document_request_0004'
+  const cloudPath = documentUploadPath('student-openid', requestId, 'docx')
+  let checks = 0
+  const handler = addOrder(database, 'student-openid', {
+    getCloudFileSize: async () => {
+      checks += 1
+      if (checks > 1) throw new Error('remote object is no longer available')
+      return 2048
+    }
+  })
+
+  const first = await handler(documentEvent(requestId, cloudPath))
+  const retry = await handler(documentEvent(requestId, cloudPath))
+
+  assert.equal(first.code, 0)
+  assert.equal(retry.code, 0)
+  assert.equal(retry.data.replayed, true)
+  assert.equal(checks, 1)
+  assert.equal(database.snapshot().orders.length, 1)
 })
 
 test('an order and its simulated balance deduction commit together', async () => {
@@ -215,4 +334,13 @@ test('all three order pages send requestId and handle nonzero function results',
     assert.match(source, /result\.code !== 0/)
     assert.match(source, /finishOrderRequest\(this, false\)/)
   }
+})
+
+test('the document-order page uses the prepare, upload, and verified-submit flow', () => {
+  const source = fs.readFileSync(path.join(root, 'pages', 'moke', 'moke.js'), 'utf8')
+
+  assert.match(source, /action: 'prepare_document'/)
+  assert.match(source, /cloudPath: prepared\.data\.cloudPath/)
+  assert.match(source, /fileSize: this\.data\.fileSize/)
+  assert.doesNotMatch(source, /cloudPath: 'moke\/' \+ Date\.now\(\)/)
 })

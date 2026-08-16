@@ -47,6 +47,8 @@ Deploy the updated Mini Program pages together with `addOrder` and `sendMessage`
 
 The reference order policy permits 10 new orders per caller per hour. A replay does not consume another slot or deduct the simulated wallet twice.
 
+Lesson-plan documents use an order-request-specific `moke/` path issued by `addOrder`. The final order must reference that exact DOC, DOCX, or PDF object and declare a positive size no greater than 50MB; the function independently verifies the stored object's size before creating a new order. Deploy the updated `addOrder` code and Mini Program page together, or document uploads will fail closed.
+
 The reference message policy permits 30 new messages per caller per minute. A replay does not consume another slot or increment unread state twice. Voice uploads use an owner-authorized, message-specific `chat/` path; the final send must reference that exact MP3 and declare a duration from 1 to 60 seconds.
 
 Use cloud-side dependency installation. Keep the SDK versions declared by each function until an upgrade is tested in a separate pull request.
@@ -86,6 +88,8 @@ Then verify in WeChat Developer Tools:
 - unauthorized users cannot list mentor orders;
 - replaying one order request creates one order and applies one simulated balance deduction;
 - a caller's eleventh new order in one hour is rejected while an existing request ID remains replayable;
+- a lesson-plan upload prepared for one order cannot be attached to a different request or caller;
+- a lesson-plan order is rejected when its declared size differs from the stored object's actual size or exceeds 50MB;
 - only order participants can read and send messages;
 - replaying one message request creates one document and increments peer unread state once;
 - a caller's thirty-first new message in one minute is rejected while an existing request ID remains replayable;

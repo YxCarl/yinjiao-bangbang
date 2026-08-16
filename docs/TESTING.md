@@ -86,6 +86,8 @@ Currently covered behavior:
 - an order request and simulated balance deduction commit together in the behavior model;
 - retrying the same caller-scoped request returns one order without a second deduction;
 - the eleventh new order per caller per hour is rejected, while replay does not consume a second rate slot;
+- lesson-plan paths are caller- and request-scoped, unrelated cloud objects are rejected, and the stored byte size must match the bounded client declaration;
+- replaying a confirmed lesson-plan order does not repeat the remote object check or create a second order;
 - insufficient balance and simulated order-write failure leave both order and balance state unchanged;
 - ambiguous amounts, malformed request IDs, unknown detail fields, and oversized detail values fail closed or are bounded;
 - video-analysis tasks require a server-issued upload path and remain owner-bound across prepare, start, and status actions;

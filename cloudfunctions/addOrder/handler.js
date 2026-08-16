@@ -3,6 +3,11 @@ const {
   ORDER_RATE_WINDOW_MS,
   createOrderRateLimitId
 } = require('./rate-limit')
+const {
+  cloudFileMatchesDocumentPath,
+  documentUploadPath,
+  normalizeDocumentMetadata
+} = require('./document-upload')
 
 function boundedText(value, maximumLength) {
   return typeof value === 'string' ? value.trim().slice(0, maximumLength) : ''
@@ -43,6 +48,8 @@ function normalizeDetail(value) {
     const normalized = boundedText(value[field], limit)
     if (normalized) detail[field] = normalized
   }
+  const fileSize = Number(value.fileSize)
+  if (Number.isSafeInteger(fileSize) && fileSize > 0) detail.fileSize = fileSize
   const timeline = normalizeTimeline(value.aiTimeline)
   if (timeline.length > 0) detail.aiTimeline = timeline
   return detail
@@ -58,7 +65,7 @@ function describeOrder(detail) {
 }
 
 function createAddOrderHandler(dependencies) {
-  const { getOpenid, createOrderId, now, database, logger } = dependencies
+  const { getOpenid, createOrderId, getCloudFileSize, now, database, logger } = dependencies
 
   return async function addOrder(event = {}) {
     const openid = await getOpenid()
@@ -67,6 +74,17 @@ function createAddOrderHandler(dependencies) {
     const requestId = boundedText(event.requestId, 80)
     if (!/^[A-Za-z0-9_-]{16,80}$/.test(requestId)) {
       return { code: -1, error: '请求标识无效，请更新小程序后重试' }
+    }
+
+    if (event.action === 'prepare_document') {
+      const metadata = normalizeDocumentMetadata(event.fileName, event.fileSize)
+      if (!metadata.ok) return { code: -1, error: metadata.error }
+      return {
+        code: 0,
+        data: {
+          cloudPath: documentUploadPath(openid, requestId, metadata.value.extension)
+        }
+      }
     }
 
     const price = normalizePrice(event.price)
@@ -84,6 +102,38 @@ function createAddOrderHandler(dependencies) {
     try {
       const student = await database.findStudentProfile(openid)
       if (!student) return { code: -1, error: '用户不存在' }
+
+      if (typeText === '磨课坊') {
+        const metadata = normalizeDocumentMetadata(detail.fileName, detail.fileSize)
+        if (!metadata.ok) return { code: -1, error: metadata.error }
+
+        const expectedPath = documentUploadPath(openid, requestId, metadata.value.extension)
+        if (!cloudFileMatchesDocumentPath(detail.fileID, expectedPath)) {
+          return { code: -1, error: '教案文件与当前请求不匹配，请重新上传' }
+        }
+
+        detail.fileName = metadata.value.fileName
+        detail.fileSize = metadata.value.fileSize
+        const existingOrder = await database.getOrder(orderId)
+        const isReplay = existingOrder &&
+          existingOrder._openid === openid &&
+          existingOrder.requestId === requestId
+
+        if (!isReplay) {
+          if (typeof getCloudFileSize !== 'function') {
+            const unavailable = new Error('Document size verifier is unavailable')
+            unavailable.code = 'DOCUMENT_SIZE_VERIFIER_UNAVAILABLE'
+            throw unavailable
+          }
+          const actualFileSize = await getCloudFileSize(detail.fileID)
+          if (
+            !Number.isSafeInteger(actualFileSize) ||
+            actualFileSize !== metadata.value.fileSize
+          ) {
+            return { code: -1, error: '教案文件大小校验失败，请重新上传' }
+          }
+        }
+      }
 
       const result = await database.createOrderAtomically({
         openid: openid,
