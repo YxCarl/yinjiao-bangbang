@@ -1,10 +1,12 @@
 # Shifu Zaima / 师傅在吗
 
-[简体中文](README.zh-CN.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Roadmap](docs/ROADMAP.md)
+[简体中文](README.zh-CN.md) · [Positioning](docs/PROJECT_POSITIONING.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Roadmap](docs/ROADMAP.md)
 
 Shifu Zaima is an open-source WeChat Mini Program reference implementation for connecting pre-service teachers and early-career educators with experienced mentors. The Mini Program uses the Chinese product name “师傅在吗”; `yinjiao-bangbang` is retained as the repository's historical code identifier. It combines lesson-plan review, teaching-video analysis, anonymous questions, order workflows, and in-app messaging on WeChat Cloud Development.
 
 > **Project status:** public reference implementation / early beta. It is suitable for learning, evaluation, and further development, but it is not a hosted production service. Payment and wallet behavior is simulated. Mentor access uses an explicit approval state and server-side checks; production deployments must still provide a lawful identity-verification and audited reviewer process.
+
+The project does not claim to have invented student/teacher roles, two-sided orders, messaging, or education Mini Programs. Its contribution is a documented and tested combination of mentoring workflows and server-authorized interaction patterns. See [Project positioning and related work](docs/PROJECT_POSITIONING.md).
 
 ## Interface preview
 

@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-08-14**
+**Last updated / 最后更新：2026-08-16**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -35,9 +35,10 @@ Priority order / 优先顺序：
 2. [ ] Publish deny-by-default database and storage rule examples with automated rule tests ([Issue #2](https://github.com/YxCarl/yinjiao-bangbang/issues/2), implementation in progress).
 3. [ ] Replace self-selected mentor access with an independently approved mentor-verification state and authorization checks ([Issue #4](https://github.com/YxCarl/yinjiao-bangbang/issues/4), implementation in progress).
 4. [ ] Introduce mockable Cloud Database adapters and add behavior-level tests for critical Cloud Functions ([Issue #6](https://github.com/YxCarl/yinjiao-bangbang/issues/6), order creation, mentor-order, and messaging flows in progress).
-5. [ ] Add rate limiting, idempotency, and abuse controls for messages, orders, file uploads, and AI tasks (order/message idempotency plus order/message/AI rate limits implemented; general upload controls pending).
-6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies (video size, client/ticket duration, and task-expiry metadata implemented; automated deletion and consent UI pending).
+5. [ ] Add rate limiting, idempotency, and abuse controls for messages, orders, file uploads, and AI tasks (order/message idempotency, order/message/AI rate limits, and request-bound lesson-plan/voice/video upload paths implemented; orphan cleanup, moderation, and broader monitoring pending).
+6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies (lesson-plan/video size, client/ticket duration, and task-expiry metadata implemented; immutable attachment finalization, automated deletion, and consent UI pending).
 7. [x] Standardize Cloud Functions on one pinned, tested SDK version and document the upgrade process ([Dependency policy](DEPENDENCIES.md)).
+8. [x] Publish an evidence-based project-positioning note that distinguishes common two-sided Mini Program patterns from this repository's specific contribution and avoids unsupported originality claims ([Project positioning](PROJECT_POSITIONING.md)).
 
 ### v0.2.0 definition of done / 完成标准
 
