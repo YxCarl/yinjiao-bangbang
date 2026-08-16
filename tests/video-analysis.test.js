@@ -12,6 +12,7 @@ const {
 const {
   MAX_VIDEO_BYTES,
   PROCESSING_TIMEOUT_MS,
+  VIDEO_PROCESSING_CONSENT_VERSION,
   createTaskId,
   parseTimeline
 } = require('../cloudfunctions/analyzeVideo/policy')
@@ -25,6 +26,7 @@ function prepareEvent(requestId = 'video_request_0001') {
   return {
     action: 'prepare',
     requestId: requestId,
+    consentVersion: VIDEO_PROCESSING_CONSENT_VERSION,
     fileName: 'lesson.mp4',
     fileSize: 20 * 1024 * 1024,
     durationSeconds: 180
@@ -136,6 +138,9 @@ test('task preparation requires login, provider configuration, and bounded metad
     .handler(prepareEvent())).code, -2)
 
   const harness = createHarness()
+  assert.equal((await harness.handler(Object.assign(prepareEvent(), {
+    consentVersion: ''
+  }))).code, -1)
   assert.equal((await harness.handler(Object.assign(prepareEvent(), {
     fileSize: MAX_VIDEO_BYTES
   }))).code, -1)

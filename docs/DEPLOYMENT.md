@@ -32,6 +32,7 @@ Deploy every directory below `cloudfunctions/`:
 - `addOrder`
 - `analyzeVideo`
 - `completeOrder`
+- `cleanupExpiredData`
 - `getContents`
 - `getConversations`
 - `getMessages`
@@ -59,7 +60,7 @@ All committed functions pin the same SDK baseline. Follow the review, isolated d
 
 Set `ZHIPU_API_KEY` as an environment variable on `analyzeVideo`. Leave it unset to disable the feature safely. `ZHIPU_VIDEO_MODEL` is optional and defaults to `glm-4v-plus`.
 
-The reference policy allows at most three new analysis tasks per caller per hour, rejects actual cloud objects at or above 200MB, limits declared duration to 10 minutes, and records seven-day expiry metadata on task documents. Analysis uses the provider's asynchronous submit/result APIs and closes tasks that remain processing for more than 15 minutes. Configure scheduled deletion for expired `aiTasks`, rate-limit records, and unreferenced uploads before processing real recordings; expiry metadata alone does not delete data.
+The reference policy allows at most three new analysis tasks per caller per hour, rejects actual cloud objects at or above 200MB, limits declared duration to 10 minutes, and records seven-day expiry metadata on task documents. Analysis uses the provider's asynchronous submit/result APIs and closes tasks that remain processing for more than 15 minutes. The diagnosis page requires the current video-processing acknowledgement, and a diagnosis order must atomically bind one caller-owned completed analysis task; client-supplied timelines are not trusted.
 
 Before enabling analysis for real recordings:
 
@@ -69,7 +70,15 @@ Before enabling analysis for real recordings:
 - provide deletion and access-request procedures;
 - avoid recording unrelated students or sensitive classroom information.
 
-## 6. Validate
+## 6. Configure data cleanup
+
+Deploy `cleanupExpiredData` with `DATA_CLEANUP_ENABLED` unset or set to `false`. Run `{ "dryRun": true }` from the Cloud Function console, review the sanitized counts and legacy tasks, and only then set `DATA_CLEANUP_ENABLED=true` in an isolated environment. Upload the `dailyExpiredDataCleanup` timer trigger after the function code.
+
+Disable Mini Program/client invocation for `cleanupExpiredData` in the Cloud Function permission settings; only trusted operators and the timer should invoke it. The `event.Type` check is defense in depth, not an authentication boundary, because a client payload can imitate ordinary event fields.
+
+The function processes bounded batches. It deletes expired, unbound AI-task videos only after an atomic cleanup claim, removes the associated task after Cloud Storage confirms deletion, and deletes expired rate-limit records. Tasks bound to diagnosis orders are exempt. Historical tasks without a verified file ID move to `manual-review`; uploads that never reached the `start` action cannot be discovered automatically. See [Data handling](DATA_HANDLING.md).
+
+## 7. Validate
 
 Run locally:
 
@@ -101,12 +110,15 @@ Then verify in WeChat Developer Tools:
 - a fourth new video-analysis task within one hour is rejected while replaying an existing request ID is allowed;
 - an arbitrary cloud file ID that does not match the server-issued task path is rejected;
 - an actual video object at or above 200MB is rejected before the external provider call;
+- video selection is blocked until the processing acknowledgement is checked, and task preparation rejects a missing/outdated consent version;
+- a diagnosis order accepts only one caller-owned completed analysis task and ignores a client-authored AI timeline;
 - a valid video starts as `processing`, survives a page reload through the locally retained task ID, and later reaches `done` through status polling;
 - status responses never return provider task IDs, temporary URLs, owner IDs, or server-side file metadata;
 - the assigned mentor can open a student attachment but an unrelated mentor cannot;
 - conversation members can play each other's voice messages but a non-member cannot;
 - arbitrary cloud file IDs do not receive a temporary URL;
 - logs do not contain credentials, full message bodies, or personal data.
+- cleanup is disabled by default, dry run mutates nothing, order-bound tasks are excluded, and a failed storage deletion remains retryable;
 
 Follow [Mentor approval](MENTOR_APPROVAL.md) for the application states, trusted review operation, legacy-record migration, and two-account negative tests.
 
@@ -114,10 +126,10 @@ Follow [Mentor approval](MENTOR_APPROVAL.md) for the application states, trusted
 
 - [ ] Replace the reference manual approval operation with a production-reviewed identity-verification and reviewer-audit process.
 - [ ] Replace simulated wallet behavior with no payment feature, or complete a separate regulated payment design.
-- [ ] Add the remaining order/general-upload rate limits and broader abuse monitoring.
+- [x] Add caller-scoped order/message/AI rate limits, replay protection, and request-bound document/voice/video upload paths.
 - [ ] Add content moderation and reporting flows.
-- [ ] Define retention and automated deletion for files, messages, and AI tasks.
+- [ ] Extend the implemented unbound-AI-task/rate-counter cleanup policy to active order attachments, messages, conversations, and account deletion.
 - [ ] Review database and storage rules with negative authorization tests.
 - [ ] Enable private vulnerability reporting and branch protection.
 - [ ] Back up data and test recovery.
-- [ ] Complete privacy notices, consent flows, and any required local compliance review.
+- [ ] Replace the implemented reference video acknowledgement with deployment-specific privacy notices, processor identity, withdrawal/contact details, and any required local compliance review.

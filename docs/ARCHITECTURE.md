@@ -96,11 +96,20 @@ Only the assigned mentor can later mark the order complete through `completeOrde
 
 ### Analyze a video
 
-1. The client asks `analyzeVideo` to prepare an owner-bound task with bounded file metadata and a replay-safe request ID.
-2. A transaction creates the task and increments a caller-scoped hourly counter; repeated request IDs do not consume another slot.
+1. The client requires an explicit video-processing acknowledgement before media selection, then asks `analyzeVideo` to prepare an owner-bound task with the current consent version, bounded file metadata, and a replay-safe request ID.
+2. A transaction records the consent version/server time, creates the task, and increments a caller-scoped hourly counter; repeated request IDs do not consume another slot.
 3. The server returns an unpredictable task-specific Cloud Storage path, and the client uploads only to that path.
 4. Starting analysis rechecks task ownership and requires the uploaded cloud file ID to match the server-issued path.
 5. Before invoking the configured external provider, the server verifies the actual object size through a one-byte range request and obtains a temporary URL.
 6. The Cloud Function submits an asynchronous provider job, stores only its server-side task ID, and returns without waiting for inference to finish.
 7. Owner-authenticated status calls query the provider job. Completed timelines are normalized and stored; transient query failures remain retryable, while provider failures and the 15-minute processing deadline fail closed.
 8. Polling returns only public task fields and requires the same owner `OPENID`.
+9. A diagnosis order submits the analysis task ID. `addOrder` ignores any client-authored timeline, reloads the caller-owned completed task, and atomically binds it to at most one order.
+
+### Clean expired operational data
+
+1. `cleanupExpiredData` remains inert unless the deployment explicitly enables it; dry run returns counts without mutation.
+2. The daily timer lists only expired tasks explicitly marked cleanup-eligible.
+3. A transaction claims each still-unbound task so order creation and deletion cannot both succeed.
+4. After Cloud Storage confirms deletion, the task record is removed. Failures release the claim for retry; unverifiable legacy uploads move to manual review.
+5. Expired rate-limit documents are removed in the same bounded invocation. Order-bound task evidence is excluded from this automatic policy.

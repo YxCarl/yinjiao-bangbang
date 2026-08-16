@@ -25,6 +25,10 @@ Deployment checkpoint: on 2026-08-14, four additive Cloud Functions were deploye
 
 部署检查点：2026-08-14，在对 14 个既有云函数完成仓库外备份后，4 个新增云函数已部署并查询为 `Active`。证据记录在[测试与证据](TESTING.md)中，但这并不等于已经完成全新环境烟雾测试或跨账号授权矩阵。
 
+Platform compile checkpoint: on 2026-08-16, the authenticated WeChat Developer Tools CLI produced a successful preview after repository-only assets were excluded from the Mini Program package. The resulting source package was 210,305 bytes. The account still lists only the historical 18-function environment, so this does not complete item 1.
+
+平台编译检查点：2026-08-16，已登录的微信开发者工具 CLI 在排除仓库专用素材后成功生成预览，源码包为 210,305 字节。当前账号仍只列出包含 18 个函数的历史环境，因此该结果不能完成第 1 项。
+
 The first simulator-level negative calls reached the deployed validation paths successfully. A redacted, count-only data audit also identified migration blockers: an absent `contents` collection, client-readable historical data, legacy mentor records without approval status, and inconsistent legacy user/order state. Existing authorization-sensitive functions and deny-by-default rules remain intentionally undeployed until those records are reviewed.
 
 首轮模拟器负向调用已经成功到达已部署函数的参数校验路径。脱敏且仅计数的数据审计同时发现了迁移阻塞项：缺少 `contents` 集合、历史数据仍可由客户端读取、历史师傅缺少审核状态，以及用户与订单状态不一致。在这些记录完成复核前，既有授权敏感函数与默认拒绝规则仍不会部署。
@@ -32,11 +36,11 @@ The first simulator-level negative calls reached the deployed validation paths s
 Priority order / 优先顺序：
 
 1. [ ] Perform and document a full smoke test in WeChat Developer Tools using a maintainer-owned AppID and isolated test cloud environment.
-2. [ ] Publish deny-by-default database and storage rule examples with automated rule tests ([Issue #2](https://github.com/YxCarl/yinjiao-bangbang/issues/2), implementation in progress).
-3. [ ] Replace self-selected mentor access with an independently approved mentor-verification state and authorization checks ([Issue #4](https://github.com/YxCarl/yinjiao-bangbang/issues/4), implementation in progress).
-4. [ ] Introduce mockable Cloud Database adapters and add behavior-level tests for critical Cloud Functions ([Issue #6](https://github.com/YxCarl/yinjiao-bangbang/issues/6), order creation, mentor-order, and messaging flows in progress).
-5. [ ] Add rate limiting, idempotency, and abuse controls for messages, orders, file uploads, and AI tasks (order/message idempotency, order/message/AI rate limits, and request-bound lesson-plan/voice/video upload paths implemented; orphan cleanup, moderation, and broader monitoring pending).
-6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies (lesson-plan/video size, client/ticket duration, and task-expiry metadata implemented; immutable attachment finalization, automated deletion, and consent UI pending).
+2. [x] Publish deny-by-default database and storage rule examples with automated rule tests ([Issue #2](https://github.com/YxCarl/yinjiao-bangbang/issues/2)).
+3. [x] Replace self-selected mentor access with an independently approved mentor-verification state and authorization checks ([Issue #4](https://github.com/YxCarl/yinjiao-bangbang/issues/4)).
+4. [x] Introduce mockable Cloud Database adapters and add behavior-level tests for critical Cloud Functions ([Issue #6](https://github.com/YxCarl/yinjiao-bangbang/issues/6), covering mentor orders, messages, order creation, video analysis, and cleanup).
+5. [x] Add caller-scoped rate limits and replay/abuse controls for messages, orders, request-bound file uploads, and AI tasks; broader moderation and operational monitoring remain production-hardening work.
+6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies (bounds, versioned video acknowledgement, diagnosis-task binding, and disabled-by-default cleanup for unbound AI tasks/rate counters implemented; immutable order attachments and deletion of active business records remain deployment-policy work).
 7. [x] Standardize Cloud Functions on one pinned, tested SDK version and document the upgrade process ([Dependency policy](DEPENDENCIES.md)).
 8. [x] Publish an evidence-based project-positioning note that distinguishes common two-sided Mini Program patterns from this repository's specific contribution and avoids unsupported originality claims ([Project positioning](PROJECT_POSITIONING.md)).
 

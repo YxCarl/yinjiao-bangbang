@@ -7,6 +7,7 @@ const REQUESTS_PER_HOUR = 3
 const RATE_WINDOW_MS = 60 * 60 * 1000
 const PROCESSING_TIMEOUT_MS = 15 * 60 * 1000
 const TASK_RETENTION_MS = 7 * 24 * 60 * 60 * 1000
+const VIDEO_PROCESSING_CONSENT_VERSION = '2026-08-16'
 
 function boundedText(value, maximumLength) {
   return typeof value === 'string' ? value.trim().slice(0, maximumLength) : ''
@@ -47,6 +48,10 @@ function validatePrepareRequest(event) {
     return { ok: false, error: '请求标识无效，请更新小程序后重试' }
   }
 
+  if (event.consentVersion !== VIDEO_PROCESSING_CONSENT_VERSION) {
+    return { ok: false, error: '请先确认视频处理与外部分析说明' }
+  }
+
   const fileName = boundedText(event.fileName, 200)
   if (!fileName || !/\.(?:mp4|mov|m4v)$/i.test(fileName)) {
     return { ok: false, error: '仅支持 MP4、MOV 或 M4V 视频' }
@@ -70,6 +75,7 @@ function validatePrepareRequest(event) {
     ok: true,
     value: {
       requestId: requestId,
+      consentVersion: VIDEO_PROCESSING_CONSENT_VERSION,
       fileName: fileName,
       fileSize: fileSize,
       durationSeconds: Math.round(durationSeconds * 10) / 10
@@ -139,6 +145,7 @@ module.exports = {
   RATE_WINDOW_MS,
   REQUESTS_PER_HOUR,
   TASK_RETENTION_MS,
+  VIDEO_PROCESSING_CONSENT_VERSION,
   cloudFileMatchesPath,
   createRateLimitId,
   createTaskId,

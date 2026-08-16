@@ -46,6 +46,8 @@ function createAnalyzeVideoHandler(dependencies) {
       taskId: taskId,
       rateLimitId: createRateLimitId(openid, windowStartMs),
       requestId: validation.value.requestId,
+      consentVersion: validation.value.consentVersion,
+      consentedAtMs: timestamp,
       expectedCloudPath: uploadPathForTask(taskId),
       fileName: validation.value.fileName,
       fileSize: validation.value.fileSize,

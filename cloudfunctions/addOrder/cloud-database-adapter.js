@@ -30,6 +30,11 @@ function createCloudDatabaseAdapter(db) {
       return documentData(result)
     },
 
+    async getAiTask(taskId) {
+      const result = await db.collection('aiTasks').doc(taskId).get()
+      return documentData(result)
+    },
+
     async createOrderAtomically(input) {
       const result = await db.runTransaction(async transaction => {
         const userReference = transaction.collection('users').doc(input.userId)
@@ -59,6 +64,25 @@ function createCloudDatabaseAdapter(db) {
             throw collision
           }
           return { status: 'duplicate', balance: balance }
+        }
+
+        let analysisTaskReference = null
+        if (input.analysisTaskId) {
+          analysisTaskReference = transaction.collection('aiTasks').doc(input.analysisTaskId)
+          const analysisResult = await analysisTaskReference.get()
+          const analysisTask = documentData(analysisResult)
+          if (
+            !analysisTask ||
+            analysisTask._openid !== input.openid ||
+            analysisTask.status !== 'done' ||
+            analysisTask.fileID !== input.analysisFileID ||
+            analysisTask.cleanupState === 'deleting'
+          ) {
+            return { status: 'analysis-invalid', balance: balance }
+          }
+          if (analysisTask.orderId && analysisTask.orderId !== input.orderId) {
+            return { status: 'analysis-used', balance: balance }
+          }
         }
 
         if (balance < input.price) {
@@ -105,6 +129,17 @@ function createCloudDatabaseAdapter(db) {
             detail: input.order.detail
           }
         })
+        if (analysisTaskReference) {
+          await analysisTaskReference.update({
+            data: {
+              orderId: input.orderId,
+              orderedAtMs: input.createdAtMs,
+              orderedTime: db.serverDate(),
+              cleanupEligible: false,
+              cleanupState: 'order-bound'
+            }
+          })
+        }
 
         return { status: 'created', balance: newBalance }
       })

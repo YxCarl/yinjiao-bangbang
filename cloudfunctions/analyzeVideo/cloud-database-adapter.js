@@ -55,6 +55,9 @@ function createCloudDatabaseAdapter(db) {
           _id: input.taskId,
           _openid: input.openid,
           requestId: input.requestId,
+          consentVersion: input.consentVersion,
+          consentedAtMs: input.consentedAtMs,
+          consentedTime: db.serverDate(),
           status: 'awaiting_upload',
           expectedCloudPath: input.expectedCloudPath,
           originalFileName: input.fileName,
@@ -63,6 +66,8 @@ function createCloudDatabaseAdapter(db) {
           createdAtMs: input.createdAtMs,
           createTime: db.serverDate(),
           expiresAt: new Date(input.taskExpiresAtMs),
+          cleanupEligible: true,
+          cleanupState: 'scheduled',
           timeline: []
         }
         await taskReference.set({ data: task })

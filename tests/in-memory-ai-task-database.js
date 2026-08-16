@@ -42,6 +42,8 @@ class InMemoryAiTaskDatabase {
       _id: input.taskId,
       _openid: input.openid,
       requestId: input.requestId,
+      consentVersion: input.consentVersion,
+      consentedAtMs: input.consentedAtMs,
       status: 'awaiting_upload',
       expectedCloudPath: input.expectedCloudPath,
       originalFileName: input.fileName,
@@ -50,6 +52,8 @@ class InMemoryAiTaskDatabase {
       createdAtMs: input.createdAtMs,
       createTime: this.clock,
       expiresAt: new Date(input.taskExpiresAtMs).toISOString(),
+      cleanupEligible: true,
+      cleanupState: 'scheduled',
       timeline: []
     }
     this.tasks.push(task)

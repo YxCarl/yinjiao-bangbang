@@ -42,6 +42,7 @@ const requiredFiles = [
   'docs/TESTING.md',
   'docs/SECURITY_RULES.md',
   'docs/DEPENDENCIES.md',
+  'docs/DATA_HANDLING.md',
   'security/database-rules.json',
   'security/storage-rules.json',
   '.github/workflows/validate.yml'

@@ -18,6 +18,14 @@
   </view>
 </view>
 
+<checkbox-group class="consent-card" bindchange="onVideoConsentChange">
+  <label class="consent-row">
+    <checkbox value="accepted" checked="{{videoConsentAccepted}}" color="#2E5D8A" />
+    <text class="consent-text">我确认已取得视频中相关人员或监护人所需授权，并同意将视频临时地址发送给部署方配置的外部分析服务。</text>
+  </label>
+  <text class="consent-note">请勿上传未经授权的学生影像、敏感身份信息或与教学无关的内容。</text>
+</checkbox-group>
+
 <!-- AI 切片 -->
 <view class="section-title mt-32">AI 智能切片</view>
 <view class="biz-card ai-card">

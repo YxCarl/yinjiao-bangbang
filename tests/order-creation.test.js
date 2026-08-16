@@ -72,6 +72,37 @@ function documentEvent(requestId, cloudPath, fileSize = 2048) {
   }
 }
 
+const ANALYSIS_TASK_ID = `ai_${'a'.repeat(32)}`
+const ANALYSIS_FILE_ID = `cloud://test-env.example/zhenke/${ANALYSIS_TASK_ID}.mp4`
+
+function diagnosisFixtures(overrides = {}) {
+  return Object.assign(fixtures(), {
+    aiTasks: [Object.assign({
+      _id: ANALYSIS_TASK_ID,
+      _openid: 'student-openid',
+      status: 'done',
+      fileID: ANALYSIS_FILE_ID,
+      originalFileName: 'trusted-lesson.mp4',
+      timeline: [{ time: '00:12', label: '导入', desc: '服务端分析结果' }]
+    }, overrides)]
+  })
+}
+
+function diagnosisEvent(requestId = 'diagnosis_request_0001') {
+  return {
+    requestId: requestId,
+    typeText: '诊课室',
+    title: '试讲视频 逐帧诊断',
+    price: 128,
+    detail: {
+      analysisTaskId: ANALYSIS_TASK_ID,
+      videoName: 'client-name.mp4',
+      fileID: ANALYSIS_FILE_ID,
+      aiTimeline: [{ time: '99:99', label: '伪造结果', desc: '不应保存' }]
+    }
+  }
+}
+
 test('addOrder deploys the dependency-injected transactional handler', () => {
   const entrySource = fs.readFileSync(
     path.join(root, 'cloudfunctions', 'addOrder', 'index.js'),
@@ -195,6 +226,48 @@ test('replaying a document order skips another remote object check', async () =>
   assert.equal(retry.code, 0)
   assert.equal(retry.data.replayed, true)
   assert.equal(checks, 1)
+  assert.equal(database.snapshot().orders.length, 1)
+})
+
+test('a diagnosis order trusts only the caller-owned completed analysis task', async () => {
+  const database = new InMemoryOrderCreationDatabase(diagnosisFixtures())
+  const result = await addOrder(database)(diagnosisEvent())
+  const state = database.snapshot()
+
+  assert.equal(result.code, 0)
+  assert.equal(state.orders.length, 1)
+  assert.equal(state.orders[0].detail.videoName, 'trusted-lesson.mp4')
+  assert.deepEqual(state.orders[0].detail.aiTimeline, [
+    { time: '00:12', label: '导入', desc: '服务端分析结果' }
+  ])
+  assert.equal(state.aiTasks[0].orderId, result.data._id)
+})
+
+test('a diagnosis task cannot be forged or consumed by two orders', async () => {
+  const wrongOwner = new InMemoryOrderCreationDatabase(diagnosisFixtures({
+    _openid: 'outsider-openid'
+  }))
+  assert.equal((await addOrder(wrongOwner)(diagnosisEvent())).code, -1)
+  assert.equal(wrongOwner.snapshot().orders.length, 0)
+
+  const database = new InMemoryOrderCreationDatabase(diagnosisFixtures())
+  const handler = addOrder(database)
+  assert.equal((await handler(diagnosisEvent('diagnosis_request_0001'))).code, 0)
+  assert.equal((await handler(diagnosisEvent('diagnosis_request_0002'))).code, -1)
+  assert.equal(database.snapshot().orders.length, 1)
+  assert.equal(database.snapshot().users[0].balance, 72)
+})
+
+test('a confirmed diagnosis-order replay survives analysis-task cleanup', async () => {
+  const database = new InMemoryOrderCreationDatabase(diagnosisFixtures())
+  const handler = addOrder(database)
+  const first = await handler(diagnosisEvent())
+  database.aiTasks = []
+  const replay = await handler(diagnosisEvent())
+
+  assert.equal(first.code, 0)
+  assert.equal(replay.code, 0)
+  assert.equal(replay.data.replayed, true)
   assert.equal(database.snapshot().orders.length, 1)
 })
 
@@ -343,4 +416,16 @@ test('the document-order page uses the prepare, upload, and verified-submit flow
   assert.match(source, /cloudPath: prepared\.data\.cloudPath/)
   assert.match(source, /fileSize: this\.data\.fileSize/)
   assert.doesNotMatch(source, /cloudPath: 'moke\/' \+ Date\.now\(\)/)
+})
+
+test('the diagnosis page requires consent and submits the server analysis task ID', () => {
+  const source = fs.readFileSync(path.join(root, 'pages', 'zhenke', 'zhenke.js'), 'utf8')
+  const template = fs.readFileSync(path.join(root, 'pages', 'zhenke', 'zhenke.wxml'), 'utf8')
+
+  assert.match(source, /consentVersion: VIDEO_PROCESSING_CONSENT_VERSION/)
+  assert.match(source, /analysisTaskId: this\.data\.analysisTaskId/)
+  assert.match(source, /this\.data\.aiStatus !== 2/)
+  assert.doesNotMatch(source, /aiTimeline: this\.data\.aiTimeline/)
+  assert.match(template, /bindchange="onVideoConsentChange"/)
+  assert.match(template, /外部分析服务/)
 })

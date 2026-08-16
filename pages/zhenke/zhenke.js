@@ -7,12 +7,15 @@ const {
 const MAX_VIDEO_BYTES = 200 * 1024 * 1024
 const MAX_VIDEO_DURATION_SECONDS = 600
 const ACTIVE_ANALYSIS_TASK_KEY = 'activeVideoAnalysisTaskId'
+const VIDEO_PROCESSING_CONSENT_VERSION = '2026-08-16'
 
 Page({
   data: {
     videoPath: '',
     videoName: '',
     fileID: '',
+    analysisTaskId: '',
+    videoConsentAccepted: false,
     aiStatus: 0,
     aiTimeline: []
   },
@@ -25,6 +28,7 @@ Page({
     if (taskId) {
       this.setData({
         aiStatus: 1,
+        analysisTaskId: taskId,
         fileID: activeTask.fileID || '',
         videoName: activeTask.videoName || ''
       })
@@ -38,6 +42,9 @@ Page({
   },
 
   uploadVideo() {
+    if (!this.data.videoConsentAccepted) {
+      return wx.showToast({ title: '请先阅读并确认视频处理说明', icon: 'none' })
+    }
     // 先检查权限
     wx.getSetting({
       success: (setting) => {
@@ -59,6 +66,11 @@ Page({
         this._doChooseVideo()
       }
     })
+  },
+
+  onVideoConsentChange(e) {
+    const values = e && e.detail && Array.isArray(e.detail.value) ? e.detail.value : []
+    this.setData({ videoConsentAccepted: values.includes('accepted') })
   },
 
   _doChooseVideo() {
@@ -115,6 +127,7 @@ Page({
       name: 'analyzeVideo',
       data: {
         action: 'prepare',
+        consentVersion: VIDEO_PROCESSING_CONSENT_VERSION,
         requestId: requestId,
         fileName: name,
         fileSize: fileSize,
@@ -151,7 +164,10 @@ Page({
       success: (uploadRes) => {
         wx.hideLoading()
         this.setData({
-          videoPath: tempPath, videoName: name, fileID: uploadRes.fileID
+          videoPath: tempPath,
+          videoName: name,
+          fileID: uploadRes.fileID,
+          analysisTaskId: taskId
         })
         this._startAnalyze(taskId, uploadRes.fileID)
       },
@@ -179,7 +195,7 @@ Page({
           if (timeline && timeline.length) {
             wx.hideLoading()
             wx.removeStorageSync(ACTIVE_ANALYSIS_TASK_KEY)
-            this.setData({ aiStatus: 2, aiTimeline: timeline })
+            this.setData({ aiStatus: 2, aiTimeline: timeline, analysisTaskId: taskId })
           } else if (taskId) {
             wx.showLoading({ title: 'AI 分析中...', mask: true })
             this._beginPolling(taskId)
@@ -243,7 +259,11 @@ Page({
               wx.hideLoading()
               wx.removeStorageSync(ACTIVE_ANALYSIS_TASK_KEY)
               this._analysisPollRun += 1
-              this.setData({ aiStatus: 2, aiTimeline: d.timeline || [] })
+              this.setData({
+                aiStatus: 2,
+                aiTimeline: d.timeline || [],
+                analysisTaskId: taskId
+              })
             } else if (d.status === 'error') {
               wx.hideLoading()
               wx.removeStorageSync(ACTIVE_ANALYSIS_TASK_KEY)
@@ -271,6 +291,9 @@ Page({
 
   submitZhenke() {
     if (!this.data.fileID) return wx.showToast({ title: '请先上传视频', icon: 'none' })
+    if (this.data.aiStatus !== 2 || !this.data.analysisTaskId) {
+      return wx.showToast({ title: '请等待 AI 分析完成', icon: 'none' })
+    }
 
     const order = {
       typeText: '诊课室',
@@ -279,7 +302,7 @@ Page({
       detail: {
         videoName: this.data.videoName,
         fileID: this.data.fileID,
-        aiTimeline: this.data.aiTimeline
+        analysisTaskId: this.data.analysisTaskId
       }
     }
     const requestId = beginOrderRequest(this, order)

@@ -42,7 +42,8 @@ function normalizeDetail(value) {
     level: 50,
     fileName: 200,
     fileID: 500,
-    videoName: 200
+    videoName: 200,
+    analysisTaskId: 100
   }
   for (const [field, limit] of Object.entries(textFields)) {
     const normalized = boundedText(value[field], limit)
@@ -135,6 +136,35 @@ function createAddOrderHandler(dependencies) {
         }
       }
 
+      if (typeText === '诊课室') {
+        const existingOrder = await database.getOrder(orderId)
+        const isReplay = existingOrder &&
+          existingOrder._openid === openid &&
+          existingOrder.requestId === requestId
+
+        if (!isReplay) {
+          if (!/^ai_[a-f0-9]{32}$/.test(detail.analysisTaskId || '')) {
+            return { code: -1, error: '视频分析任务无效，请重新分析' }
+          }
+          const analysisTask = await database.getAiTask(detail.analysisTaskId)
+          if (
+            !analysisTask ||
+            analysisTask._openid !== openid ||
+            analysisTask.status !== 'done' ||
+            analysisTask.fileID !== detail.fileID
+          ) {
+            return { code: -1, error: '视频分析任务与当前用户或文件不匹配' }
+          }
+
+          const trustedTimeline = normalizeTimeline(analysisTask.timeline)
+          if (trustedTimeline.length === 0) {
+            return { code: -1, error: '视频分析结果不完整，请重新分析' }
+          }
+          detail.videoName = boundedText(analysisTask.originalFileName, 200) || detail.videoName
+          detail.aiTimeline = trustedTimeline
+        }
+      }
+
       const result = await database.createOrderAtomically({
         openid: openid,
         userId: student._id,
@@ -146,6 +176,8 @@ function createAddOrderHandler(dependencies) {
         windowStartMs: windowStartMs,
         maximumOrders: ORDER_RATE_LIMIT,
         rateLimitExpiresAtMs: windowStartMs + (2 * ORDER_RATE_WINDOW_MS),
+        analysisTaskId: typeText === '诊课室' ? detail.analysisTaskId : '',
+        analysisFileID: typeText === '诊课室' ? detail.fileID : '',
         order: {
           typeText: typeText,
           title: title,
@@ -167,6 +199,12 @@ function createAddOrderHandler(dependencies) {
       }
       if (result.status === 'rate-limited') {
         return { code: -4, error: '订单创建过于频繁，请稍后再试' }
+      }
+      if (result.status === 'analysis-invalid') {
+        return { code: -1, error: '视频分析任务已失效或无权使用' }
+      }
+      if (result.status === 'analysis-used') {
+        return { code: -1, error: '该视频分析任务已创建过订单' }
       }
       if (result.status !== 'created' && result.status !== 'duplicate') {
         const unexpected = new Error('Unexpected atomic order result')
