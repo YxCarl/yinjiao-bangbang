@@ -8,7 +8,15 @@ const authorization = require('../cloudfunctions/getProtectedFileURL/authorizati
 
 test('database rules deny every direct client operation', () => {
   const rules = JSON.parse(fs.readFileSync(path.join(root, 'security/database-rules.json'), 'utf8'))
-  const expectedCollections = ['users', 'orders', 'messages', 'conversations', 'contents', 'aiTasks']
+  const expectedCollections = [
+    'users',
+    'orders',
+    'messages',
+    'conversations',
+    'contents',
+    'aiTasks',
+    'rateLimits'
+  ]
 
   assert.deepEqual(Object.keys(rules).sort(), expectedCollections.sort())
   for (const [collection, rule] of Object.entries(rules)) {

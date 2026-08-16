@@ -1,0 +1,11 @@
+{
+  "permissions": { "openapi": [] },
+  "timeout": 20,
+  "triggers": [
+    {
+      "name": "dailyExpiredDataCleanup",
+      "type": "timer",
+      "config": "0 0 3 * * * *"
+    }
+  ]
+}

@@ -11,6 +11,14 @@ function sourceOf(functionName) {
   return fs.readFileSync(path.join(root, 'cloudfunctions', functionName, 'index.js'), 'utf8')
 }
 
+function allRuntimeSourcesOf(functionName) {
+  const functionRoot = path.join(root, 'cloudfunctions', functionName)
+  return fs.readdirSync(functionRoot)
+    .filter(file => file.endsWith('.js'))
+    .map(file => fs.readFileSync(path.join(functionRoot, file), 'utf8'))
+    .join('\n')
+}
+
 test('a client-selected mentor role never creates mentor privileges', () => {
   assert.equal(profilePolicy.normalizeRequestedRole('mentor'), 'mentor')
 
@@ -74,7 +82,11 @@ test('every mentor-sensitive Cloud Function requires explicit approval', () => {
   const approvedQuery = /role:\s*'mentor',\s*mentorStatus:\s*'approved'/
 
   for (const functionName of guardedFunctions) {
-    assert.match(sourceOf(functionName), approvedQuery, `${functionName} must require approval`)
+    assert.match(
+      allRuntimeSourcesOf(functionName),
+      approvedQuery,
+      `${functionName} must require approval`
+    )
   }
 })
 

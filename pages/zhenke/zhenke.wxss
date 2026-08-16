@@ -68,6 +68,30 @@
   text-decoration: underline;
 }
 
+.consent-card {
+  display: block;
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border: 1rpx solid var(--divider);
+  border-radius: 16rpx;
+  background: #FFFFFF;
+}
+.consent-row { display: flex; align-items: flex-start; }
+.consent-row checkbox { transform: scale(0.82); transform-origin: top left; }
+.consent-text {
+  flex: 1;
+  font-size: 23rpx;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.consent-note {
+  display: block;
+  margin: 12rpx 0 0 52rpx;
+  font-size: 21rpx;
+  line-height: 1.5;
+  color: var(--text-3);
+}
+
 /* AI 卡片 */
 .ai-card { padding: 32rpx; }
 .ai-header {

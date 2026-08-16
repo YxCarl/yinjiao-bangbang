@@ -1,10 +1,12 @@
 # Shifu Zaima / 师傅在吗
 
-[简体中文](README.zh-CN.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Roadmap](docs/ROADMAP.md)
+[简体中文](README.zh-CN.md) · [Positioning](docs/PROJECT_POSITIONING.md) · [Data handling](docs/DATA_HANDLING.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Roadmap](docs/ROADMAP.md)
 
 Shifu Zaima is an open-source WeChat Mini Program reference implementation for connecting pre-service teachers and early-career educators with experienced mentors. The Mini Program uses the Chinese product name “师傅在吗”; `yinjiao-bangbang` is retained as the repository's historical code identifier. It combines lesson-plan review, teaching-video analysis, anonymous questions, order workflows, and in-app messaging on WeChat Cloud Development.
 
 > **Project status:** public reference implementation / early beta. It is suitable for learning, evaluation, and further development, but it is not a hosted production service. Payment and wallet behavior is simulated. Mentor access uses an explicit approval state and server-side checks; production deployments must still provide a lawful identity-verification and audited reviewer process.
+
+The project does not claim to have invented student/teacher roles, two-sided orders, messaging, or education Mini Programs. Its contribution is a documented and tested combination of mentoring workflows and server-authorized interaction patterns. See [Project positioning and related work](docs/PROJECT_POSITIONING.md).
 
 ## Interface preview
 
@@ -93,6 +95,7 @@ Create these collections in the Cloud Development console:
 - `conversations`
 - `contents`
 - `aiTasks`
+- `rateLimits`
 
 Do not grant public write access. Client pages should call Cloud Functions for protected mutations.
 
@@ -100,13 +103,19 @@ Do not grant public write access. Client pages should call Cloud Functions for p
 
 Upload and deploy every directory under `cloudfunctions/`. Install cloud dependencies when prompted by WeChat Developer Tools.
 
-Apply the database and storage rules only after deploying `getProtectedFileURL`; follow the safe rollout and negative-test matrix in [Security rules](docs/SECURITY_RULES.md). To enable video analysis, configure `ZHIPU_API_KEY` as a server-side environment variable for the `analyzeVideo` Cloud Function. Never store provider keys in client code, public database collections, screenshots, issues, or commits.
+Apply the database and storage rules only after deploying `getProtectedFileURL`; follow the safe rollout and negative-test matrix in [Security rules](docs/SECURITY_RULES.md). To enable video analysis, configure `ZHIPU_API_KEY` as a server-side environment variable for the `analyzeVideo` Cloud Function. The video flow uses server-issued upload paths, three new tasks per caller per hour, an actual object-size check below 200MB, asynchronous provider jobs, resumable polling, and bounded provider requests. Never store provider keys in client code, public database collections, screenshots, issues, or commits.
 
 ### 4. Load optional sample content
 
 Import `seed-contents.json` into the `contents` collection if you want the example resource pages to contain data.
 
 Detailed setup and a production-hardening checklist are available in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Reproducible validation
+
+`npm test` runs repository validation, authorization-policy checks, and behavior-level tests for selected order and messaging Cloud Functions. The behavior suite executes the same dependency-injected handlers exported by the deployed entry points, with deterministic in-memory database adapters and no private cloud credentials. Tests cover atomic order creation, order/message request replay, caller-scoped order/message limits, and transactional unread updates; real CloudBase transaction execution still requires isolated-environment verification.
+
+These tests establish local business and authorization behavior; they do not claim that CloudBase SDK queries, environment permissions, or deployed security rules have run. The evidence levels and isolated-environment matrix are documented in [Testing and evidence](docs/TESTING.md).
 
 ## Security and privacy notes
 

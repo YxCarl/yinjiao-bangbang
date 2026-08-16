@@ -18,7 +18,23 @@
   "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "folder", "value": ".github" },
+      { "type": "folder", "value": "docs" },
+      { "type": "folder", "value": "scripts" },
+      { "type": "folder", "value": "security" },
+      { "type": "folder", "value": "tests" },
+      { "type": "file", "value": ".gitignore" },
+      { "type": "file", "value": "CHANGELOG.md" },
+      { "type": "file", "value": "CODE_OF_CONDUCT.md" },
+      { "type": "file", "value": "CONTRIBUTING.md" },
+      { "type": "file", "value": "GOVERNANCE.md" },
+      { "type": "file", "value": "LICENSE" },
+      { "type": "file", "value": "README.md" },
+      { "type": "file", "value": "README.zh-CN.md" },
+      { "type": "file", "value": "SECURITY.md" },
+      { "type": "file", "value": "package.json" }
+    ],
     "include": []
   },
   "appid": "touristappid",

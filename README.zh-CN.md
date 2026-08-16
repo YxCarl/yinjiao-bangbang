@@ -1,10 +1,12 @@
 # 师傅在吗 / Shifu Zaima
 
-[English](README.md) · [参与贡献](CONTRIBUTING.md) · [安全政策](SECURITY.md) · [路线图](docs/ROADMAP.md)
+[English](README.md) · [项目定位](docs/PROJECT_POSITIONING.md) · [数据处理](docs/DATA_HANDLING.md) · [参与贡献](CONTRIBUTING.md) · [安全政策](SECURITY.md) · [路线图](docs/ROADMAP.md)
 
 “师傅在吗”是一个开源的微信小程序参考实现，旨在连接职前教师、青年教师与具有丰富经验的教育工作者。小程序界面统一使用“师傅在吗”作为产品名称，`yinjiao-bangbang` 作为仓库沿用的内部代码标识。项目基于微信云开发，覆盖教案精修、试讲视频分析、教学问答、指导订单和站内沟通等流程。
 
 > **项目状态：**公开参考实现 / 早期测试版。适合学习、评估和二次开发，但不是可直接用于生产环境的托管服务。钱包和支付为演示逻辑；导师权限采用显式审批状态和服务端校验，生产部署仍需提供合规的身份核验渠道及可审计的审核流程。
+
+本项目不宣称首创学员/教师角色、双边订单、消息或教育小程序。它的贡献是一套经过文档化和测试的导师服务流程与服务端授权交互组合。详见[项目定位与相关工作](docs/PROJECT_POSITIONING.md)。
 
 ## 界面预览
 
@@ -93,6 +95,7 @@ npm test
 - `conversations`
 - `contents`
 - `aiTasks`
+- `rateLimits`
 
 不要开放公共写权限。受保护的数据修改应由页面调用云函数完成。
 
@@ -100,13 +103,19 @@ npm test
 
 上传并部署 `cloudfunctions/` 下的全部目录，并在开发者工具提示时安装云端依赖。
 
-请先部署 `getProtectedFileURL`，再按照[安全规则文档](docs/SECURITY_RULES.md)的安全顺序和负向测试矩阵应用数据库及云存储规则。如需启用视频分析，请把 `ZHIPU_API_KEY` 配置为 `analyzeVideo` 云函数的服务端环境变量。不要把模型密钥写入客户端代码、公共数据库、截图、Issue 或 Git 提交。
+请先部署 `getProtectedFileURL`，再按照[安全规则文档](docs/SECURITY_RULES.md)的安全顺序和负向测试矩阵应用数据库及云存储规则。如需启用视频分析，请把 `ZHIPU_API_KEY` 配置为 `analyzeVideo` 云函数的服务端环境变量。视频流程采用服务端签发上传路径、每账号每小时最多三个新任务、真实对象小于 200MB 校验、模型异步任务、可恢复轮询以及受限的模型请求。不要把模型密钥写入客户端代码、公共数据库、截图、Issue 或 Git 提交。
 
 ### 4. 导入示例内容
 
 如需在资源页面显示演示内容，可将 `seed-contents.json` 导入 `contents` 集合。
 
 完整步骤和生产环境加固清单见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
+
+## 可复现验证
+
+运行 `npm test` 会执行仓库结构校验、鉴权策略测试，以及部分订单与消息云函数的行为级测试。行为测试使用部署入口实际导出的依赖注入处理器，并注入确定性的内存数据库适配器，无需任何私有云环境凭据。测试已覆盖订单原子创建、订单/消息请求重放、调用方级订单/消息频控与未读数事务更新；CloudBase 事务的真实执行仍需在隔离环境中验证。
+
+这些测试能够证明本地业务与鉴权决策，不代表 CloudBase SDK 查询、环境权限或已部署安全规则已经运行。证据层级和隔离环境验证矩阵见[测试与证据](docs/TESTING.md)。
 
 ## 安全与隐私说明
 

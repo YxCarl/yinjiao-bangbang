@@ -16,9 +16,14 @@ test('every configured page has the four Mini Program source files', () => {
   }
 })
 
-test('every Cloud Function has code, configuration, and a private MIT package', () => {
+test('every Cloud Function has code, configuration, and the pinned SDK', () => {
   const cloudRoot = path.join(root, 'cloudfunctions')
-  const functions = fs.readdirSync(cloudRoot, { withFileTypes: true }).filter(entry => entry.isDirectory())
+  const functions = fs.readdirSync(cloudRoot, { withFileTypes: true })
+    .filter(entry => entry.isDirectory())
+    // WeChat Developer Tools may create empty placeholders for remote-only
+    // functions. Empty directories cannot be committed, so they are not part
+    // of the repository structure under test.
+    .filter(entry => fs.readdirSync(path.join(cloudRoot, entry.name)).length > 0)
   assert.ok(functions.length >= 10, 'expected the documented Cloud Functions')
 
   for (const entry of functions) {
@@ -29,6 +34,11 @@ test('every Cloud Function has code, configuration, and a private MIT package', 
     const packageJson = JSON.parse(fs.readFileSync(path.join(functionRoot, 'package.json'), 'utf8'))
     assert.equal(packageJson.private, true, `${entry.name} must be private`)
     assert.equal(packageJson.license, 'MIT', `${entry.name} must use MIT`)
+    assert.equal(
+      packageJson.dependencies['wx-server-sdk'],
+      '3.0.4',
+      `${entry.name} must use the repository SDK baseline`
+    )
   }
 })
 
@@ -37,4 +47,17 @@ test('the public project configuration contains no deployment AppID', () => {
   assert.equal(project.appid, 'touristappid')
   const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8')
   assert.doesNotMatch(appSource, /cloud\d+-[a-z0-9]{10,}/i)
+})
+
+test('repository-only assets are excluded from the Mini Program package', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(root, 'project.config.json'), 'utf8'))
+  const ignoredFolders = new Set(
+    (config.packOptions && config.packOptions.ignore || [])
+      .filter(item => item.type === 'folder')
+      .map(item => item.value)
+  )
+
+  for (const folder of ['.github', 'docs', 'scripts', 'security', 'tests']) {
+    assert.equal(ignoredFolders.has(folder), true, `${folder} must not enter the Mini Program package`)
+  }
 })

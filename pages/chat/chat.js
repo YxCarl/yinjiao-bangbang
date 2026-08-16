@@ -1,5 +1,6 @@
 const recorderManager = wx.getRecorderManager()
 const protectedFile = require('../../utils/protected-file')
+const { createRequestId } = require('../../utils/order-request')
 
 Page({
   data: {
@@ -39,23 +40,7 @@ Page({
       this.setData({ recording: false })
       if (res.duration < 1000) return wx.showToast({ title: '录音时间太短', icon: 'none' })
       const dur = Math.round(res.duration / 1000)
-      const preview = '语音 ' + dur + '"'
-      const list = this.data.messages.slice()
-      list.push({ id: Date.now(), side: 'out', kind: 'voice', dur: dur, text: preview, fileID: '' })
-      this.setData({ messages: list })
-      this._sentTexts.push(preview)
-      this._updateCache(preview)
-      wx.cloud.uploadFile({
-        cloudPath: 'chat/' + Date.now() + '.mp3',
-        filePath: res.tempFilePath,
-        success: (uploadRes) => {
-          const msgs = this.data.messages.slice()
-          msgs.forEach(m => { if (m.text === preview && !m.fileID) m.fileID = uploadRes.fileID })
-          this.setData({ messages: msgs })
-          this._sendToCloud('voice', preview, uploadRes.fileID, dur)
-        },
-        fail: () => { wx.showToast({ title: '语音上传失败，消息已保留', icon: 'none' }) }
-      })
+      this._prepareVoiceUpload(res.tempFilePath, dur)
     })
     recorderManager.onError(() => {
       this.setData({ recording: false })
@@ -110,18 +95,86 @@ Page({
     this._sendToCloud('text', text)
   },
 
-  _sendToCloud(kind, content, fileID, dur) {
+  _prepareVoiceUpload(tempPath, dur) {
     if (!this.data.conversationId) return
+    const preview = '语音 ' + dur + ' 秒'
+    const requestId = createRequestId('message')
+    const list = this.data.messages.slice()
+    list.push({ id: Date.now(), side: 'out', kind: 'voice', dur: dur, text: preview, fileID: '' })
+    this.setData({ messages: list })
+    this._sentTexts.push(preview)
+    this._updateCache(preview)
+    wx.showLoading({ title: '准备语音上传...', mask: true })
     wx.cloud.callFunction({
       name: 'sendMessage',
       data: {
+        action: 'prepare_voice',
         conversationId: this.data.conversationId,
-        kind: kind,
-        content: content,
-        fileID: fileID || '',
-        dur: dur || 0
+        requestId: requestId
       },
-      success: () => {}, fail: () => {}
+      success: (prepareRes) => {
+        const result = prepareRes.result || {}
+        const cloudPath = result.data && result.data.cloudPath
+        if (result.code !== 0 || !cloudPath) {
+          wx.hideLoading()
+          return wx.showToast({ title: result.error || '无法准备语音上传', icon: 'none' })
+        }
+        wx.cloud.uploadFile({
+          cloudPath: cloudPath,
+          filePath: tempPath,
+          success: (uploadRes) => {
+            wx.hideLoading()
+            const msgs = this.data.messages.slice()
+            msgs.forEach(m => { if (m.text === preview && !m.fileID) m.fileID = uploadRes.fileID })
+            this.setData({ messages: msgs })
+            this._sendToCloud('voice', preview, uploadRes.fileID, dur, requestId)
+          },
+          fail: () => {
+            wx.hideLoading()
+            wx.showToast({ title: '语音上传失败，消息已保留', icon: 'none' })
+          }
+        })
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.showToast({ title: '无法准备语音上传', icon: 'none' })
+      }
+    })
+  },
+
+  _sendToCloud(kind, content, fileID, dur, existingRequestId) {
+    if (!this.data.conversationId) return
+    const payload = {
+      conversationId: this.data.conversationId,
+      requestId: existingRequestId || createRequestId('message'),
+      kind: kind,
+      content: content,
+      fileID: fileID || '',
+      dur: dur || 0
+    }
+    this._callSendMessage(payload, 0)
+  },
+
+  _callSendMessage(payload, retryCount) {
+    wx.cloud.callFunction({
+      name: 'sendMessage',
+      data: payload,
+      success: (res) => {
+        const result = res.result || {}
+        if (result.code === 0) return
+        wx.showToast({
+          title: result.error || '消息发送失败',
+          icon: 'none',
+          duration: 2500
+        })
+      },
+      fail: () => {
+        if (retryCount < 1) {
+          setTimeout(() => this._callSendMessage(payload, retryCount + 1), 800)
+          return
+        }
+        wx.showToast({ title: '消息发送失败，请检查网络', icon: 'none' })
+      }
     })
   },
 
