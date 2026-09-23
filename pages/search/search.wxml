@@ -36,7 +36,10 @@
 
   <block wx:else>
     <view class="result-header">
-      <text class="result-title">为您找到 <text class="hl">{{searchResults.length}}</text> 条相关结果</text>
+      <text class="result-title">显示 <text class="hl">{{searchResults.length}}</text> 条相关结果</text>
+    </view>
+    <view class="result-header" wx:if="{{resultsLimited}}">
+      <text>结果已达到单次查询上限，请使用更具体的关键词。</text>
     </view>
 
     <view class="result-list" wx:if="{{searchResults.length > 0}}">

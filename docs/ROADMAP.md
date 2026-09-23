@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-08-16**
+**Last updated / 最后更新：2026-09-23**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -53,6 +53,8 @@ Priority order / 优先顺序：
 
 ## Next: v0.3.0 maintainer and contributor experience / 下一阶段：维护与贡献体验
 
+- [x] Fix keyword search beyond the first 30 content records and prevent late responses from replacing newer results. Local regression tests pass; isolated CloudBase verification remains pending.
+- [ ] Replace the bounded 300-record scan with indexed/server-side search if the public content catalog outgrows the reference dataset; measure CloudBase query cost first.
 - [ ] Add deterministic development fixtures and reset instructions for all demo collections.
 - [ ] Add an optional `miniprogram-ci` preview workflow with protected GitHub secrets and no credentials in logs or artifacts.
 - [ ] Publish a short, sanitized walkthrough showing clone, configuration, deployment, and the four core user flows.

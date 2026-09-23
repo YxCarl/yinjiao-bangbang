@@ -4,7 +4,8 @@ Page({
     hasSearched: false,
     history: [],
     hotSearches: ['考编面试指南', '无生试讲', '小学语文', '结构化面试', '板书设计', '家校沟通'],
-    searchResults: []
+    searchResults: [],
+    resultsLimited: false
   },
 
   onLoad() {
@@ -22,12 +23,20 @@ Page({
 
   onInput(e) {
     const value = e.detail.value
-    this.setData({ searchKeyword: value })
-    if (!value) this.setData({ hasSearched: false, searchResults: [] })
+    this.searchRequestId = (this.searchRequestId || 0) + 1
+    wx.hideLoading()
+    this.setData({
+      searchKeyword: value,
+      hasSearched: false,
+      searchResults: [],
+      resultsLimited: false
+    })
   },
 
   clearInput() {
-    this.setData({ searchKeyword: '', hasSearched: false, searchResults: [] })
+    this.searchRequestId = (this.searchRequestId || 0) + 1
+    wx.hideLoading()
+    this.setData({ searchKeyword: '', hasSearched: false, searchResults: [], resultsLimited: false })
   },
 
   clickTag(e) {
@@ -43,6 +52,7 @@ Page({
   },
 
   performSearch(keyword) {
+    const requestId = this.searchRequestId = (this.searchRequestId || 0) + 1
     wx.showLoading({ title: '搜索中...' })
 
     let newHistory = this.data.history
@@ -55,16 +65,22 @@ Page({
       name: 'getContents',
       data: { keyword: keyword },
       success: (res) => {
+        if (requestId !== this.searchRequestId) return
         wx.hideLoading()
         if (res.result && res.result.code === 0) {
-          this.setData({ hasSearched: true, searchResults: res.result.data })
+          this.setData({
+            hasSearched: true,
+            searchResults: res.result.data,
+            resultsLimited: Boolean(res.result.limited)
+          })
         } else {
-          this.setData({ hasSearched: true, searchResults: [] })
+          this.setData({ hasSearched: true, searchResults: [], resultsLimited: false })
         }
       },
       fail: () => {
+        if (requestId !== this.searchRequestId) return
         wx.hideLoading()
-        this.setData({ hasSearched: true, searchResults: [] })
+        this.setData({ hasSearched: true, searchResults: [], resultsLimited: false })
       }
     })
   },

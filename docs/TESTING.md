@@ -76,6 +76,7 @@ Tests import `handler.js`, which is the same function factory used by `index.js`
 
 Currently covered behavior:
 
+- content search reaches records beyond the first result page, bounds its scan and reports partial results, and ignores late responses after a newer search or input edit;
 - every Cloud Function pins the repository-wide `wx-server-sdk` baseline;
 - a student or pending mentor cannot list the demand hall;
 - students see only their own orders;

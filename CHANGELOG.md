@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Fixed content search so keyword filtering scans beyond the first 30 sorted records (up to 300 per request), reports when results may be incomplete, and ignores stale Mini Program search responses; added regression tests. Cloud deployment remains unverified.
 - Updated the public roadmap after `v0.1.0` with versioned priorities and explicit completion criteria.
 - Added a GitHub Social Preview asset with sanitized interface data.
 - Removed the duplicate custom security-report link in favor of GitHub private vulnerability reporting.
