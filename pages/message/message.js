@@ -1,45 +1,17 @@
-const STORAGE_KEY = 'studentConvData'
-
 Page({
   data: {
-    conversations: []
+    conversations: [],
+    listLimited: false,
+    loadError: false
   },
 
-  fallbackData: [
-    {
-      id: 'sys', type: 'system',
-      char: '通', theme: 'badge-info',
-      name: '系统通知', time: '刚刚',
-      preview: '您的订单【诊课室】已被李建国老师接单，请耐心等待诊断报告。',
-      unread: 1
-    },
-    {
-      id: 'tutor-1', conversationId: 'conv_demo_1', type: 'chat',
-      char: '李', theme: 'badge-primary',
-      name: '李老师 · 特级教师', time: '昨天 14:20',
-      preview: '这部分的板书设计还可以再精简一下，突出重点……',
-      unread: 0
-    },
-    {
-      id: 'tutor-2', conversationId: 'conv_demo_2', type: 'chat',
-      char: '王', theme: 'badge-accent',
-      name: '王老师 · 高级教师', time: '前天',
-      preview: '收到您的教案了，今晚我详细批注后回复你。',
-      unread: 2
-    }
-  ],
-
   onShow() {
-    this._render()
+    this.setData({ conversations: [], listLimited: false, loadError: false })
     this._tryCloudSync()
   },
 
   _getStored() {
-    let data = wx.getStorageSync(STORAGE_KEY)
-    if (data && data.length) return data
-    data = this.fallbackData.map(c => ({ ...c }))
-    wx.setStorageSync(STORAGE_KEY, data)
-    return data
+    return this.data.conversations
   },
 
   _render() {
@@ -50,30 +22,28 @@ Page({
     wx.cloud.callFunction({
       name: 'getConversations',
       success: (res) => {
-        if (!(res.result && res.result.code === 0 && res.result.data.length > 0)) return
-        const stored = this._getStored()
-        const storedMap = {}
-        stored.forEach(s => { storedMap[s.conversationId || s.id] = s })
-
-        const merged = res.result.data.map(c => {
-          const existing = storedMap[c.conversationId]
-          return {
+        if (!(res.result && res.result.code === 0)) {
+          this.setData({ loadError: true })
+          wx.showToast({ title: '消息加载失败，请重试', icon: 'none' })
+          return
+        }
+        const conversations = res.result.data.map(c => ({
             id: c._id,
             conversationId: c.conversationId,
             type: 'chat',
             char: c.peerName ? c.peerName[0] : '学',
             theme: c.peerTheme || 'badge-primary',
             name: c.peerName || '学员',
-            time: this._formatTime(c.lastTime) || (existing ? existing.time : ''),
-            preview: c.lastMsg || (existing ? existing.preview : ''),
-            unread: existing ? existing.unread : (c.unread || 0)
-          }
-        })
-
-        wx.setStorageSync(STORAGE_KEY, merged)
-        this._render()
+            time: this._formatTime(c.lastTime),
+            preview: c.lastMsg || '',
+            unread: c.unread || 0
+        }))
+        this.setData({ conversations, listLimited: res.result.scanLimitReached === true, loadError: false })
       },
-      fail: () => {}
+      fail: () => {
+        this.setData({ loadError: true })
+        wx.showToast({ title: '消息加载失败，请重试', icon: 'none' })
+      }
     })
   },
 
@@ -117,7 +87,6 @@ Page({
     })
     if (!changed) return
 
-    wx.setStorageSync(STORAGE_KEY, list)
     this._render()
 
     if (!id.startsWith('local_') && id !== 'sys') {

@@ -4,17 +4,15 @@
 
 [简体中文](README.zh-CN.md) · [Positioning](docs/PROJECT_POSITIONING.md) · [Data handling](docs/DATA_HANDLING.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Roadmap](docs/ROADMAP.md)
 
-Shifu Zaima is an open-source WeChat Mini Program reference implementation for connecting pre-service teachers and early-career educators with experienced mentors. The Mini Program uses the Chinese product name “师傅在吗”; `yinjiao-bangbang` is retained as the repository's historical code identifier. It combines lesson-plan review, teaching-video analysis, anonymous questions, order workflows, and in-app messaging on WeChat Cloud Development.
+Shifu Zaima is an open-source WeChat Mini Program reference implementation for connecting pre-service teachers and early-career educators with experienced mentors. The Mini Program uses the Chinese product name “师傅在吗”; `yinjiao-bangbang` is retained as the repository's historical code identifier. It combines lesson-plan review, teaching-video analysis, mentor-facing name masking for questions (not full anonymity), order workflows, and in-app messaging on WeChat Cloud Development.
 
 > **Project status:** public reference implementation / early beta. It is suitable for learning, evaluation, and further development, but it is not a hosted production service. Payment and wallet behavior is simulated. Mentor access uses an explicit approval state and server-side checks; production deployments must still provide a lawful identity-verification and audited reviewer process.
 
-The project does not claim to have invented student/teacher roles, two-sided orders, messaging, or education Mini Programs. Its contribution is a documented and tested combination of mentoring workflows and server-authorized interaction patterns. See [Project positioning and related work](docs/PROJECT_POSITIONING.md).
+The project does not claim to have invented student/teacher roles, two-sided orders, messaging, or education Mini Programs. Its contribution is a documented and tested combination of mentoring workflows and server-authorized interaction patterns. See [Project positioning and related work](docs/PROJECT_POSITIONING.md). Demo mentor cards, course catalogs, ratings, prices, and wallets are not evidence of real teachers, customers, transactions, or usage.
 
 ## Interface preview
 
-![Sanitized overview of the Shifu Zaima Mini Program](docs/images/interface-overview.png)
-
-The overview combines the home, lesson-plan review, teaching Q&A, and profile screens. Identifiers and wallet balances are masked; all prices and account information shown in the interface are demo data rather than evidence of real transactions or users.
+The [sanitized historical interface mockup](docs/images/interface-overview.png) combines the home, lesson-plan review, teaching Q&A, and profile screens. It predates the current implementation and contains old sample figures and response-time copy that are **not supported claims**. Identifiers and wallet balances were masked, but this image is not verification of current behavior or real transactions.
 
 ## Why this project exists
 
@@ -35,7 +33,7 @@ Teaching experience is often shared through informal, closed channels. This proj
 | Mentor workspace | Browse, claim, reply to, and complete guidance orders |
 | Messaging | Per-order text and voice conversations with membership checks |
 | Profiles | Student profiles plus independently approved mentor access |
-| Offline preview | Local fallback data for interface exploration |
+| Interface demo | Clearly labeled sample mentor and course cards; protected orders and conversations require CloudBase |
 
 The current video-analysis adapter calls Zhipu GLM-4V. It is isolated in `cloudfunctions/analyzeVideo` so that additional model providers can be added without changing the Mini Program pages.
 
@@ -111,7 +109,7 @@ Apply the database and storage rules only after deploying `getProtectedFileURL`;
 
 Import `seed-contents.json` into the `contents` collection if you want the example resource pages to contain data.
 
-Detailed setup and a production-hardening checklist are available in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Detailed setup, the [candidate database-index checklist](docs/INDEXES.md), and a production-hardening checklist are available in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Reproducible validation
 

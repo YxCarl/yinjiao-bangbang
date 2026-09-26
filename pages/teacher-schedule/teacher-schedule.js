@@ -41,6 +41,6 @@ Page({
   },
 
   saveSchedule() {
-    wx.showToast({ title: '排班已保存', icon: 'success' })
+    wx.showToast({ title: '仅本机演示，未保存到云端', icon: 'none' })
   }
 })

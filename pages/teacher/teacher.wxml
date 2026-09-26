@@ -13,9 +13,6 @@
         <text class="brand-line-1">导师工作台</text>
         <text class="brand-line-2">银龄智慧 · 教坛传承</text>
       </view>
-      <view class="t-stats-mini">
-        <text class="rate-num">★ {{rating}}</text>
-      </view>
     </view>
 
     <view class="greeting-row">
@@ -29,16 +26,7 @@
     </view>
 
     <view class="income-row">
-      <view class="income-block">
-        <text class="income-label">今日收益 (元)</text>
-        <text class="income-num">{{todayIncome}}</text>
-      </view>
-      <view class="income-divider"></view>
-      <view class="income-block">
-        <text class="income-label">本月预估 (元)</text>
-        <text class="income-num">{{monthIncome}}</text>
-      </view>
-      <view class="btn-withdraw" bindtap="goToWithdraw">提现</view>
+      <text>演示版未接入真实支付、收入或提现。</text>
     </view>
   </view>
 
@@ -46,15 +34,15 @@
   <view class="quick-stats">
     <view class="stat-card">
       <text class="qs-num">{{totalOrders}}</text>
-      <text class="qs-label">累计指导</text>
+      <text class="qs-label">当前列表已接</text>
     </view>
     <view class="stat-card">
-      <text class="qs-num">{{rating}}</text>
-      <text class="qs-label">学员评分</text>
+      <text class="qs-num">—</text>
+      <text class="qs-label">评分未统计</text>
     </view>
     <view class="stat-card">
-      <text class="qs-num">98%</text>
-      <text class="qs-label">完成率</text>
+      <text class="qs-num">—</text>
+      <text class="qs-label">完成率未统计</text>
     </view>
   </view>
 
@@ -67,7 +55,8 @@
 
   <!-- 订单列表 -->
   <view class="order-list">
-    <view class="empty-tip" wx:if="{{filteredOrders.length === 0}}">
+    <view class="empty-tip" wx:if="{{loadError}}">订单加载失败，请下拉刷新重试</view>
+    <view class="empty-tip" wx:elif="{{filteredOrders.length === 0}}">
       暂无{{currentTab === 0 ? '可接' : (currentTab === 1 ? '进行中的' : '已完成的')}}订单
     </view>
 
@@ -88,7 +77,7 @@
         </view>
       </view>
       <view class="order-footer">
-        <view class="bounty-box"><text class="rmb">¥</text><text class="bounty-num">{{item.price}}</text></view>
+        <view class="bounty-box"><text class="rmb">模拟学币 </text><text class="bounty-num">{{item.price}}</text></view>
         <view class="btn-grab btn-biz btn-accent" wx:if="{{item.status == 0}}" bindtap="grabOrder" data-id="{{item._id}}">立即接单</view>
         <view class="btn-grab btn-biz btn-primary" wx:elif="{{item.status == 1}}" bindtap="openReply" data-id="{{item._id}}">进入回复</view>
         <view class="btn-grab btn-biz btn-ghost" wx:else bindtap="openReply" data-id="{{item._id}}">查看回复</view>

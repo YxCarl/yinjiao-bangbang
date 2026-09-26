@@ -2,21 +2,21 @@ Page({
   data: {
     profile: {
       name: '银龄教师',
-      title: '资深教师',
+      title: '未填写职称',
       subject: '待完善',
       years: '0',
       avatar: '师',
       id: 'UID000000',
-      rating: '5.0'
+      rating: '—'
     },
-    balance: '0.00',
-    todayIncome: '0.00',
-    monthIncome: '0.00',
-    totalIncome: '0.00',
+    balance: '—',
+    todayIncome: '—',
+    monthIncome: '—',
+    totalIncome: '—',
     totalOrders: 0,
-    completionRate: '98',
+    completionRate: '—',
     msgUnread: 0,
-    certified: true,
+    certified: false,
     onlineStatus: true
   },
 
@@ -38,6 +38,7 @@ Page({
         wx.setStorageSync('userId', profile._id)
         wx.setStorageSync('userRole', 'mentor')
         this.loadProfile(profile)
+        this.setData({ certified: true })
         this.loadStats()
       },
       fail: () => {
@@ -61,12 +62,12 @@ Page({
       this.setData({
         profile: {
           name: profile.name || '银龄教师',
-          title: profile.title || '资深教师',
+          title: profile.title || '未填写职称',
           subject: profile.subject || '待完善',
           years: profile.years || '0',
           avatar: profile.avatar || (profile.name ? profile.name[0] : '师'),
           id: profile._id || profile.id || 'UID000000',
-          rating: profile.rating || '5.0'
+          rating: '—'
         }
       })
     }
@@ -77,17 +78,15 @@ Page({
   },
 
   loadStats() {
-    let bal = wx.getStorageSync('mentorBalance')
-    if (bal === '' || bal === null || bal === undefined) {
-      bal = 1280.00
-      wx.setStorageSync('mentorBalance', bal)
-    }
-    this.setData({
-      balance: parseFloat(bal).toFixed(2),
-      todayIncome: '320.00',
-      monthIncome: '1,280.00',
-      totalIncome: '8,640.00',
-      totalOrders: 328
+    wx.cloud.callFunction({
+      name: 'getOrders',
+      data: { scope: 'all' },
+      success: (res) => {
+        if (!(res.result && res.result.code === 0)) return
+        const assigned = res.result.data.filter(order => order.status === 1 || order.status === 2)
+        this.setData({ totalOrders: assigned.length })
+      },
+      fail: () => { this.setData({ totalOrders: 0 }) }
     })
   },
 
@@ -96,7 +95,7 @@ Page({
     this.setData({ onlineStatus: next })
     wx.setStorageSync('mentorOnline', next)
     wx.showToast({
-      title: next ? '已上线 · 可接单' : '已下线 · 暂停接单',
+      title: '仅本机演示，不影响接单',
       icon: 'none'
     })
   },
@@ -106,22 +105,10 @@ Page({
   },
 
   doWithdraw() {
-    if (parseFloat(this.data.balance) <= 0) {
-      wx.showToast({ title: '暂无可提现金额', icon: 'none' })
-      return
-    }
     wx.showModal({
-      title: '提现申请',
-      content: '可提现金额 ¥' + this.data.balance + '\n确认申请提现至微信钱包？',
-      confirmText: '申请提现',
-      confirmColor: '#C8924E',
-      success: (res) => {
-        if (res.confirm) {
-          wx.setStorageSync('mentorBalance', 0)
-          this.setData({ balance: '0.00' })
-          wx.showToast({ title: '已提交，1-3工作日到账', icon: 'none' })
-        }
-      }
+      title: '提现不可用',
+      content: '演示版未接入真实收入、结算或微信提现，不会提交提现申请。',
+      showCancel: false
     })
   },
 

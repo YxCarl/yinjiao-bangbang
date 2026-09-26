@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-09-23**
+**Last updated / 最后更新：2026-09-26**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -43,6 +43,10 @@ Priority order / 优先顺序：
 6. [ ] Define and enforce file-size, video-duration, retention, deletion, and consent policies (bounds, versioned video acknowledgement, diagnosis-task binding, and disabled-by-default cleanup for unbound AI tasks/rate counters implemented; immutable order attachments and deletion of active business records remain deployment-policy work).
 7. [x] Standardize Cloud Functions on one pinned, tested SDK version and document the upgrade process ([Dependency policy](DEPENDENCIES.md)).
 8. [x] Publish an evidence-based project-positioning note that distinguishes common two-sided Mini Program patterns from this repository's specific contribution and avoids unsupported originality claims ([Project positioning](PROJECT_POSITIONING.md)).
+9. [x] Restrict the mentor demand hall to generic unclaimed-order summaries and the current mentor's assigned orders; remove actionable fake-order fallback on load failure. Local authorization regression tests pass; fresh CloudBase verification is still pending.
+10. [x] Publish a [candidate database-index checklist](INDEXES.md) for fresh-environment setup. Creation, query-plan checks, and performance evidence remain pending.
+11. [ ] Make order claiming and the two participant-membership writes one atomic, retry-safe operation; the current code can leave an assigned order without a membership if the second phase fails.
+12. [x] Mask profile names for anonymous question orders and mentor-facing conversations, including legacy title-marked orders; verify cross-role behavior locally. This is name masking, not full anonymity, and fresh-environment checks remain pending.
 
 ### v0.2.0 definition of done / 完成标准
 
@@ -54,6 +58,10 @@ Priority order / 优先顺序：
 ## Next: v0.3.0 maintainer and contributor experience / 下一阶段：维护与贡献体验
 
 - [x] Fix keyword search beyond the first 30 content records and prevent late responses from replacing newer results. Local regression tests pass; isolated CloudBase verification remains pending.
+- [x] Label synthetic teacher, course, rating, usage, and wallet data as demonstration content; prevent demo recharge and withdrawal actions from reporting successful transactions; remove fake local conversations, questions, favorites, and order notifications from account-facing pages.
+- [x] Read the newest 50 messages and return up to 50 authorized conversations after scanning past stale memberships (up to 200 scanned records), instead of silently losing recent entries.
+- [x] Stop presenting unconfirmed chat/reply sends, unsupported ratings, or unverified response-time guarantees as successful live service behavior.
+- [ ] Add cursor pagination for older messages and conversations before production use.
 - [ ] Replace the bounded 300-record scan with indexed/server-side search if the public content catalog outgrows the reference dataset; measure CloudBase query cost first.
 - [ ] Add deterministic development fixtures and reset instructions for all demo collections.
 - [ ] Add an optional `miniprogram-ci` preview workflow with protected GitHub secrets and no credentials in logs or artifacts.

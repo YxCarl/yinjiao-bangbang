@@ -2,13 +2,13 @@
 
   <view class="page-header">
     <text class="page-title">我的收藏</text>
-    <text class="page-sub">{{favorites.length}} 位名师 / 资料</text>
+    <text class="page-sub">演示版暂无持久化收藏</text>
   </view>
 
   <view class="empty-state" wx:if="{{favorites.length === 0}}">
     <view class="empty-mark">藏</view>
     <text class="empty-title">还没有收藏</text>
-    <text class="empty-sub">看到喜欢的名师和资料就点击收藏吧</text>
+    <text class="empty-sub">收藏功能尚未接入云端，不展示虚构记录</text>
   </view>
 
   <view class="fav-list" wx:else>

@@ -1,7 +1,7 @@
 <view class="page-container">
   <view class="page-header">
     <text class="page-title">提问记录</text>
-    <text class="page-sub">每一次困惑都有名师回应</text>
+    <text class="page-sub">此页面尚未接入云端问诊记录</text>
   </view>
 
   <view class="tab-nav">
@@ -13,7 +13,7 @@
   <view class="qa-list">
     <view class="empty-state" wx:if="{{filtered.length === 0}}">
       <view class="empty-mark">问</view>
-      <text class="empty-title">还没有提问记录</text>
+      <text class="empty-title">暂无可读取的提问记录</text>
       <view class="btn-biz btn-primary empty-btn" bindtap="goAsk">前往问诊室</view>
     </view>
 

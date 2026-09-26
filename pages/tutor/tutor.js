@@ -1,38 +1,29 @@
 Page({
   data: {
     tutor: {
-      char: '李',
+      char: '示',
       theme: 'badge-primary',
-      name: '李建国',
-      title: '中学语文 · 特级教师',
-      tags: ['考编评委', '30年教龄', '名师工作室'],
-      orderCount: 328,
-      rating: 4.9,
-      desc: '连续5年担任市级教师编制面试主考官。专注解决试讲紧张、教姿教态不自然、板书逻辑混乱等实战痛点。在我这里，只讲评委爱听的，不讲没用的套话。',
+      name: '导师卡片示例',
+      title: '非真实教师 · 界面演示',
+      tags: ['演示资料', '待独立审核'],
+      orderCount: '—',
+      rating: '—',
+      desc: '此资料为合成示例，不对应真实教师、资质、指导次数或评价。实际导师须通过独立审核后才能接单。',
       services: [
         { tag: '磨', theme: 'badge-accent', name: '磨课坊 · 教案精修', price: 89, desc: '一次教案逐句批注 + 改进建议' },
-        { tag: '诊', theme: 'badge-info',   name: '诊课室 · 视频逐帧诊断', price: 128, desc: '15 分钟视频教态分析 + 改进方案' }
+        { tag: '诊', theme: 'badge-info',   name: '诊课室 · 视频诊断', price: 128, desc: '演示视频分析流程（最长 10 分钟）' }
       ],
-      reviews: [
-        { name: '周同学', tag: '考编上岸', text: '面试逐字稿被李老师反复修改了 4 版，最后笔面综合排名第一。' },
-        { name: '林老师', tag: '入职 1 年', text: '板书设计的逻辑层次终于理顺了，学生反馈也好了很多。' }
-      ]
+      reviews: []
     }
   },
 
   chatTutor() {
-    wx.navigateTo({
-      url: '/pages/chat/chat?id=tutor&name=' + encodeURIComponent(this.data.tutor.name) + '&char=' + encodeURIComponent(this.data.tutor.char) + '&theme=' + this.data.tutor.theme
-    })
+    wx.showModal({ title: '演示资料', content: '示例导师不能私信。真实会话需由已审核导师接单后创建。', showCancel: false })
   },
   bookTutor() {
-    wx.showLoading({ title: '正在锁定导师...' })
-    setTimeout(() => {
-      wx.hideLoading()
-      wx.navigateTo({ url: '/pages/moke/moke' })
-    }, 600)
+    wx.navigateTo({ url: '/pages/moke/moke' })
   },
   collectTutor() {
-    wx.showToast({ title: '已收藏', icon: 'success' })
+    wx.showToast({ title: '示例资料不能收藏', icon: 'none' })
   }
 })

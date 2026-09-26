@@ -114,6 +114,7 @@ class InMemoryOrderCreationDatabase {
         studentId: input.userId,
         student: input.order.student,
         studentAvatar: input.order.studentAvatar,
+        anonymous: input.order.anonymous,
         desc: input.order.desc,
         createTime: this.clock,
         detail: clone(input.order.detail)

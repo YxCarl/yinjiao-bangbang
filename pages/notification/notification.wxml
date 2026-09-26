@@ -11,7 +11,7 @@
       <text class="nc-content">{{item.full}}</text>
     </view>
     <view class="nc-footer">
-      <text class="nc-tip">此通知由系统自动发送</text>
+      <text class="nc-tip">开源项目功能说明，非真实订单通知</text>
     </view>
   </view>
 

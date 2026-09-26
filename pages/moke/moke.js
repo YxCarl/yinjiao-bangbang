@@ -67,7 +67,7 @@ Page({
 
     const finalPrice = Number(this.data.priceAmount)
     if (!Number.isFinite(finalPrice) || finalPrice < 49) {
-      return wx.showToast({ title: '教案精修悬赏最低 49 元起哦', icon: 'none', duration: 2000 })
+      return wx.showToast({ title: '模拟悬赏额度最低 49 学币', icon: 'none', duration: 2000 })
     }
 
     const requestId = beginOrderRequest(this, {

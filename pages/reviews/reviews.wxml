@@ -1,6 +1,7 @@
 <view class="page-container">
 
-  <view class="review-summary">
+  <view class="empty-tip" wx:if="{{totalCount === 0}}">演示版尚未接入真实评价收集，不展示虚构评分或学员证言。</view>
+  <view class="review-summary" wx:else>
     <view class="rs-score-card">
       <text class="rs-big-num">{{avgRating}}</text>
       <view class="rs-stars">

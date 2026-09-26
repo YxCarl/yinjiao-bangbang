@@ -76,6 +76,12 @@ Tests import `handler.js`, which is the same function factory used by `index.js`
 
 Currently covered behavior:
 
+- approved mentors receive only generic summaries for unclaimed orders, no other mentor's assigned orders, and full details only for their own assigned orders; owners retain their own details;
+- a failed mentor order-list request displays an error instead of actionable fake orders;
+- demo recharge and withdrawal buttons cannot mutate local balances or claim real transaction success;
+- message history returns the newest 50 records in chronological display order, while conversation lists can scan past stale memberships to return up to 50 authorized entries;
+- anonymous question orders store a generic alias and mask the student's profile name from assigned mentors, including legacy title-marked orders; this is not full anonymity;
+- chat and mentor reply pages do not show unconfirmed sends as successful messages;
 - content search reaches records beyond the first result page, bounds its scan and reports partial results, and ignores late responses after a newer search or input edit;
 - every Cloud Function pins the repository-wide `wx-server-sdk` baseline;
 - a student or pending mentor cannot list the demand hall;

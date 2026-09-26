@@ -17,8 +17,7 @@ Page({
     inputText: '',
     replyMethod: 'text',
     recording: false,
-    replies: [],
-    showRating: false
+    replies: []
   },
 
   onLoad(options) {
@@ -39,7 +38,6 @@ Page({
     const profile = wx.getStorageSync('myProfile') || {}
     this.setData({ myAvatar: profile.avatar || (profile.name ? profile.name[0] : '师') })
 
-    this._sentTexts = []
     this.loadMessages()
     this._startPolling()
 
@@ -55,18 +53,23 @@ Page({
   },
 
   loadMessages() {
+    if (this._messagesLoadPending) return
+    this._messagesLoadPending = true
+    const requestSeq = (this._messagesRequestSeq || 0) + 1
+    this._messagesRequestSeq = requestSeq
     wx.cloud.callFunction({
       name: 'getMessages',
       data: { conversationId: this.data.conversationId },
       success: (res) => {
-        if (res.result && res.result.code === 0 && res.result.data.length > 0) {
+        this._messagesLoadPending = false
+        if (requestSeq === this._messagesRequestSeq && res.result && res.result.code === 0 && Array.isArray(res.result.data)) {
           this.setData({ replies: res.result.data.map(m => ({
             side: m.side, kind: m.kind || 'text',
             text: m.content || '', fileID: m.fileID || '', dur: m.dur || 0, time: ''
           }))})
         }
       },
-      fail: () => {}
+      fail: () => { this._messagesLoadPending = false }
     })
   },
 
@@ -74,14 +77,11 @@ Page({
   onInput(e) { this.setData({ inputText: e.detail.value }) },
 
   sendText() {
+    if (this._sendingText) return
     const text = this.data.inputText.trim()
     if (!text) return wx.showToast({ title: '请输入回复内容', icon: 'none' })
-    const list = this.data.replies.slice()
-    list.push({ side: 'out', kind: 'text', text, time: '刚刚' })
-    this.setData({ replies: list, inputText: '' })
-    this._sentTexts.push(text)
+    this._sendingText = true
     this._sendToCloud('text', text)
-    wx.showToast({ title: '已发送', icon: 'success' })
   },
 
   _sendToCloud(kind, content, fileID, dur, existingRequestId) {
@@ -102,7 +102,15 @@ Page({
       data: payload,
       success: (res) => {
         const result = res.result || {}
-        if (result.code === 0) return
+        if (payload.kind === 'text') this._sendingText = false
+        if (result.code === 0) {
+          if (payload.kind === 'text' && this.data.inputText.trim() === payload.content) {
+            this.setData({ inputText: '' })
+          }
+          this.loadMessages()
+          wx.showToast({ title: '已发送', icon: 'success' })
+          return
+        }
         wx.showToast({
           title: result.error || '消息发送失败',
           icon: 'none',
@@ -114,6 +122,7 @@ Page({
           setTimeout(() => this._callSendMessage(payload, retryCount + 1), 800)
           return
         }
+        if (payload.kind === 'text') this._sendingText = false
         wx.showToast({ title: '消息发送失败，请检查网络', icon: 'none' })
       }
     })
@@ -131,10 +140,6 @@ Page({
   _uploadVoice(tempPath, dur) {
     const preview = '语音 ' + dur + ' 秒'
     const requestId = createRequestId('message')
-    const list = this.data.replies.slice()
-    list.push({ side: 'out', kind: 'voice', dur: dur, text: preview, fileID: '', time: '刚刚' })
-    this.setData({ replies: list })
-    this._sentTexts.push(preview)
     wx.showLoading({ title: '准备语音上传...', mask: true })
     wx.cloud.callFunction({
       name: 'sendMessage',
@@ -155,14 +160,11 @@ Page({
           filePath: tempPath,
           success: (uploadRes) => {
             wx.hideLoading()
-            const msgs = this.data.replies.slice()
-            msgs.forEach(m => { if (m.text === preview && !m.fileID) m.fileID = uploadRes.fileID })
-            this.setData({ replies: msgs })
             this._sendToCloud('voice', preview, uploadRes.fileID, dur, requestId)
           },
           fail: () => {
             wx.hideLoading()
-            wx.showToast({ title: '语音上传失败，消息已保留', icon: 'none' })
+            wx.showToast({ title: '语音未发送，请重试', icon: 'none' })
           }
         })
       },
@@ -200,7 +202,6 @@ Page({
             success: (cloudRes) => {
               wx.hideLoading()
               if (cloudRes.result && cloudRes.result.code === 0) {
-                this.setData({ showRating: true })
                 wx.showToast({ title: '已标记完成', icon: 'success' })
               } else {
                 wx.showToast({ title: (cloudRes.result && cloudRes.result.error) || '提交失败', icon: 'none' })
@@ -214,12 +215,6 @@ Page({
         }
       }
     })
-  },
-
-  submitRating(e) {
-    const rating = e.currentTarget.dataset.rating
-    this.setData({ showRating: false })
-    wx.showToast({ title: '已评分 ★' + rating, icon: 'none' })
   },
 
   downloadFile() {
@@ -248,27 +243,7 @@ Page({
   _startPolling() {
     this._pollTimer = setInterval(() => {
       if (!this.data.conversationId) return
-      wx.cloud.callFunction({
-        name: 'getMessages',
-        data: { conversationId: this.data.conversationId },
-        success: (res) => {
-          if (res.result && res.result.code === 0 && res.result.data) {
-            const newMsgs = res.result.data.filter(m => {
-              if (this._sentTexts && this._sentTexts.includes(m.content)) return false
-              const alreadyExists = this.data.replies.some(r => r.text === m.content)
-              return !alreadyExists
-            })
-            if (newMsgs.length > 0) {
-              const all = this.data.replies.concat(newMsgs.map(m => ({
-                side: m.side, kind: m.kind || 'text',
-                text: m.content || '', fileID: m.fileID || '', dur: m.dur || 0, time: ''
-              })))
-              this.setData({ replies: all })
-            }
-          }
-        },
-        fail: () => {}
-      })
+      this.loadMessages()
     }, 3000)
   },
 

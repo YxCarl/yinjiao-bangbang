@@ -20,8 +20,15 @@ class InMemoryOrderDatabase {
   }
 
   async listOrders(options) {
+    if (!options.ownerOpenid && !options.availableOnly && !options.assignedMentorId) {
+      throw new Error('Order list must be scoped before querying')
+    }
     return this.orders
-      .filter(order => !options.ownerOpenid || order._openid === options.ownerOpenid)
+      .filter(order => (
+        (options.ownerOpenid && order._openid === options.ownerOpenid) ||
+        (options.availableOnly && order.status === 0) ||
+        (options.assignedMentorId && order.teacherId === options.assignedMentorId)
+      ))
       .sort((left, right) => String(right.createTime).localeCompare(String(left.createTime)))
       .slice(0, options.limit)
       .map(clone)

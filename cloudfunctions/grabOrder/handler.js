@@ -23,6 +23,8 @@ function createGrabOrderHandler(dependencies) {
       }
 
       const conversationId = 'order_' + orderId
+      const anonymous = order.anonymous === true ||
+        (order.typeText === '问诊室' && typeof order.title === 'string' && order.title.startsWith('【匿名】'))
       await Promise.all([
         database.ensureConversation(order._openid, conversationId, {
           participantRole: 'student',
@@ -32,7 +34,7 @@ function createGrabOrderHandler(dependencies) {
         }),
         database.ensureConversation(openid, conversationId, {
           participantRole: 'mentor',
-          peerName: order.student || '学员',
+          peerName: anonymous ? '匿名学员' : (order.student || '学员'),
           peerTheme: 'badge-accent',
           orderTitle: order.title || ''
         })

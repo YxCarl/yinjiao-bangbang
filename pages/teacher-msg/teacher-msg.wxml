@@ -8,11 +8,13 @@
         <text>{{msgUnread}} 条未读</text>
       </view>
     </view>
-    <text class="mh-sub">学员私信 · 订单沟通</text>
+    <text class="mh-sub">仅展示云端已授权会话</text>
   </view>
 
   <!-- 会话列表 -->
   <view class="msg-list">
+    <view class="empty-tip" wx:if="{{loadError}}">会话加载失败，请重新进入此页重试</view>
+    <view class="empty-tip" wx:if="{{listLimited}}">历史会话过多，当前列表可能不完整；请联系部署者清理失效记录</view>
     <view
       class="biz-card msg-item"
       wx:for="{{filteredList}}"
@@ -32,7 +34,7 @@
       <view class="unread-dot" wx:if="{{item.unread > 0}}">{{item.unread}}</view>
     </view>
 
-    <view class="empty-tip" wx:if="{{filteredList.length === 0}}">
+    <view class="empty-tip" wx:if="{{filteredList.length === 0 && !loadError && !listLimited}}">
       暂无消息
     </view>
   </view>

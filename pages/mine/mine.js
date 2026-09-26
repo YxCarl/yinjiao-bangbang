@@ -8,8 +8,8 @@ Page({
       role: 'student'
     },
     ongoingCount: 0,
-    questionCount: 12,
-    favoriteCount: 2,
+    questionCount: 0,
+    favoriteCount: 0,
     balance: '0.00',
     isMentor: false
   },

@@ -13,12 +13,12 @@
     <view class="t-stats">
       <view class="stat-item">
         <text class="s-num">{{tutor.orderCount}}</text>
-        <text class="s-label">指导次数</text>
+        <text class="s-label">无真实统计</text>
       </view>
       <view class="divider"></view>
       <view class="stat-item">
         <text class="s-num text-accent">★ {{tutor.rating}}</text>
-        <text class="s-label">综合评分</text>
+        <text class="s-label">无真实评分</text>
       </view>
     </view>
   </view>
@@ -31,7 +31,7 @@
 
   <!-- 服务 -->
   <view class="biz-card mt-24">
-    <view class="section-title">可提供服务</view>
+    <view class="section-title">示例服务与价格（非真实报价）</view>
     <view class="service-item" wx:for="{{tutor.services}}" wx:key="name">
       <view class="text-badge svc-icon {{item.theme}}">{{item.tag}}</view>
       <view class="s-info">
@@ -44,7 +44,8 @@
 
   <!-- 评价 -->
   <view class="biz-card mt-24" style="margin-bottom: 220rpx;">
-    <view class="section-title">学员评价</view>
+    <view class="section-title">学员评价（未接入）</view>
+    <text class="desc-text" wx:if="{{tutor.reviews.length === 0}}">暂无真实评价；本页面不展示合成评价。</text>
     <view class="review-item" wx:for="{{tutor.reviews}}" wx:key="name">
       <view class="rv-row">
         <text class="rv-name">{{item.name}}</text>
@@ -64,6 +65,6 @@
       <text class="bib-mark">💬</text>
       <text class="bib-text">私信</text>
     </view>
-    <view class="btn-biz btn-primary flex-1 bottom-main-btn" bindtap="bookTutor">指定他指导</view>
+    <view class="btn-biz btn-primary flex-1 bottom-main-btn" bindtap="bookTutor">发布指导需求</view>
   </view>
 </view>

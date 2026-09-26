@@ -2,27 +2,27 @@
 
   <block wx:if="{{course}}">
     <view class="biz-card video-box">
-      <view class="video-player">{{course.title}}</view>
+      <view class="video-player">课程目录示例 · 暂无视频</view>
       <view class="c-info">
         <text class="c-title">{{course.title}}</text>
         <view class="c-meta">
           <view class="text-badge c-tutor-avatar badge-primary">师</view>
-          <text class="c-tutor-name">{{course.author || '名师'}}</text>
+          <text class="c-tutor-name">{{course.author || '示例内容'}}</text>
           <text class="c-divider">·</text>
-          <text class="c-stats">{{course.viewCount || 0}} 人已学习</text>
+          <text class="c-stats">演示课程，无真实学习统计</text>
         </view>
       </view>
     </view>
 
     <view class="biz-card mt-24" style="margin-bottom: 200rpx;" wx:if="{{course.chapters && course.chapters.length}}">
-      <view class="section-title">课程大纲</view>
-      <view class="chapter-item {{index === 0 ? 'playing' : ''}}" wx:for="{{course.chapters}}" wx:key="index">
+      <view class="section-title">课程大纲示例</view>
+      <view class="chapter-item" wx:for="{{course.chapters}}" wx:key="index">
         <text class="ch-idx">{{index < 9 ? '0' : ''}}{{index + 1}}</text>
         <view class="ch-meta">
           <text class="ch-name">{{item.title}}</text>
           <text class="ch-dur">{{item.dur || ''}}</text>
         </view>
-        <text class="ch-status {{index === 0 ? 'text-success' : ''}}">{{index === 0 ? '播放中' : '未解锁'}}</text>
+        <text class="ch-status">仅展示目录</text>
       </view>
     </view>
   </block>
@@ -32,6 +32,6 @@
   </view>
 
   <view class="bottom-bar">
-    <view class="btn-biz btn-primary flex-1" bindtap="startLearn">立即学习全套课程</view>
+    <view class="btn-biz btn-primary flex-1" bindtap="startLearn">暂无课程视频（演示）</view>
   </view>
 </view>

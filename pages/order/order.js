@@ -5,7 +5,8 @@ Page({
     currentTab: 0,
     orders: [],
     filteredOrders: [],
-    loading: false
+    loading: false,
+    loadError: false
   },
 
   onShow() {
@@ -17,18 +18,23 @@ Page({
     wx.cloud.callFunction({
       name: 'getOrders',
       success: res => {
-        const list = (res.result && res.result.data) ? res.result.data : []
+        if (!(res.result && res.result.code === 0 && Array.isArray(res.result.data))) {
+          this.setData({ orders: [], filteredOrders: [], loading: false, loadError: true })
+          wx.showToast({ title: '订单同步失败，请下拉重试', icon: 'none' })
+          return
+        }
+        const list = res.result.data
         const decorated = list.map(item => {
           let typeClass = 'chip'
           if (item.typeText === '磨课坊') typeClass = 'chip-accent'
           else if (item.typeText === '诊课室') typeClass = 'chip-info'
           return Object.assign({}, item, { typeClass })
         })
-        this.setData({ orders: decorated, loading: false }, () => { this.filterData() })
+        this.setData({ orders: decorated, loading: false, loadError: false }, () => { this.filterData() })
       },
       fail: () => {
-        this.setData({ loading: false })
-        wx.showToast({ title: '同步失败', icon: 'none' })
+        this.setData({ orders: [], filteredOrders: [], loading: false, loadError: true })
+        wx.showToast({ title: '订单同步失败，请下拉重试', icon: 'none' })
       }
     })
   },
@@ -102,7 +108,11 @@ Page({
   },
 
   remindOrder() {
-    wx.showToast({ title: '已发送催办提醒', icon: 'success' })
+    wx.showModal({
+      title: '催办尚未开放',
+      content: '演示版没有通知导师的服务，本次没有发送提醒。',
+      showCancel: false
+    })
   },
 
   goToCreate() {

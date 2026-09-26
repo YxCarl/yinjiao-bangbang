@@ -17,7 +17,7 @@ Create `users`, `orders`, `messages`, `conversations`, `contents`, `aiTasks`, an
 
 Apply the deny-client-access rule from `security/database-rules.json` to every collection. The Mini Program uses Cloud Functions for database access, so ordinary client SDK requests should have neither read nor write access.
 
-Review the indexes required by compound queries in the Cloud console. The rules are configured per collection; do not assume that creating the JSON file deploys them automatically.
+Review the [candidate index checklist](INDEXES.md) and validate each enabled query in an isolated CloudBase environment. The rules and indexes are configured per collection; do not assume that committing these files deploys them automatically.
 
 ## 3. Configure storage protection
 
@@ -95,11 +95,15 @@ Then verify in WeChat Developer Tools:
 - only a trusted console approval that sets both `role: mentor` and `mentorStatus: approved` grants mentor access;
 - revoking approval immediately blocks mentor order, conversation, and protected-file access;
 - unauthorized users cannot list mentor orders;
+- anonymous question orders show only a generic student alias to the assigned mentor in the order and conversation lists; the account remains linked server-side, and question text/voice can still reveal identity;
+- the mentor demand hall shows only unclaimed summaries and the mentor's own assigned orders in their respective tabs;
+- historical invalid conversation memberships do not hide a valid conversation among the next 200 records; a reached scan cap is visibly reported;
 - replaying one order request creates one order and applies one simulated balance deduction;
 - a caller's eleventh new order in one hour is rejected while an existing request ID remains replayable;
 - a lesson-plan upload prepared for one order cannot be attached to a different request or caller;
 - a lesson-plan order is rejected when its declared size differs from the stored object's actual size or exceeds 50MB;
 - only order participants can read and send messages;
+- repeated taps during one pending text send create only one request; failed sends remain unsent, and slow message reads do not invalidate one another;
 - replaying one message request creates one document and increments peer unread state once;
 - a caller's thirty-first new message in one minute is rejected while an existing request ID remains replayable;
 - a voice upload prepared for one message cannot be attached to another message request;

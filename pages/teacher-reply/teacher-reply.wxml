@@ -6,7 +6,7 @@
       <text class="chip chip-accent" wx:if="{{orderType === '磨课坊'}}">{{orderType}}</text>
       <text class="chip chip-info" wx:elif="{{orderType === '诊课室'}}">{{orderType}}</text>
       <text class="chip" wx:else>{{orderType}}</text>
-      <text class="os-price">¥{{orderPrice}}</text>
+      <text class="os-price">模拟学币 {{orderPrice}}</text>
     </view>
     <text class="os-title">{{orderTitle}}</text>
     <text class="os-desc">{{orderDesc}}</text>
@@ -95,14 +95,4 @@
     <view class="btn-finish" bindtap="finishOrder">标记完成 · 结束指导</view>
   </view>
 
-  <!-- 评分弹窗 -->
-  <view class="rating-mask" wx:if="{{showRating}}" catchtap="submitRating" data-rating="0">
-    <view class="rating-card" catchtap="">
-      <text class="rc-title">请为本次指导评分</text>
-      <view class="rc-stars">
-        <text class="rc-star" wx:for="{{[1,2,3,4,5]}}" wx:key="*this" bindtap="submitRating" data-rating="{{item}}">★</text>
-      </view>
-      <text class="rc-tip">点击星星评分</text>
-    </view>
-  </view>
 </view>

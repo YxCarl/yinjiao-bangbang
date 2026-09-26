@@ -1,11 +1,7 @@
 Page({
   data: {
     currentTab: 0,
-    questions: [
-      { id: 1, time: '昨天 10:20', answered: true, content: '考编选岗纠结：市直老牌学校和区属新建学校怎么选？自身抗压能力一般。', teacher: '刘校长 · 正高级', dur: 56 },
-      { id: 2, time: '刚刚', answered: false, content: '入职一个月，不知道如何跟强势的家长沟通，总是很害怕接家长电话怎么办？', teacher: '' },
-      { id: 3, time: '3天前', answered: true, content: '试讲全程紧张到声音发抖，有什么实用的快速调整方法吗？', teacher: '李建国 · 特级教师', dur: 72 }
-    ],
+    questions: [],
     filtered: []
   },
 

@@ -135,6 +135,22 @@ test('order document IDs are stable per caller and request without exposing OPEN
   assert.doesNotMatch(first, /student-openid/)
 })
 
+test('anonymous question stores an alias, not the student profile name', async () => {
+  const database = new InMemoryOrderCreationDatabase(fixtures())
+  const result = await addOrder(database)({
+    ...validEvent('anonymous_request_0001'),
+    anonymous: true,
+    title: '客户端伪造的私人姓名'
+  })
+  assert.equal(result.code, 0)
+  const order = database.snapshot().orders[0]
+  assert.equal(order.anonymous, true)
+  assert.equal(order.title, '教育职场咨询')
+  assert.equal(order.student, '匿名学员')
+  assert.equal(order.studentAvatar, '匿')
+  assert.doesNotMatch(JSON.stringify(order), /张同学|客户端伪造的私人姓名/)
+})
+
 test('document upload preparation returns a caller-scoped request path', async () => {
   const database = new InMemoryOrderCreationDatabase(fixtures())
   const firstHandler = addOrder(database)

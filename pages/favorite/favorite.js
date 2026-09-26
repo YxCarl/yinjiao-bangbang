@@ -1,10 +1,6 @@
 Page({
   data: {
-    favorites: [
-      { id: 1, type: 'tutor', char: '李', theme: 'badge-primary', name: '李建国', desc: '特级教师 · 考编评委' },
-      { id: 2, type: 'doc', char: '案', theme: 'badge-accent', name: '教案精修模板库', desc: '覆盖 8 大学科万能模板' },
-      { id: 3, type: 'tutor', char: '王', theme: 'badge-info', name: '王素芬', desc: '高级教师 · 30 年教龄' }
-    ]
+    favorites: []
   },
 
   goToTutor() { wx.navigateTo({ url: '/pages/tutor/tutor' }) },

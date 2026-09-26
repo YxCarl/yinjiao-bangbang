@@ -19,12 +19,12 @@
     </view>
 
     <view class="biz-card mt-24" style="margin-bottom: 220rpx;">
-      <view class="section-title">导师推荐</view>
+      <view class="section-title">资料说明</view>
       <view class="endorse-row">
-        <view class="text-badge endorse-avatar badge-primary">李</view>
+        <view class="text-badge endorse-avatar badge-primary">示</view>
         <view class="endorse-meta">
-          <text class="endorse-name">李建国 · 特级教师</text>
-          <text class="endorse-text">"这套模板能让你少走 3 年弯路"</text>
+          <text class="endorse-name">开源示例资料</text>
+          <text class="endorse-text">页面内容仅用于说明数据结构，不构成真实教师推荐。</text>
         </view>
       </view>
     </view>
@@ -35,7 +35,7 @@
   </view>
 
   <view class="bottom-bar">
-    <view class="btn-biz btn-outline flex-1" bindtap="saveDoc">收藏资料</view>
+    <view class="btn-biz btn-outline flex-1" bindtap="saveDoc">收藏未开放</view>
     <view class="btn-biz btn-primary flex-1" bindtap="downloadDoc">{{doc && doc.fileID ? '下载资料' : '暂无文件'}}</view>
   </view>
 </view>

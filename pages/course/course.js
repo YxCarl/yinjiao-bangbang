@@ -21,6 +21,10 @@ Page({
   },
 
   startLearn() {
-    wx.showToast({ title: '已加入学习计划', icon: 'success' })
+    wx.showModal({
+      title: '演示课程',
+      content: '当前仅提供目录示例，尚未接入真实课程视频或学习计划。',
+      showCancel: false
+    })
   }
 })

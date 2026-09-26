@@ -20,37 +20,22 @@
     <view class="online-toggle" bindtap="toggleOnline">
       <view class="ot-label">
         <text class="ot-dot {{onlineStatus ? 'dot-on' : 'dot-off'}}"></text>
-        <text>接单状态</text>
+        <text>本机演示开关</text>
       </view>
       <view class="ot-switch {{onlineStatus ? 'sw-on' : 'sw-off'}}">
         <view class="ot-knob"></view>
       </view>
-      <text class="ot-tip">{{onlineStatus ? '在线接单中' : '已下线休息'}}</text>
+      <text class="ot-tip">未接入服务端派单</text>
     </view>
   </view>
 
   <!-- 收益卡片 -->
   <view class="income-section">
     <view class="income-card">
-      <view class="ic-row">
-        <view class="ic-item">
-          <text class="ic-num accent">¥{{balance}}</text>
-          <text class="ic-label">可提现余额</text>
-        </view>
-        <view class="ic-divider"></view>
-        <view class="ic-item">
-          <text class="ic-num">¥{{todayIncome}}</text>
-          <text class="ic-label">今日收益</text>
-        </view>
-        <view class="ic-divider"></view>
-        <view class="ic-item">
-          <text class="ic-num">¥{{totalIncome}}</text>
-          <text class="ic-label">累计收益</text>
-        </view>
-      </view>
+      <text>演示版未接入真实收入、结算或提现。</text>
       <view class="ic-actions">
-        <view class="btn-withdraw" bindtap="doWithdraw">立即提现</view>
-        <view class="btn-detail" bindtap="showIncome">收益明细</view>
+        <view class="btn-withdraw" bindtap="doWithdraw">提现不可用</view>
+        <view class="btn-detail" bindtap="showIncome">查看说明</view>
       </view>
     </view>
   </view>
@@ -59,19 +44,19 @@
   <view class="stats-row">
     <view class="stat-item" bindtap="showIncome">
       <text class="si-num">{{totalOrders}}</text>
-      <text class="si-label">累计指导</text>
+      <text class="si-label">当前列表已接</text>
     </view>
     <view class="stat-item" bindtap="showReviews">
       <text class="si-num">★ {{profile.rating}}</text>
-      <text class="si-label">学员评分</text>
+      <text class="si-label">评分未统计</text>
     </view>
     <view class="stat-item">
-      <text class="si-num">{{completionRate}}%</text>
-      <text class="si-label">完成率</text>
+      <text class="si-num">—</text>
+      <text class="si-label">完成率未统计</text>
     </view>
     <view class="stat-item">
-      <text class="si-num">{{totalOrders > 0 ? '118' : '0'}}</text>
-      <text class="si-label">好评数</text>
+      <text class="si-num">—</text>
+      <text class="si-label">评价未统计</text>
     </view>
   </view>
 

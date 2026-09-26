@@ -22,7 +22,7 @@ Page({
     })
   },
 
-  saveDoc() { wx.showToast({ title: '收藏成功', icon: 'success' }) },
+  saveDoc() { wx.showToast({ title: '演示版未接入收藏', icon: 'none' }) },
 
   downloadDoc() {
     const doc = this.data.doc

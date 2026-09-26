@@ -13,7 +13,8 @@ Page({
 
     const order = {
       typeText: '问诊室',
-      title: (this.data.isAnonymous ? '【匿名】' : '') + '教育职场咨询',
+      title: '教育职场咨询',
+      anonymous: this.data.isAnonymous,
       price: 29,
       detail: { content: this.data.questionText }
     }

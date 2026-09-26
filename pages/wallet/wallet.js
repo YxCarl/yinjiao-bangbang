@@ -24,21 +24,10 @@ Page({
   },
 
   payRecharge() {
-    const option = this.data.rechargeOptions[this.data.selectedIndex]
-    const totalAdd = option.price + option.give
-
-    wx.showLoading({ title: '支付处理中...' })
-
-    const profile = wx.getStorageSync('myProfile') || {}
-    const oldBalance = parseFloat(profile.balance || 0)
-    const newBalance = oldBalance + totalAdd
-
-    // 更新本地
-    profile.balance = newBalance
-    wx.setStorageSync('myProfile', profile)
-    this.setData({ balance: newBalance.toFixed(2) })
-
-    wx.hideLoading()
-    wx.showToast({ title: '演示余额已更新', icon: 'none' })
+    wx.showModal({
+      title: '演示页面',
+      content: '本开源项目未接入微信支付或真实充值。余额仅用于流程演示，不会产生交易。',
+      showCancel: false
+    })
   }
 })

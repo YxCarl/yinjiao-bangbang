@@ -1,15 +1,16 @@
 Page({
   data: {
     currentTab: 0,
-    teacherName: '李老师',
-    teacherTitle: '特级教师 · 中学语文',
-    todayIncome: '320.00',
-    monthIncome: '1,280.00',
+    teacherName: '导师',
+    teacherTitle: '资料加载中',
+    todayIncome: '—',
+    monthIncome: '—',
     totalOrders: 0,
-    rating: '4.9',
+    rating: '—',
     msgUnread: 0,
     orders: [],
-    filteredOrders: []
+    filteredOrders: [],
+    loadError: false
   },
 
   onShow() {
@@ -48,7 +49,7 @@ Page({
     if (profile && profile.role === 'mentor' && profile.mentorStatus === 'approved') {
       this.setData({
         teacherName: profile.name || '银龄导师',
-        teacherTitle: (profile.title || '资深教师') + (profile.subject ? ' · ' + profile.subject : '')
+        teacherTitle: (profile.title || '导师') + (profile.subject ? ' · ' + profile.subject : '')
       })
     }
   },
@@ -65,23 +66,26 @@ Page({
             else if (item.typeText === '诊课室') typeClass = 'chip-info'
             return Object.assign({}, item, { typeClass, time: this._fmt(item.createTime) })
           })
-          this.setData({ orders: list, totalOrders: list.length }, () => { this.filterData() })
+          this.setData({
+            orders: list,
+            totalOrders: list.filter(item => item.status === 1 || item.status === 2).length,
+            loadError: false
+          }, () => { this.filterData() })
         } else {
-          this._useFallbackOrders()
+          this._showLoadError()
         }
       },
-      fail: () => { this._useFallbackOrders() }
+      fail: () => { this._showLoadError() }
     })
   },
 
-  _useFallbackOrders() {
+  _showLoadError() {
     this.setData({
-      orders: [
-        { _id: 'fb1', status: 0, typeClass: 'chip-accent', typeText: '磨课坊', title: '暂无订单，请学生端发布任务', desc: '任务发布后将在此处显示', price: 0, student: '' },
-        { _id: 'fb2', status: 1, typeClass: 'chip-info', typeText: '诊课室', title: '暂无进行中的订单', desc: '接单后订单将出现在此处', price: 0, student: '' }
-      ],
-      totalOrders: 2
+      orders: [],
+      totalOrders: 0,
+      loadError: true
     }, () => { this.filterData() })
+    wx.showToast({ title: '订单加载失败，请下拉重试', icon: 'none' })
   },
 
   switchTab(e) {
@@ -90,30 +94,26 @@ Page({
 
   filterData() {
     const { orders, currentTab } = this.data
-    this.setData({ filteredOrders: currentTab === 0 ? orders : orders.filter(item => item.status === currentTab) })
+    this.setData({ filteredOrders: orders.filter(item => item.status === currentTab) })
   },
 
   grabOrder(e) {
     const id = e.currentTarget.dataset.id
     wx.showModal({
       title: '确认接单',
-      content: '接单后将进入指导阶段，需在 24 小时内开始服务。',
+      content: '接单后进入指导阶段。请确认自己有时间完成指导；演示版不提供自动服务时限保障。',
       confirmColor: '#2D5683',
       success: (res) => {
         if (!res.confirm) return
         wx.showLoading({ title: '接单中...' })
-        if (String(id).startsWith('fb')) {
-          wx.hideLoading()
-          this._localGrab(id, '演示导师')
-          return
-        }
         wx.cloud.callFunction({
           name: 'grabOrder',
           data: { orderId: id },
           success: (cloudRes) => {
             wx.hideLoading()
             if (cloudRes.result && cloudRes.result.code === 0) {
-              this._localGrab(id, cloudRes.result.data.teacher)
+              this.loadOrders()
+              wx.showToast({ title: '接单成功', icon: 'success' })
             } else {
               wx.showToast({ title: (cloudRes.result && cloudRes.result.error) || '接单失败', icon: 'none' })
             }
@@ -126,16 +126,6 @@ Page({
       }
     })
   },
-
-  _localGrab(id, teacherName) {
-    const newOrders = this.data.orders.map(order => {
-      if (order._id === id) { order.status = 1; order.teacher = teacherName }
-      return order
-    })
-    this.setData({ orders: newOrders }, () => { this.filterData() })
-    wx.showToast({ title: '接单成功', icon: 'success' })
-  },
-
 
   openReply(e) {
     const id = e.currentTarget.dataset.id
@@ -163,7 +153,6 @@ Page({
   navHome() { /* 已在工作台 */ },
 
   onPullDownRefresh() {
-    if (this.data.currentTab !== 0) { wx.stopPullDownRefresh(); return }
     this.loadOrders()
     wx.stopPullDownRefresh()
   },

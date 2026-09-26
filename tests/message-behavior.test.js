@@ -4,7 +4,9 @@ const fs = require('node:fs')
 const path = require('node:path')
 
 const { createGetConversationsHandler } = require('../cloudfunctions/getConversations/handler')
+const { createCloudDatabaseAdapter: createConversationsCloudAdapter } = require('../cloudfunctions/getConversations/cloud-database-adapter')
 const { createGetMessagesHandler } = require('../cloudfunctions/getMessages/handler')
+const { createCloudDatabaseAdapter: createMessagesCloudAdapter } = require('../cloudfunctions/getMessages/cloud-database-adapter')
 const { createSendMessageHandler } = require('../cloudfunctions/sendMessage/handler')
 const { createMessageId } = require('../cloudfunctions/sendMessage/policy')
 const { InMemoryMessageDatabase } = require('./in-memory-message-database')
@@ -178,6 +180,116 @@ function sendMessage(database, openid) {
     requestId: `message_request_${String(++messageRequestSequence).padStart(4, '0')}`
   }, event))
 }
+
+test('message history returns the newest 50 in chronological display order', async () => {
+  const data = fixtures()
+  data.messages = Array.from({ length: 70 }, (_, index) => ({
+    _id: `message-${index}`,
+    _openid: 'student-openid',
+    conversationId: orderConversation,
+    kind: 'text',
+    content: `entry ${index}`,
+    createTime: new Date(Date.parse('2026-08-14T09:00:00.000Z') + index * 60000).toISOString()
+  }))
+  const database = new InMemoryMessageDatabase(data)
+  const result = await getMessages(database, 'mentor-openid')({ conversationId: orderConversation })
+  assert.equal(result.code, 0)
+  assert.equal(result.data.length, 50)
+  assert.equal(result.data[0].content, 'entry 20')
+  assert.equal(result.data[49].content, 'entry 69')
+})
+
+test('CloudBase message query requests the newest bounded page', async () => {
+  const calls = []
+  const query = {
+    where(value) { calls.push(['where', value]); return this },
+    orderBy(field, direction) { calls.push(['orderBy', field, direction]); return this },
+    limit(value) { calls.push(['limit', value]); return this },
+    async get() { return { data: [{ _id: 'new' }, { _id: 'old' }] } }
+  }
+  const adapter = createMessagesCloudAdapter({ collection() { return query } })
+  const result = await adapter.listMessages('order-1')
+  assert.deepEqual(calls, [
+    ['where', { conversationId: 'order-1' }],
+    ['orderBy', 'createTime', 'desc'],
+    ['limit', 50]
+  ])
+  assert.deepEqual(result.map(item => item._id), ['old', 'new'])
+})
+
+test('CloudBase conversation query requests a bounded offset page', async () => {
+  const calls = []
+  const query = {
+    where(value) { calls.push(['where', value]); return this },
+    orderBy(field, direction) { calls.push(['orderBy', field, direction]); return this },
+    skip(value) { calls.push(['skip', value]); return this },
+    limit(value) { calls.push(['limit', value]); return this },
+    async get() { return { data: [] } }
+  }
+  const adapter = createConversationsCloudAdapter({ collection() { return query } })
+  await adapter.listConversations('mentor-openid', 50, 50)
+  assert.deepEqual(calls, [
+    ['where', { _openid: 'mentor-openid' }],
+    ['orderBy', 'lastTime', 'desc'],
+    ['skip', 50],
+    ['limit', 50]
+  ])
+})
+
+test('conversation list bounds work to the newest 50 memberships', async () => {
+  const data = fixtures()
+  data.conversations = Array.from({ length: 70 }, (_, index) => ({
+    _id: `conversation-${index}`,
+    _openid: 'student-openid',
+    conversationId: `general-${index}`,
+    lastTime: new Date(Date.parse('2026-08-14T09:00:00.000Z') + index * 60000).toISOString()
+  }))
+  const result = await getConversations(new InMemoryMessageDatabase(data), 'student-openid')()
+  assert.equal(result.code, 0)
+  assert.equal(result.data.length, 50)
+  assert.equal(result.data[0].conversationId, 'general-69')
+  assert.equal(result.data[49].conversationId, 'general-20')
+})
+
+test('conversation list scans past 50 stale memberships and masks a legacy anonymous student', async () => {
+  const data = fixtures()
+  data.orders[0].typeText = '问诊室'
+  data.orders[0].title = '【匿名】教育职场咨询'
+  data.conversations = Array.from({ length: 50 }, (_, index) => ({
+    _id: `stale-${index}`,
+    _openid: 'mentor-openid',
+    conversationId: `order_missing-${index}`,
+    lastTime: new Date(Date.parse('2026-08-14T12:00:00.000Z') + index * 60000).toISOString()
+  }))
+  data.conversations.push({
+    _id: 'valid-older',
+    _openid: 'mentor-openid',
+    conversationId: orderConversation,
+    peerName: '张同学',
+    orderTitle: '【匿名】教育职场咨询',
+    lastTime: '2026-08-13T12:00:00.000Z'
+  })
+  const result = await getConversations(new InMemoryMessageDatabase(data), 'mentor-openid')()
+  assert.equal(result.code, 0)
+  assert.deepEqual(result.data.map(item => item._id), ['valid-older'])
+  assert.equal(result.data[0].peerName, '匿名学员')
+  assert.equal(result.data[0].orderTitle, '教育职场咨询')
+  assert.equal(result.scanLimitReached, false)
+})
+
+test('conversation scan reports when its 200-membership safety cap may hide older valid entries', async () => {
+  const data = fixtures()
+  data.conversations = Array.from({ length: 200 }, (_, index) => ({
+    _id: `stale-${index}`,
+    _openid: 'mentor-openid',
+    conversationId: `order_missing-${index}`,
+    lastTime: new Date(Date.parse('2026-08-14T12:00:00.000Z') + index * 60000).toISOString()
+  }))
+  const result = await getConversations(new InMemoryMessageDatabase(data), 'mentor-openid')()
+  assert.equal(result.code, 0)
+  assert.equal(result.data.length, 0)
+  assert.equal(result.scanLimitReached, true)
+})
 
 test('message entry points export their dependency-injected handlers', () => {
   const expected = {

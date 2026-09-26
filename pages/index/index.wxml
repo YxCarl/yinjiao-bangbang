@@ -1,4 +1,5 @@
 <view class="page-container">
+<view class="empty-tip">开源演示：师资卡片、课程与价格不是实际服务或使用量。</view>
 
 <!-- 顶部品牌头条 -->
 <view class="top-bar">
@@ -27,13 +28,13 @@
 <view class="biz-card dashboard-card">
   <view class="dash-greeting">
     <text class="hello">你好，{{userName}}</text>
-    <text class="hello-sub">本周护航进度</text>
+    <text class="hello-sub">最近订单进度（最多 50 条）</text>
   </view>
 
   <view class="dash-data">
     <view class="data-item">
       <text class="d-val">{{orderCount}}<text class="d-unit"> 次</text></text>
-      <text class="d-label">累计指导</text>
+      <text class="d-label">最近订单</text>
     </view>
     <view class="d-divider"></view>
     <view class="data-item">
@@ -118,8 +119,8 @@
 
 <!-- 名师推荐 -->
 <view class="section-title">
-  名师推荐
-  <text class="section-sub">权威评委 · 实战导师</text>
+  导师卡片示例
+  <text class="section-sub">合成资料 · 非真实师资</text>
 </view>
 <view class="tutor-list">
   <view class="biz-card tutor-card" wx:for="{{tutors}}" wx:key="id" bindtap="goToTutor">
@@ -133,8 +134,7 @@
       <view class="t-desc">{{item.desc}}</view>
     </view>
     <view class="t-stat">
-      <text class="t-rate">★ {{item.rating}}</text>
-      <text class="t-orders">{{item.orders}} 单</text>
+      <text class="t-orders">仅供界面演示</text>
     </view>
   </view>
 </view>

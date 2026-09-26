@@ -43,7 +43,7 @@
   </view>
 
   <view class="form-item">
-    <text class="label">期望教师</text>
+    <text class="label">期望资质（不自动匹配）</text>
     <picker mode="selector" range="{{teacherLevels}}" bindchange="onLevelChange">
       <view class="picker-value {{selectedLevel ? 'selected' : ''}}">
         {{selectedLevel || '请选择教师等级'}}
@@ -53,16 +53,16 @@
   </view>
 
   <view class="form-item">
-    <text class="label">悬赏金额</text>
+    <text class="label">模拟悬赏额度</text>
     <view class="price-input-wrap">
       <text class="price-prefix">¥</text>
-      <input type="digit" placeholder="49 元起" class="price-input" placeholder-class="ph-color" bindinput="onPriceInput" value="{{priceAmount}}"></input>
+      <input type="digit" placeholder="49 学币起" class="price-input" placeholder-class="ph-color" bindinput="onPriceInput" value="{{priceAmount}}"></input>
     </view>
   </view>
 </view>
 
 <view class="tip-row">
-  <text class="tip-text">提交后将进入候单池，最快 30 分钟内有名师响应。</text>
+  <text class="tip-text">提交后将进入候单池；演示版不保证导师接单或响应时间，金额为模拟学币，非真实支付。</text>
 </view>
 
 <view class="btn-biz btn-primary submit-btn" bindtap="submitOrder">提交修改订单</view>

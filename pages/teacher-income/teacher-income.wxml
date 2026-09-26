@@ -1,7 +1,7 @@
 <view class="page-container">
 
   <view class="income-header">
-    <text class="ih-label">累计收益 (元)</text>
+    <text class="ih-label">模拟收益（未接入结算）</text>
     <text class="ih-num">{{totalIncome}}</text>
     <view class="ih-row">
       <view class="ih-item">
@@ -16,14 +16,14 @@
     </view>
   </view>
 
-  <view class="tab-nav">
+  <view class="tab-nav" wx:if="{{allRecords.length > 0}}">
     <view class="tab-item {{activeTab == 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">全部</view>
     <view class="tab-item {{activeTab == 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">已到账</view>
     <view class="tab-item {{activeTab == 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">提现中</view>
   </view>
 
   <view class="record-list">
-    <view class="empty-tip" wx:if="{{records.length === 0}}">暂无记录</view>
+    <view class="empty-tip" wx:if="{{records.length === 0}}">演示版没有真实支付、分账或提现记录；订单价格不可视为收益。</view>
     <view class="biz-card record-item" wx:for="{{records}}" wx:key="id">
       <view class="rc-top">
         <view class="rc-left">

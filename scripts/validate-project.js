@@ -37,6 +37,7 @@ const requiredFiles = [
   'CHANGELOG.md',
   'docs/ARCHITECTURE.md',
   'docs/DEPLOYMENT.md',
+  'docs/INDEXES.md',
   'docs/ROADMAP.md',
   'docs/MENTOR_APPROVAL.md',
   'docs/TESTING.md',

@@ -12,7 +12,8 @@
 </view>
 
 <view class="order-list">
-  <view class="empty-state" wx:if="{{filteredOrders.length === 0 && !loading}}">
+  <view class="empty-tip" wx:if="{{loadError}}">订单同步失败，请下拉刷新重试</view>
+  <view class="empty-state" wx:elif="{{filteredOrders.length === 0 && !loading}}">
     <view class="empty-mark">无</view>
     <text class="empty-title">暂无相关订单</text>
     <text class="empty-sub">在首页选择对应的服务即可开启第一次指导</text>
@@ -30,7 +31,7 @@
       <text class="course-name">{{item.title}}</text>
       <text class="order-desc" wx:if="{{item.desc}}">{{item.desc}}</text>
       <view class="teacher-info" wx:if="{{item.teacher}}">指导老师：{{item.teacher}}</view>
-      <view class="teacher-info" wx:elif="{{item.status == 0}}">等待名师接单中...</view>
+      <view class="teacher-info" wx:elif="{{item.status == 0}}">等待导师接单；演示版不保证响应</view>
       <view class="file-tag" wx:if="{{item.detail && item.detail.fileName}}" bindtap="downloadFile" data-id="{{item._id}}">
         <text>📎 {{item.detail.fileName || item.detail.videoName}}</text>
         <text class="file-tag-action">查看</text>
@@ -38,11 +39,11 @@
     </view>
     <view class="order-footer">
       <view class="bounty-box">
-        <text class="rmb">实付 ¥</text>
+        <text class="rmb">模拟学币 </text>
         <text class="bounty-num">{{item.price}}</text>
       </view>
       <view class="btn-action btn-biz btn-primary" wx:if="{{item.status == 1}}" bindtap="openChat" data-id="{{item._id}}">进入对话</view>
-      <view class="btn-action btn-biz btn-outline" wx:elif="{{item.status == 0}}" bindtap="remindOrder" data-id="{{item._id}}">催办</view>
+      <view class="btn-action btn-biz btn-outline" wx:elif="{{item.status == 0}}" bindtap="remindOrder" data-id="{{item._id}}">催办未开放</view>
       <view class="btn-action btn-biz btn-ghost" wx:else bindtap="openChat" data-id="{{item._id}}">查看详情</view>
     </view>
   </view>

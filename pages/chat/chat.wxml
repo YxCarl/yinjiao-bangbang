@@ -4,12 +4,12 @@
     <view class="text-badge peer-avatar {{peerTheme}}">{{peerChar}}</view>
     <view class="peer-info">
       <text class="peer-name">{{peerName}}</text>
-      <text class="peer-status">在线 · 通常 1 小时内回复</text>
+      <text class="peer-status">站内会话 · 不保证回复时效</text>
     </view>
   </view>
 
   <scroll-view class="chat-list" scroll-y scroll-into-view="{{messages.length > 0 ? 'msg-' + messages[messages.length-1].id : ''}}">
-    <view class="time-divider">今天</view>
+    <view class="time-divider">最近 50 条云端消息</view>
 
     <view class="msg-row {{item.side === 'out' ? 'row-out' : 'row-in'}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}">
       <view class="text-badge bubble-avatar {{peerTheme}}" wx:if="{{item.side === 'in'}}">{{peerChar}}</view>

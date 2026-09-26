@@ -92,8 +92,9 @@ function createAddOrderHandler(dependencies) {
     if (price === null) return { code: -1, error: '金额无效' }
 
     const typeText = boundedText(event.typeText, 20)
-    const title = boundedText(event.title, 100)
+    const title = typeText === '问诊室' ? '教育职场咨询' : boundedText(event.title, 100)
     if (!typeText || !title) return { code: -1, error: '订单类型和标题不能为空' }
+    const anonymous = typeText === '问诊室' && event.anonymous === true
 
     const detail = normalizeDetail(event.detail)
     const orderId = createOrderId(openid, requestId)
@@ -181,8 +182,9 @@ function createAddOrderHandler(dependencies) {
         order: {
           typeText: typeText,
           title: title,
-          student: student.name || '学员',
-          studentAvatar: student.avatar || (student.name ? student.name[0] : '学'),
+          anonymous: anonymous,
+          student: anonymous ? '匿名学员' : (student.name || '学员'),
+          studentAvatar: anonymous ? '匿' : (student.avatar || (student.name ? student.name[0] : '学')),
           desc: describeOrder(detail),
           detail: detail
         }

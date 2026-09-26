@@ -40,9 +40,11 @@ async function resolveOrderAccess(database, openid, orderId) {
 
   const mentor = await database.findApprovedMentor(openid)
   if (!mentor || mentor._id !== order.teacherId) return null
+  const anonymous = order.anonymous === true ||
+    (order.typeText === '问诊室' && typeof order.title === 'string' && order.title.startsWith('【匿名】'))
   return {
     participantRole: 'mentor',
-    peerName: order.student || '学员',
+    peerName: anonymous ? '匿名学员' : (order.student || '学员'),
     orderTitle: order.title || '',
     peerOpenids: order._openid ? [order._openid] : []
   }

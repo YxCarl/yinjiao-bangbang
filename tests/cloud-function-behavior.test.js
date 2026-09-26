@@ -2,8 +2,10 @@ const test = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
+const vm = require('node:vm')
 
 const { createCompleteOrderHandler } = require('../cloudfunctions/completeOrder/handler')
+const { createCloudDatabaseAdapter: createOrderListAdapter } = require('../cloudfunctions/getOrders/cloud-database-adapter')
 const { createGetOrdersHandler } = require('../cloudfunctions/getOrders/handler')
 const { createGrabOrderHandler } = require('../cloudfunctions/grabOrder/handler')
 const { InMemoryOrderDatabase } = require('./in-memory-order-database')
@@ -118,6 +120,134 @@ test('students can list only their own orders', async () => {
   assert.deepEqual(result.data.map(order => order._id), ['open-order'])
 })
 
+test('mentor demand hall hides unclaimed details and other mentors assigned orders', async () => {
+  const data = fixtures()
+  data.orders[0].title = '张同学的私密教案'
+  data.orders[0].desc = '含有不应公开的课堂详情'
+  data.orders[0].detail = { fileID: 'cloud://private/file.pdf', aiTimeline: [{ desc: '隐私' }] }
+  data.orders.push({
+    _id: 'assigned-elsewhere',
+    _openid: 'another-student-openid',
+    teacherId: 'other-mentor-profile',
+    status: 1,
+    title: '其他导师的订单',
+    detail: { content: '不能泄露' },
+    createTime: '2026-08-14T10:00:00.000Z'
+  })
+  const database = new InMemoryOrderDatabase(data)
+
+  const firstMentor = await getOrders(database, 'mentor-openid')({ scope: 'all' })
+  assert.deepEqual(firstMentor.data.map(order => order._id), ['open-order', 'older-order'])
+  assert.deepEqual(Object.keys(firstMentor.data[0]).sort(), [
+    '_id', 'createTime', 'desc', 'price', 'status', 'student', 'title', 'typeText'
+  ].sort())
+  assert.equal(firstMentor.data[0].student, '学员')
+  assert.doesNotMatch(JSON.stringify(firstMentor.data), /张同学|私密教案|课堂详情|cloud:\/\/|aiTimeline|another-student-openid|其他导师/)
+
+  const owner = await getOrders(database, 'student-openid')({ scope: 'mine' })
+  assert.equal(owner.data[0].detail.fileID, 'cloud://private/file.pdf')
+
+  await grabOrder(database, 'mentor-openid')({ orderId: 'open-order' })
+  const assignedMentor = await getOrders(database, 'mentor-openid')({ scope: 'all' })
+  assert.equal(assignedMentor.data.find(order => order._id === 'open-order').detail.fileID, 'cloud://private/file.pdf')
+  assert.equal(assignedMentor.data.some(order => order._id === 'assigned-elsewhere'), false)
+  assert.equal(JSON.stringify(assignedMentor.data).includes('student-openid'), false)
+})
+
+test('anonymous question hides the student name after claiming, including legacy title-marked orders', async () => {
+  const data = fixtures()
+  data.orders[0].typeText = '问诊室'
+  data.orders[0].title = '【匿名】教育职场咨询'
+  data.orders[0].anonymous = true
+  data.orders[0].student = '张同学'
+  data.orders[0].studentAvatar = '张'
+  const database = new InMemoryOrderDatabase(data)
+
+  assert.equal((await grabOrder(database, 'mentor-openid')({ orderId: 'open-order' })).code, 0)
+  const mentor = await getOrders(database, 'mentor-openid')({ scope: 'all' })
+  const own = await getOrders(database, 'student-openid')({ scope: 'mine' })
+  const order = mentor.data.find(item => item._id === 'open-order')
+  assert.equal(order.student, '匿名学员')
+  assert.equal(order.studentAvatar, '匿')
+  assert.equal(order.anonymous, true)
+  assert.equal(own.data[0].student, '张同学')
+  assert.equal(database.snapshot().conversations.find(item => item.participantRole === 'mentor').peerName, '匿名学员')
+
+  const legacy = fixtures()
+  legacy.orders[0].typeText = '问诊室'
+  legacy.orders[0].title = '【匿名】教育职场咨询'
+  const legacyDatabase = new InMemoryOrderDatabase(legacy)
+  await grabOrder(legacyDatabase, 'mentor-openid')({ orderId: 'open-order' })
+  const legacyMentor = await getOrders(legacyDatabase, 'mentor-openid')({ scope: 'all' })
+  assert.equal(legacyMentor.data.find(item => item._id === 'open-order').student, '匿名学员')
+})
+
+test('CloudBase order-list adapter filters by status or owner before limiting results', async () => {
+  const filters = []
+  const query = {
+    where(filter) { filters.push(filter); return this },
+    orderBy() { return this },
+    limit() { return this },
+    async get() { return { data: [] } }
+  }
+  const adapter = createOrderListAdapter({ collection() { return query } })
+  await adapter.listOrders({ availableOnly: true, limit: 50 })
+  await adapter.listOrders({ assignedMentorId: 'mentor-profile', limit: 50 })
+  await adapter.listOrders({ ownerOpenid: 'student-openid', limit: 50 })
+  assert.deepEqual(filters, [
+    { status: 0 },
+    { teacherId: 'mentor-profile' },
+    { _openid: 'student-openid' }
+  ])
+  await assert.rejects(adapter.listOrders({ limit: 50 }), /scoped/)
+})
+
+test('mentor workspace shows a load error instead of actionable fake orders', () => {
+  const source = fs.readFileSync(path.join(root, 'pages/teacher/teacher.js'), 'utf8')
+  let definition
+  let request
+  const context = {
+    Page(page) { definition = page },
+    wx: {
+      cloud: { callFunction(options) { request = options } },
+      showToast() {}
+    }
+  }
+  vm.runInNewContext(source, context)
+  const page = {
+    ...definition,
+    data: { ...definition.data },
+    setData(patch, callback) {
+      Object.assign(this.data, patch)
+      if (callback) callback()
+    }
+  }
+
+  page.loadOrders()
+  request.fail()
+  assert.equal(page.data.loadError, true)
+  assert.equal(page.data.orders.length, 0)
+  assert.equal(page.data.totalOrders, 0)
+
+  page.loadOrders()
+  request.success({ result: { code: 0, data: [{ _id: 'open', status: 0, typeText: '磨课坊' }] } })
+  assert.equal(page.data.loadError, false)
+  assert.equal(page.data.orders.length, 1)
+  assert.equal(page.data.totalOrders, 0, 'an open request is not an already guided order')
+
+  page.loadOrders()
+  request.success({ result: { code: 0, data: [
+    { _id: 'open', status: 0, typeText: '磨课坊' },
+    { _id: 'mine', status: 1, typeText: '问诊室' },
+    { _id: 'done', status: 2, typeText: '诊课室' }
+  ] } })
+  assert.deepEqual(Array.from(page.data.filteredOrders, item => item._id), ['open'])
+  page.switchTab({ currentTarget: { dataset: { index: '1' } } })
+  assert.deepEqual(Array.from(page.data.filteredOrders, item => item._id), ['mine'])
+  page.switchTab({ currentTarget: { dataset: { index: '2' } } })
+  assert.deepEqual(Array.from(page.data.filteredOrders, item => item._id), ['done'])
+})
+
 test('pending applicants cannot claim an order', async () => {
   const database = new InMemoryOrderDatabase(fixtures())
   const result = await grabOrder(database, 'pending-openid')({ orderId: 'open-order' })
@@ -127,7 +257,7 @@ test('pending applicants cannot claim an order', async () => {
   assert.equal(database.snapshot().conversations.length, 0)
 })
 
-test('an approved mentor atomically claims an order and creates two memberships', async () => {
+test('an approved mentor claims an order and creates two memberships', async () => {
   const database = new InMemoryOrderDatabase(fixtures())
   const handler = grabOrder(database, 'mentor-openid')
 

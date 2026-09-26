@@ -10,7 +10,7 @@
   <view class="upload-placeholder" wx:if="{{!videoPath}}">
     <view class="text-badge upload-badge badge-info">视</view>
     <view class="upload-title">上传试讲 / 授课视频</view>
-    <view class="upload-desc">支持 MP4 · 建议 15 - 20 分钟</view>
+    <view class="upload-desc">支持 MP4 · 时长不超过 10 分钟 · 文件小于 200MB</view>
   </view>
   <view class="video-preview" wx:else>
     <view class="video-preview-box">{{videoName}}</view>
@@ -47,13 +47,14 @@
   </scroll-view>
 
   <view class="ai-empty" wx:if="{{aiStatus === 0}}">
-    上传视频后将自动定位关键教学环节，便于名师精准点评。
+    配置外部模型服务后，可尝试识别视频中的教学环节；结果需人工核对。
   </view>
 </view>
 
 <view class="tip-row">
-  <text class="tip-text">名师将就教态、语言节奏、互动设计、板书布局逐项分析。</text>
+  <text class="tip-text">可提交视频诊断需求；演示版不保证导师接单或完成逐项点评。</text>
 </view>
 
-<view class="btn-biz btn-primary submit-btn" bindtap="submitZhenke">申请名师逐帧诊断 · ¥ 128</view>
+<view class="tip-row"><text class="tip-text">128 为模拟学币额度；未接入真实支付或导师结算。</text></view>
+<view class="btn-biz btn-primary submit-btn" bindtap="submitZhenke">提交演示诊断订单 · 128 学币</view>
 </view>

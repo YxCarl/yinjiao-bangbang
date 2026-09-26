@@ -62,6 +62,7 @@ This seam does not emulate CloudBase. SDK query behavior, indexes, environment p
 2. A student calls `addOrder`; the function derives the caller identity and strictly validates the request.
 3. A caller-scoped hash of the request ID becomes the deterministic order document ID.
 4. One Cloud Database transaction rechecks the student profile, detects a replay, checks the simulated balance, deducts it, and creates the order. The balance and order therefore commit or roll back together.
+   For a question submitted with name masking enabled, the server stores an alias rather than the student's profile name. The order still retains its owner ID for authorization; the question body and voice can still disclose identity.
 5. An applicant submits through `submitMentorApplication`, which records `pending` while retaining student permissions.
 6. A trusted operator independently verifies the application and records both `role: mentor` and `mentorStatus: approved` outside the client.
 7. An approved mentor calls `grabOrder`.

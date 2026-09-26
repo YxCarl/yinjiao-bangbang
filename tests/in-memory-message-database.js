@@ -51,14 +51,17 @@ class InMemoryMessageDatabase {
   async listMessages(conversationId) {
     return this.messages
       .filter(message => message.conversationId === conversationId)
-      .sort((left, right) => String(left.createTime).localeCompare(String(right.createTime)))
+      .sort((left, right) => String(right.createTime).localeCompare(String(left.createTime)))
+      .slice(0, 50)
+      .reverse()
       .map(clone)
   }
 
-  async listConversations(openid) {
+  async listConversations(openid, offset = 0, limit = 50) {
     return this.conversations
       .filter(conversation => conversation._openid === openid)
       .sort((left, right) => String(right.lastTime).localeCompare(String(left.lastTime)))
+      .slice(offset, offset + limit)
       .map(clone)
   }
 

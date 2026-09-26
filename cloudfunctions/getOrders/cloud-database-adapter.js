@@ -12,6 +12,12 @@ function createCloudDatabaseAdapter(db) {
       let query = db.collection('orders')
       if (options.ownerOpenid) {
         query = query.where({ _openid: options.ownerOpenid })
+      } else if (options.availableOnly) {
+        query = query.where({ status: 0 })
+      } else if (options.assignedMentorId) {
+        query = query.where({ teacherId: options.assignedMentorId })
+      } else {
+        throw new Error('Order list must be scoped before querying')
       }
       const result = await query
         .orderBy('createTime', 'desc')

@@ -28,9 +28,10 @@ function createCloudDatabaseAdapter(db) {
     async listMessages(conversationId) {
       const result = await db.collection('messages')
         .where({ conversationId: conversationId })
-        .orderBy('createTime', 'asc')
+        .orderBy('createTime', 'desc')
+        .limit(50)
         .get()
-      return result.data
+      return (result.data || []).reverse()
     }
   }
 }

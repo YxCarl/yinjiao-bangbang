@@ -124,6 +124,7 @@ function createCloudDatabaseAdapter(db) {
             studentId: input.userId,
             student: input.order.student,
             studentAvatar: input.order.studentAvatar,
+            anonymous: input.order.anonymous,
             desc: input.order.desc,
             createTime: db.serverDate(),
             detail: input.order.detail
