@@ -6,7 +6,7 @@
 
   <view class="msg-list">
     <view class="empty-tip" wx:if="{{loadError}}">会话加载失败，请重新进入此页重试</view>
-    <view class="empty-tip" wx:if="{{listLimited}}">历史会话过多，当前列表可能不完整；请联系部署者清理失效记录</view>
+    <view class="empty-tip" wx:if="{{listLimited}}">本批有较多失效会话，可继续加载更早记录</view>
     <view class="empty-tip" wx:if="{{conversations.length === 0 && !loadError && !listLimited}}">暂无云端会话</view>
     <view class="biz-card msg-item" wx:for="{{conversations}}" wx:key="id" bindtap="openItem" data-id="{{item.id}}">
       <view class="text-badge msg-icon {{item.theme}}">{{item.char}}</view>
@@ -19,5 +19,6 @@
       </view>
       <view class="unread-badge" wx:if="{{item.unread > 0}}">{{item.unread}}</view>
     </view>
+    <button size="mini" wx:if="{{hasMoreConversations}}" loading="{{loadingConversations}}" disabled="{{loadingConversations}}" bindtap="loadMoreConversations">加载更多会话</button>
   </view>
 </view>

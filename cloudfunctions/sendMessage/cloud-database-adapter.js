@@ -1,3 +1,5 @@
+const { membershipId } = require('./membership-id')
+
 function documentData(result) {
   if (!result) return null
   if (Array.isArray(result.data)) return result.data[0] || null
@@ -50,8 +52,19 @@ function createCloudDatabaseAdapter(db) {
     },
 
     async createMembership(openid, conversationId, details) {
-      const result = await db.collection('conversations').add({
-        data: {
+      const stableId = membershipId(openid, conversationId)
+      const result = await db.runTransaction(async transaction => {
+        const reference = transaction.collection('conversations').doc(stableId)
+        const existing = documentData(await reference.get())
+        if (existing) {
+          if (existing._openid !== openid || existing.conversationId !== conversationId) {
+            const error = new Error('Membership identity collision')
+            error.code = 'MEMBERSHIP_ID_COLLISION'
+            throw error
+          }
+          return { status: 'existing', _id: stableId }
+        }
+        await reference.set({ data: {
           _openid: openid,
           conversationId: conversationId,
           participantRole: details.participantRole,
@@ -60,9 +73,10 @@ function createCloudDatabaseAdapter(db) {
           lastMsg: '',
           lastTime: db.serverDate(),
           unread: 0
-        }
+        } })
+        return { status: 'created', _id: stableId }
       })
-      return { _id: result._id }
+      return { _id: transactionValue(result)._id }
     },
 
     async markMembershipRead(membershipId) {

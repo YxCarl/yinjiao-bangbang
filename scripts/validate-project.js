@@ -41,6 +41,7 @@ const requiredFiles = [
   'docs/ROADMAP.md',
   'docs/MENTOR_APPROVAL.md',
   'docs/TESTING.md',
+  'docs/DEMO_FIXTURES.md',
   'docs/SECURITY_RULES.md',
   'docs/DEPENDENCIES.md',
   'docs/DATA_HANDLING.md',

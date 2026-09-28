@@ -31,7 +31,7 @@ Teaching experience is often shared through informal, closed channels. This proj
 | Teaching-video analysis | Upload a video and create an asynchronous analysis task |
 | Teaching Q&A | Submit teaching questions and browse educational content |
 | Mentor workspace | Browse, claim, reply to, and complete guidance orders |
-| Messaging | Per-order text and voice conversations with membership checks |
+| Messaging | Authorized per-order text and voice conversations, older-history pagination and paged conversation lists |
 | Profiles | Student profiles plus independently approved mentor access |
 | Interface demo | Clearly labeled sample mentor and course cards; protected orders and conversations require CloudBase |
 
@@ -108,6 +108,8 @@ Apply the database and storage rules only after deploying `getProtectedFileURL`;
 ### 4. Load optional sample content
 
 Import `seed-contents.json` into the `contents` collection if you want the example resource pages to contain data.
+
+For repeatable order and messaging tests, run `npm run fixtures:demo` to preview synthetic fixture counts without connecting to the cloud. See [Demo fixtures](docs/DEMO_FIXTURES.md) for local generation, private test-account binding and isolated-environment import/reset instructions.
 
 Detailed setup, the [candidate database-index checklist](docs/INDEXES.md), and a production-hardening checklist are available in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 

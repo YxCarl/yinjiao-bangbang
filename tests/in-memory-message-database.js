@@ -48,20 +48,27 @@ class InMemoryMessageDatabase {
       .map(clone)
   }
 
-  async listMessages(conversationId) {
+  async listMessages(conversationId, { cursor = null, direction = 'before', limit = 51 } = {}) {
+    const compare = (left, right) => new Date(left.createTime) - new Date(right.createTime) ||
+      (left._id < right._id ? -1 : left._id > right._id ? 1 : 0)
     return this.messages
       .filter(message => message.conversationId === conversationId)
-      .sort((left, right) => String(right.createTime).localeCompare(String(left.createTime)))
-      .slice(0, 50)
-      .reverse()
+      .filter(message => !cursor || (direction === 'after'
+        ? compare(message, { createTime: cursor.time, _id: cursor.id }) > 0
+        : compare(message, { createTime: cursor.time, _id: cursor.id }) < 0))
+      .sort((left, right) => direction === 'after' ? compare(left, right) : compare(right, left))
+      .slice(0, limit)
       .map(clone)
   }
 
-  async listConversations(openid, offset = 0, limit = 50) {
+  async listConversations(openid, { cursor = null, limit = 50 } = {}) {
+    const compare = (left, right) => new Date(left.lastTime) - new Date(right.lastTime) ||
+      (left._id < right._id ? -1 : left._id > right._id ? 1 : 0)
     return this.conversations
       .filter(conversation => conversation._openid === openid)
-      .sort((left, right) => String(right.lastTime).localeCompare(String(left.lastTime)))
-      .slice(offset, offset + limit)
+      .filter(conversation => !cursor || compare(conversation, { lastTime: cursor.time, _id: cursor.id }) < 0)
+      .sort((left, right) => compare(right, left))
+      .slice(0, limit)
       .map(clone)
   }
 

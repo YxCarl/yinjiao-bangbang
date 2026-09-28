@@ -1,10 +1,19 @@
 function createCloudDatabaseAdapter(db) {
   return {
-    async listConversations(openid, offset = 0, limit = 50) {
+    async listConversations(openid, { cursor = null, limit = 50 } = {}) {
+      let condition = { _openid: openid }
+      if (cursor) {
+        const command = db.command
+        const time = new Date(cursor.time)
+        condition = command.and(condition, command.or(
+          { lastTime: command.lt(time) },
+          { lastTime: time, _id: command.lt(cursor.id) }
+        ))
+      }
       const result = await db.collection('conversations')
-        .where({ _openid: openid })
+        .where(condition)
         .orderBy('lastTime', 'desc')
-        .skip(offset)
+        .orderBy('_id', 'desc')
         .limit(limit)
         .get()
       return result.data

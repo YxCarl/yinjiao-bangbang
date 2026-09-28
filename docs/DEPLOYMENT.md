@@ -46,6 +46,10 @@ Deploy every directory below `cloudfunctions/`:
 
 Deploy the updated Mini Program pages together with `addOrder` and `sendMessage`. Both functions require bounded client request IDs. Order creation and message sending use server-side Cloud Database transactions, so isolated-environment testing must cover a new request, replay of the same request ID, and an ambiguous client retry.
 
+Deploy `grabOrder` and `sendMessage` as a coordinated change while test traffic is paused: both now use the same deterministic membership-ID scheme. `grabOrder` assigns the order and writes both memberships in one transaction, rechecking approval and ownership inside it. Existing legacy memberships are reused after validation; review duplicate or conflicting historical memberships before migration. Do not mix old random-ID membership writers with the new writers during a rollout.
+
+Deploy `getMessages`, `getConversations` and their four client pages together for cursor navigation. Check that message `createTime` and conversation `lastTime` are database Dates; string-valued or absent dates are not a supported cursor dataset. Verify the compound queries and both message directions against [candidate indexes](INDEXES.md). Stop and review legacy data rather than rewriting timestamps blindly.
+
 The reference order policy permits 10 new orders per caller per hour. A replay does not consume another slot or deduct the simulated wallet twice.
 
 Lesson-plan documents use an order-request-specific `moke/` path issued by `addOrder`. The final order must reference that exact DOC, DOCX, or PDF object and declare a positive size no greater than 50MB; the function independently verifies the stored object's size before creating a new order. Deploy the updated `addOrder` code and Mini Program page together, or document uploads will fail closed.
@@ -88,6 +92,8 @@ npm test
 
 The local suite includes repository checks and behavior-level tests for selected deployed handlers using deterministic in-memory adapters. It requires no AppID or cloud credential. Read [Testing and evidence](TESTING.md) before interpreting the result: local tests do not validate SDK queries or deployed security rules.
 
+For reproducible, non-personal test records, follow [Demo fixtures](DEMO_FIXTURES.md). The generator is local-only and defaults to a dry run; import and private test-account binding are separate trusted-operator steps in a new isolated environment.
+
 Then verify in WeChat Developer Tools:
 
 - a client-selected mentor request creates only a student profile;
@@ -97,7 +103,11 @@ Then verify in WeChat Developer Tools:
 - unauthorized users cannot list mentor orders;
 - anonymous question orders show only a generic student alias to the assigned mentor in the order and conversation lists; the account remains linked server-side, and question text/voice can still reveal identity;
 - the mentor demand hall shows only unclaimed summaries and the mentor's own assigned orders in their respective tabs;
-- historical invalid conversation memberships do not hide a valid conversation among the next 200 records; a reached scan cap is visibly reported;
+- a conversation list can continue past 200 stale memberships; the scan-cap notice and load-more control remain usable even if a page has no authorized records;
+- more than 50 messages, including equal timestamps, can be paged backwards without duplicates; multiple forward-poll pages retain every returned message and do not clear loaded history;
+- revoking access between pages prevents later message/list reads, and malformed or cross-scope cursors are rejected;
+- competing approved mentors produce one order assignment and two participant memberships; retrying the winner preserves previews and unread counts;
+- a failed claim transaction leaves no partial assignment or membership write; use a disposable test fixture and controlled test instrumentation, never production fault injection;
 - replaying one order request creates one order and applies one simulated balance deduction;
 - a caller's eleventh new order in one hour is rejected while an existing request ID remains replayable;
 - a lesson-plan upload prepared for one order cannot be attached to a different request or caller;

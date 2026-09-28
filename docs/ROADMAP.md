@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-09-26**
+**Last updated / 最后更新：2026-09-28**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -20,6 +20,10 @@ Evidence: [v0.1.0 public beta](https://github.com/YxCarl/yinjiao-bangbang/releas
 - [x] Publish the first tagged source pre-release with automatic ZIP and TAR.GZ archives.
 
 ## Now: v0.2.0 secure and reproducible deployment / 当前：安全且可复现的部署
+
+Repository checkpoint on 2026-09-28: 120 local tests and repository validation passed; atomic claim code, cursor pagination and synthetic fixtures are implemented. The maintainer has not yet prepared the isolated environment and two test accounts, so no new cloud deployment or `v0.2.0` release is claimed. See [Testing and evidence](TESTING.md).
+
+2026-09-28 仓库检查点：120 项本地测试与仓库校验通过；接单事务、游标分页和合成数据已实现。隔离环境与双测试账号尚未准备，因此本轮没有云端部署，也没有将 `v0.2.0` 标记为已发布。
 
 Deployment checkpoint: on 2026-08-14, four additive Cloud Functions were deployed and queried as `Active` after an off-repository backup of the 14 pre-existing functions. This is recorded in [Testing and evidence](TESTING.md), but it does not complete the fresh-environment smoke test or its cross-account authorization matrix.
 
@@ -45,7 +49,7 @@ Priority order / 优先顺序：
 8. [x] Publish an evidence-based project-positioning note that distinguishes common two-sided Mini Program patterns from this repository's specific contribution and avoids unsupported originality claims ([Project positioning](PROJECT_POSITIONING.md)).
 9. [x] Restrict the mentor demand hall to generic unclaimed-order summaries and the current mentor's assigned orders; remove actionable fake-order fallback on load failure. Local authorization regression tests pass; fresh CloudBase verification is still pending.
 10. [x] Publish a [candidate database-index checklist](INDEXES.md) for fresh-environment setup. Creation, query-plan checks, and performance evidence remain pending.
-11. [ ] Make order claiming and the two participant-membership writes one atomic, retry-safe operation; the current code can leave an assigned order without a membership if the second phase fails.
+11. [x] Put order claiming and both participant memberships in one retry-safe transaction; local tests cover rollback at each write, competing mentors, legacy-membership repair and preserved message state. Real CloudBase concurrency and migration checks remain part of item 1, not completed by these tests.
 12. [x] Mask profile names for anonymous question orders and mentor-facing conversations, including legacy title-marked orders; verify cross-role behavior locally. This is name masking, not full anonymity, and fresh-environment checks remain pending.
 
 ### v0.2.0 definition of done / 完成标准
@@ -61,9 +65,9 @@ Priority order / 优先顺序：
 - [x] Label synthetic teacher, course, rating, usage, and wallet data as demonstration content; prevent demo recharge and withdrawal actions from reporting successful transactions; remove fake local conversations, questions, favorites, and order notifications from account-facing pages.
 - [x] Read the newest 50 messages and return up to 50 authorized conversations after scanning past stale memberships (up to 200 scanned records), instead of silently losing recent entries.
 - [x] Stop presenting unconfirmed chat/reply sends, unsupported ratings, or unverified response-time guarantees as successful live service behavior.
-- [ ] Add cursor pagination for older messages and conversations before production use.
+- [x] Add scoped timestamp/document-ID cursors for older messages, incremental polling and conversation lists; reauthorize every page, continue after stale-membership scan limits, and test equal timestamps plus client deduplication. Real SDK queries and indexes still require isolated-environment verification.
 - [ ] Replace the bounded 300-record scan with indexed/server-side search if the public content catalog outgrows the reference dataset; measure CloudBase query cost first.
-- [ ] Add deterministic development fixtures and reset instructions for all demo collections.
+- [x] Add a local-only [synthetic fixture generator and reset instructions](DEMO_FIXTURES.md) for the seven collections; AI tasks and rate counters start empty, and no private file uploads or provider results are fabricated. Private account binding and actual imports remain operator-run steps.
 - [ ] Add an optional `miniprogram-ci` preview workflow with protected GitHub secrets and no credentials in logs or artifacts.
 - [ ] Publish a short, sanitized walkthrough showing clone, configuration, deployment, and the four core user flows.
 - [ ] Add Cloud Function dependency auditing and a documented update cadence.

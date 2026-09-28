@@ -24,6 +24,8 @@
       { "type": "folder", "value": "scripts" },
       { "type": "folder", "value": "security" },
       { "type": "folder", "value": "tests" },
+      { "type": "folder", "value": "outputs" },
+      { "type": "folder", "value": "secrets" },
       { "type": "file", "value": ".gitignore" },
       { "type": "file", "value": "CHANGELOG.md" },
       { "type": "file", "value": "CODE_OF_CONDUCT.md" },

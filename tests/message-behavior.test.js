@@ -212,12 +212,13 @@ test('CloudBase message query requests the newest bounded page', async () => {
   assert.deepEqual(calls, [
     ['where', { conversationId: 'order-1' }],
     ['orderBy', 'createTime', 'desc'],
-    ['limit', 50]
+    ['orderBy', '_id', 'desc'],
+    ['limit', 51]
   ])
-  assert.deepEqual(result.map(item => item._id), ['old', 'new'])
+  assert.deepEqual(result.map(item => item._id), ['new', 'old'])
 })
 
-test('CloudBase conversation query requests a bounded offset page', async () => {
+test('CloudBase conversation query uses a stable bounded sort without offsets', async () => {
   const calls = []
   const query = {
     where(value) { calls.push(['where', value]); return this },
@@ -227,11 +228,11 @@ test('CloudBase conversation query requests a bounded offset page', async () => 
     async get() { return { data: [] } }
   }
   const adapter = createConversationsCloudAdapter({ collection() { return query } })
-  await adapter.listConversations('mentor-openid', 50, 50)
+  await adapter.listConversations('mentor-openid')
   assert.deepEqual(calls, [
     ['where', { _openid: 'mentor-openid' }],
     ['orderBy', 'lastTime', 'desc'],
-    ['skip', 50],
+    ['orderBy', '_id', 'desc'],
     ['limit', 50]
   ])
 })

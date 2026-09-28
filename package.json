@@ -9,6 +9,7 @@
   },
   "scripts": {
     "check": "node scripts/validate-project.js",
+    "fixtures:demo": "node scripts/generate-demo-fixtures.js",
     "test": "node --test tests/*.test.js && npm run check"
   }
 }

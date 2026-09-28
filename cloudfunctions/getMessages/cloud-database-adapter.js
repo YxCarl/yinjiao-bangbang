@@ -25,13 +25,25 @@ function createCloudDatabaseAdapter(db) {
       return result.data[0] || null
     },
 
-    async listMessages(conversationId) {
+    async listMessages(conversationId, { cursor = null, direction = 'before', limit = 51 } = {}) {
+      const ascending = direction === 'after'
+      let condition = { conversationId }
+      if (cursor) {
+        const command = db.command
+        const compare = value => ascending ? command.gt(value) : command.lt(value)
+        const time = new Date(cursor.time)
+        condition = command.and(condition, command.or(
+          { createTime: compare(time) },
+          { createTime: time, _id: compare(cursor.id) }
+        ))
+      }
       const result = await db.collection('messages')
-        .where({ conversationId: conversationId })
-        .orderBy('createTime', 'desc')
-        .limit(50)
+        .where(condition)
+        .orderBy('createTime', ascending ? 'asc' : 'desc')
+        .orderBy('_id', ascending ? 'asc' : 'desc')
+        .limit(limit)
         .get()
-      return (result.data || []).reverse()
+      return result.data || []
     }
   }
 }

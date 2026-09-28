@@ -1,3 +1,6 @@
+const { createCloudDatabaseAdapter } = require('../cloudfunctions/grabOrder/cloud-database-adapter')
+const { TransactionalCloudDatabase } = require('./transactional-cloud-database')
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value))
 }
@@ -8,6 +11,11 @@ class InMemoryOrderDatabase {
     this.orders = clone(fixtures.orders || [])
     this.conversations = clone(fixtures.conversations || [])
     this.clock = fixtures.clock || '2026-08-13T00:00:00.000Z'
+    this.cloudDatabase = new TransactionalCloudDatabase(
+      () => this.snapshot(),
+      state => { Object.assign(this, state) },
+      () => this.clock
+    )
   }
 
   async findApprovedMentor(openid) {
@@ -39,32 +47,8 @@ class InMemoryOrderDatabase {
     return order ? clone(order) : null
   }
 
-  async claimOpenOrder(orderId, mentor) {
-    const order = this.orders.find(item => item._id === orderId && item.status === 0)
-    if (!order) return false
-    Object.assign(order, {
-      status: 1,
-      teacher: mentor.name || '导师',
-      teacherId: mentor._id,
-      teacherAvatar: mentor.avatar || '师',
-      claimTime: this.clock
-    })
-    return true
-  }
-
-  async ensureConversation(openid, conversationId, details) {
-    const exists = this.conversations.some(item => (
-      item._openid === openid && item.conversationId === conversationId
-    ))
-    if (exists) return
-    this.conversations.push(Object.assign({
-      _id: `conversation-${this.conversations.length + 1}`,
-      _openid: openid,
-      conversationId: conversationId,
-      lastMsg: '订单已进入指导阶段',
-      lastTime: this.clock,
-      unread: 0
-    }, clone(details)))
+  async claimOrderAtomically(input) {
+    return createCloudDatabaseAdapter(this.cloudDatabase).claimOrderAtomically(input)
   }
 
   async completeAssignedOrder(orderId, mentorId) {

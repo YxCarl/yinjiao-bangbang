@@ -10,6 +10,7 @@ project.private.config.json
 node_modules/
 miniprogram_npm/
 coverage/
+outputs/
 
 # Local credentials and environment files
 .env

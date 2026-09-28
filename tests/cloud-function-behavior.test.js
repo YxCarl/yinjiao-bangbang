@@ -97,7 +97,7 @@ test('deployed entry points export the dependency-injected handlers', () => {
       'utf8'
     )
     assert.match(source, new RegExp(`exports\\.main = ${factoryName}\\(`))
-    assert.match(source, /createCloudDatabaseAdapter\(cloud\.database\(\)\)/)
+    assert.match(source, /createCloudDatabaseAdapter\(cloud\.database\(/)
   }
 })
 
@@ -287,11 +287,105 @@ test('a competing mentor cannot take an already assigned order', async () => {
 
 test('an atomic claim conflict is reported without creating memberships', async () => {
   const database = new InMemoryOrderDatabase(fixtures())
-  database.claimOpenOrder = async () => false
+  database.claimOrderAtomically = async () => ({ status: 'conflict' })
 
   const result = await grabOrder(database, 'mentor-openid')({ orderId: 'open-order' })
   assert.equal(result.code, -2)
   assert.equal(database.snapshot().conversations.length, 0)
+})
+
+test('a failure at any claim write rolls back the order and both memberships', async () => {
+  for (const write of [1, 2, 3]) {
+    const database = new InMemoryOrderDatabase(fixtures())
+    const before = database.snapshot()
+    database.cloudDatabase.failOnWrite = write
+    const result = await grabOrder(database, 'mentor-openid')({ orderId: 'open-order' })
+    assert.equal(result.code, -1)
+    assert.deepEqual(database.snapshot(), before, `write ${write} must not leave a partial claim`)
+    database.cloudDatabase.failOnWrite = 0
+    assert.equal((await grabOrder(database, 'mentor-openid')({ orderId: 'open-order' })).code, 0)
+    assert.equal(database.snapshot().conversations.length, 2)
+  }
+})
+
+test('two concurrent mentors leave one winner and exactly two memberships', async () => {
+  const database = new InMemoryOrderDatabase(fixtures())
+  const results = await Promise.all([
+    grabOrder(database, 'mentor-openid')({ orderId: 'open-order' }),
+    grabOrder(database, 'other-mentor-openid')({ orderId: 'open-order' })
+  ])
+  assert.deepEqual(results.map(result => result.code).sort(), [-2, 0])
+  const state = database.snapshot()
+  assert.equal(state.conversations.length, 2)
+  const winner = state.users.find(user => user._id === state.orders[0].teacherId)
+  assert.deepEqual(state.conversations.map(row => row._openid).sort(), ['student-openid', winner._openid].sort())
+})
+
+test('concurrent retries by one mentor preserve one claim and one membership per participant', async () => {
+  const database = new InMemoryOrderDatabase(fixtures())
+  const handler = grabOrder(database, 'mentor-openid')
+  const results = await Promise.all([handler({ orderId: 'open-order' }), handler({ orderId: 'open-order' })])
+  assert.equal(results.every(result => result.code === 0), true)
+  const claimTime = database.orders[0].claimTime
+  database.conversations[0].lastMsg = '原有消息'
+  database.conversations[0].unread = 7
+  database.conversations[0].lastTime = '2026-08-20T00:00:00.000Z'
+  database.clock = '2026-08-25T00:00:00.000Z'
+  await handler({ orderId: 'open-order' })
+  assert.equal(database.orders[0].claimTime, claimTime)
+  assert.equal(database.conversations.length, 2)
+  assert.equal(database.conversations[0].lastMsg, '原有消息')
+  assert.equal(database.conversations[0].unread, 7)
+  assert.equal(database.conversations[0].lastTime, '2026-08-20T00:00:00.000Z')
+})
+
+test('transaction rechecks approval after the initial lookup and blocks self-claiming', async () => {
+  const database = new InMemoryOrderDatabase(fixtures())
+  database.cloudDatabase.beforeTransaction = () => {
+    database.users.find(user => user._id === 'mentor-profile').mentorStatus = 'revoked'
+  }
+  assert.equal((await grabOrder(database, 'mentor-openid')({ orderId: 'open-order' })).code, -3)
+  assert.equal(database.orders[0].status, 0)
+  assert.equal(database.conversations.length, 0)
+
+  const own = new InMemoryOrderDatabase(fixtures())
+  own.orders[0]._openid = 'mentor-openid'
+  assert.equal((await grabOrder(own, 'mentor-openid')({ orderId: 'open-order' })).code, -3)
+  assert.equal(own.orders[0].status, 0)
+})
+
+test('retry repairs a legacy partial claim without replacing its existing conversation', async () => {
+  const data = fixtures()
+  Object.assign(data.orders[0], { status: 1, teacherId: 'mentor-profile', claimTime: 'old-time' })
+  data.conversations = [{
+    _id: 'legacy-student-membership', _openid: 'student-openid', conversationId: 'order_open-order',
+    lastMsg: '既有指导记录', lastTime: '2026-08-12T12:00:00.000Z', unread: 3
+  }]
+  const database = new InMemoryOrderDatabase(data)
+  assert.equal((await grabOrder(database, 'mentor-openid')({ orderId: 'open-order' })).code, 0)
+  assert.equal(database.orders[0].claimTime, 'old-time')
+  assert.equal(database.conversations.length, 2)
+  assert.equal(database.conversations[0]._id, 'legacy-student-membership')
+  assert.equal(database.conversations[0].unread, 3)
+  assert.equal(database.conversations[0].lastMsg, '既有指导记录')
+})
+
+test('message membership repair racing with claim uses the same deterministic membership', async () => {
+  const { createCloudDatabaseAdapter } = require('../cloudfunctions/sendMessage/cloud-database-adapter')
+  const { membershipId } = require('../cloudfunctions/grabOrder/membership-id')
+  const otherId = require('../cloudfunctions/sendMessage/membership-id').membershipId
+  assert.equal(membershipId('student-openid', 'order_open-order'), otherId('student-openid', 'order_open-order'))
+  assert.doesNotMatch(membershipId('student-openid', 'order_open-order'), /student-openid/)
+  const database = new InMemoryOrderDatabase(fixtures())
+  const messaging = createCloudDatabaseAdapter(database.cloudDatabase)
+  await Promise.all([
+    grabOrder(database, 'mentor-openid')({ orderId: 'open-order' }),
+    messaging.createMembership('student-openid', 'order_open-order', {
+      participantRole: 'student', peerName: '导师', orderTitle: '教案精修'
+    })
+  ])
+  assert.equal(database.orders[0].status, 1)
+  assert.equal(database.conversations.length, 2)
 })
 
 test('only the assigned approved mentor can complete an active order', async () => {

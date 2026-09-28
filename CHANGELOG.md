@@ -8,11 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Made order claiming and both participant memberships one transaction with approval rechecks, self-claim rejection, stable membership IDs, legacy repair and message-state-preserving retries. Added rollback-at-each-write and competing-claim tests against the real adapter callback with a deterministic transaction double; cloud locking behavior remains unverified.
+- Added scoped keyset pagination for older messages, forward polling and conversation lists, with equal-timestamp handling, per-page authorization, client deduplication and stale-response protection. Automatic/manual latest-window reconciliation covers late writes without skipping a forward backlog; both message pages expose refresh and older-history controls.
+- Added a local-only synthetic fixture generator for seven collections, safe output guards, optional private test-account binding and reviewed reset instructions. Generated output is ignored by Git and excluded from the Mini Program package.
 - Restricted mentor order listings to generic unclaimed-order summaries and the currently assigned mentor's details, with cross-mentor privacy tests; removed fake-order fallback when the list fails.
 - Masked the student's profile name in anonymous question orders and mentor conversation lists (including old title-marked orders), and fixed mentor workspace tab filtering. Removed unsupported response-time and rating-success claims.
 - Clarified simulated balances at order entry points, removed a nonfunctional reminder success message, and corrected video-duration guidance to the enforced ten-minute limit. The old interface collage is now linked as a historical mockup rather than current behavior evidence.
 - Replaced unsupported teacher, rating, course-usage, income, and review claims with explicit demo or unavailable states; demo recharge and withdrawal no longer mutate balances or report success. Removed local fake conversations, questions, favorites, and order notifications from account-facing pages.
-- Bounded message and conversation reads to the newest 50 records, with regression tests for long histories; older-history pagination remains pending.
+- Bounded message and conversation pages to 50 records, with regression tests for long histories and continuation controls.
 - Prevented message pages from showing unconfirmed sends as successful; conversation reads now scan past stale memberships within a 200-record safety cap to find up to 50 authorized entries.
 - Added a candidate CloudBase index checklist and isolated-environment validation steps; indexes are not deployed by this repository.
 - Fixed content search so keyword filtering scans beyond the first 30 sorted records (up to 300 per request), reports when results may be incomplete, and ignores stale Mini Program search responses; added regression tests. Cloud deployment remains unverified.

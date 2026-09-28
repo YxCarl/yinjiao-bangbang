@@ -42,11 +42,22 @@ On 2026-08-16, WeChat Developer Tools `2.01.2510290` compiled the working branch
 
 2026-08-16，微信开发者工具 `2.01.2510290` 通过已登录 CLI 完成了当前分支的真实编译与预览。首次预览暴露出平台错误 `80051`：仓库文档和测试素材使源码包达到 2075KB，超过主包 2MB 限制。在 `packOptions.ignore` 中明确排除仅用于仓库的内容后，同一预览命令成功，包体为 210,305 字节（205.4KB）。
 
-This checkpoint proves platform parsing, compilation, packaging, AppID association through private configuration, and preview upload for the current source. It does not deploy Cloud Functions, exercise Cloud Database queries, enable cleanup, validate rules, or provide the two-account authorization evidence required by the isolated-deployment level. The authenticated account currently exposes one historical environment with the same 18 functions recorded above, not a second fresh environment.
+This checkpoint proves platform parsing, compilation, packaging, AppID association through private configuration, and preview upload for the source at that checkpoint, not later changes. It does not deploy Cloud Functions, exercise Cloud Database queries, enable cleanup, validate rules, or provide the two-account authorization evidence required by the isolated-deployment level. At that checkpoint, the authenticated account exposed one historical environment with the same 18 functions recorded above, not a second fresh environment.
 
-该检查点证明当前源码能通过平台解析、编译、打包、私有 AppID 关联和预览上传。它不会部署云函数，也不会验证云数据库查询、定时清理、安全规则或双账号授权。当前已登录账号只列出上文记录的含 18 个函数的历史环境，尚无第二个全新环境。
+该检查点证明当时的源码能通过平台解析、编译、打包、私有 AppID 关联和预览上传，不代表后续改动已经通过。它不会部署云函数，也不会验证云数据库查询、定时清理、安全规则或双账号授权。当时已登录账号只列出上文记录的含 18 个函数的历史环境，尚无第二个全新环境。
 
 ## Run locally / 本地运行
+
+### Repository checkpoint: 2026-09-28 / 仓库验证检查点
+
+- `npm test`: **120 tests passed**, zero failed; repository validation passed for 27 pages, 14 Cloud Functions and 247 checked files.
+- `npm run fixtures:demo -- --write`: generated five synthetic JSON Lines collections plus a manifest under ignored `outputs/demo-fixtures-v1/`. Counts: 5 users, 56 orders, 110 memberships, 65 messages and 1 content item; AI tasks and rate counters start empty.
+- New local evidence covers transactional claim rollback/retry, history/list pagination, late-message reconciliation and private-fixture packaging exclusions.
+- No cloud environment was created or changed, no private test identities were bound, and no fixture import was performed. The maintainer has not yet prepared an isolated environment with two test accounts. CloudBase transaction/query/index checks and current WeChat UI/packaging verification remain pending; `v0.2.0` is not marked released by this checkpoint.
+
+本次 `npm test` 的 120 项测试与仓库校验全部通过，并实际生成了合成数据文件。尚未执行云端导入、双账号实测或本轮微信界面/打包验证；这些不是本地测试能够替代的证据。
+
+### Commands / 命令
 
 Requirements: Node.js 18 or newer. No AppID, CloudBase environment, account credential, or provider key is required.
 
@@ -74,12 +85,19 @@ Tests import `handler.js`, which is the same function factory used by `index.js`
 
 测试直接导入 `index.js` 实际使用的 `handler.js` 工厂，并注入 `tests/` 下确定性的订单或消息内存适配器；业务规则不会在测试目录中复制一份。
 
+For order claims, the order adapter also runs the **real** `grabOrder/cloud-database-adapter.js` transaction callback against `tests/transactional-cloud-database.js`. That document-store double stages writes, discards them on failure and serializes callbacks for reproducible competing requests. It does not emulate CloudBase locks, automatic conflict retries or SDK wire behavior. The tests establish rollback and retry logic, not platform concurrency guarantees.
+
+接单测试还直接执行真实适配器的事务回调，验证任一写入失败时回滚、竞争接单、重试以及旧会话修复；测试替身会串行化回调，不模拟 CloudBase 的锁、冲突重试或网络协议。平台并发语义仍需隔离环境验证。
+
 Currently covered behavior:
 
 - approved mentors receive only generic summaries for unclaimed orders, no other mentor's assigned orders, and full details only for their own assigned orders; owners retain their own details;
 - a failed mentor order-list request displays an error instead of actionable fake orders;
 - demo recharge and withdrawal buttons cannot mutate local balances or claim real transaction success;
-- message history returns the newest 50 records in chronological display order, while conversation lists can scan past stale memberships to return up to 50 authorized entries;
+- message history starts with the newest 50 records and supports older pages plus forward polling, including equal timestamps and more than 50 newly arrived records;
+- conversation lists scan past stale memberships, return at most 50 authorized entries and expose a continuation even after 200 stale rows; every page rechecks access;
+- client history deduplicates pages, retains older records, clears rejected content and ignores unloaded/stale responses; newest-window reconciliation catches a same-timestamp late lower-ID message without advancing past unconsumed forward pages;
+- synthetic fixtures are deterministic and internally linked, export Date values in Extended JSON, and support optional private test-account bindings; both generated output and bindings are excluded from Git and Mini Program packaging;
 - anonymous question orders store a generic alias and mask the student's profile name from assigned mentors, including legacy title-marked orders; this is not full anonymity;
 - chat and mentor reply pages do not show unconfirmed sends as successful messages;
 - content search reaches records beyond the first result page, bounds its scan and reports partial results, and ignores late responses after a newer search or input edit;
@@ -87,8 +105,10 @@ Currently covered behavior:
 - a student or pending mentor cannot list the demand hall;
 - students see only their own orders;
 - only an explicitly approved mentor can claim an open order;
-- an atomic claim conflict cannot create conversation memberships;
-- a retry by the assigned mentor is idempotent;
+- a claim transaction failure at any of its three writes leaves order and memberships unchanged;
+- competing mentor claims produce one assignment and two memberships in the transaction double;
+- a retry by the assigned mentor is idempotent and preserves message previews, timestamps and unread counts;
+- approval revoked before the claim transaction and self-claims are rejected; repair of a legacy partially assigned order is tested;
 - a competing mentor cannot take an assigned order;
 - only the assigned approved mentor can complete an active order;
 - an atomic completion conflict cannot report a false success;

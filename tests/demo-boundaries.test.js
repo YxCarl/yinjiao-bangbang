@@ -9,7 +9,13 @@ const root = path.resolve(__dirname, '..')
 function loadPage(name, wx) {
   let definition
   const source = fs.readFileSync(path.join(root, 'pages', name, `${name}.js`), 'utf8')
-  vm.runInNewContext(source, { Page(page) { definition = page }, wx })
+  vm.runInNewContext(source, {
+    Page(page) { definition = page }, wx,
+    require(moduleName) {
+      if (moduleName.endsWith('conversation-list')) return require('../utils/conversation-list')
+      throw new Error(`Unexpected module: ${moduleName}`)
+    }
+  })
   return { ...definition, data: { ...definition.data } }
 }
 
@@ -117,6 +123,7 @@ test('chat and mentor reply do not show unconfirmed messages or fake send succes
       Page(page) { definition = page },
       wx,
       require(moduleName) {
+        if (moduleName.endsWith('message-history')) return require('../utils/message-history')
         if (moduleName.endsWith('order-request')) return { createRequestId: () => 'message_test_request_0001' }
         if (moduleName.endsWith('protected-file')) return { download() {} }
         throw new Error(`Unexpected module: ${moduleName}`)
@@ -189,6 +196,7 @@ test('slow message reads stay active instead of being invalidated by the next po
         cloud: { callFunction(options) { requests.push(options) } }
       },
       require(moduleName) {
+        if (moduleName.endsWith('message-history')) return require('../utils/message-history')
         if (moduleName.endsWith('order-request')) return { createRequestId: () => 'message_test_request_0002' }
         return { download() {} }
       }

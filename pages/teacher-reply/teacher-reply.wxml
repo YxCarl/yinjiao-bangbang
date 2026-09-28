@@ -27,12 +27,16 @@
   <!-- 对话区域 -->
   <view class="chat-section">
     <view class="chat-title">指导记录</view>
+    <button size="mini" disabled="{{loadingMessages}}" bindtap="refreshMessages">刷新最新消息</button>
+    <button size="mini" wx:if="{{hasOlder}}" loading="{{loadingMessages}}" disabled="{{loadingMessages}}" bindtap="loadOlderMessages">加载更早消息</button>
+    <view class="empty-tip" wx:if="{{messageLoadError}}" bindtap="refreshMessages">消息加载失败，点击重试</view>
 
-    <view class="chat-list">
+    <scroll-view class="chat-list" scroll-y scroll-into-view="{{messageScrollTarget}}">
       <view
         class="chat-item {{item.side === 'out' ? 'ci-out' : 'ci-in'}}"
         wx:for="{{replies}}"
-        wx:key="index"
+        wx:key="id"
+        id="msg-{{item.id}}"
       >
         <view class="text-badge ci-avatar badge-primary" wx:if="{{item.side === 'in'}}">{{studentName ? studentName[0] : '学'}}</view>
         <view class="ci-bubble {{item.side === 'out' ? 'bub-out' : 'bub-in'}}"
@@ -49,7 +53,7 @@
       <view class="empty-tip" wx:if="{{replies.length === 0}}">
         暂无指导记录，开始回复吧
       </view>
-    </view>
+    </scroll-view>
   </view>
 
   <!-- 输入区域 -->

@@ -11,9 +11,10 @@ These are **manual configuration candidates for a fresh, isolated document-datab
 | `orders` | `_openid` ↑, `createTime` ↓ | `getOrders`: student's own orders |
 | `contents` | `type` ↑, `sort` ↑ | `getContents`: type-filtered resources |
 | `contents` | `sort` ↑ | `getContents`: unfiltered resources and bounded keyword scan |
-| `conversations` | `_openid` ↑, `lastTime` ↓ | `getConversations`: caller's conversation list |
+| `conversations` | `_openid` ↑, `lastTime` ↓, `_id` ↓ | `getConversations`: caller's paginated conversation list |
 | `conversations` | `_openid` ↑, `conversationId` ↑ | `getMessages`, `sendMessage`, protected voice access: membership lookup |
-| `messages` | `conversationId` ↑, `createTime` ↓ | `getMessages`: newest 50 messages, reversed for display |
+| `messages` | `conversationId` ↑, `createTime` ↓, `_id` ↓ | `getMessages`: newest/older pages, reversed for display |
+| `messages` | `conversationId` ↑, `createTime` ↑, `_id` ↑ | `getMessages`: forward polling; verify whether reverse traversal of the preceding index suffices |
 | `messages` | `conversationId` ↑, `fileID` ↑, `kind` ↑ | `getProtectedFileURL`: stored voice-file lookup |
 | `users` | `_openid` ↑, `role` ↑, `mentorStatus` ↑ | mentor-approval lookups in order, message, and file functions |
 | `aiTasks` | `cleanupEligible` ↑, `expiresAt` ↑ | `cleanupExpiredData`: bounded expiry scan |
@@ -24,6 +25,8 @@ These are **manual configuration candidates for a fresh, isolated document-datab
 `↑` 表示升序，`↓` 表示降序。等值条件排在排序或范围条件前；较短查询可能复用组合索引的最左前缀。不要机械添加重复索引。本表是检查清单，**不是**所有查询必然命中索引或足以承载生产流量的保证。关键词检索仍会在单次请求中最多扫描 300 条内容，索引不会将其变成全文搜索。
 
 ## Verification in an isolated environment / 隔离环境验证
+
+Cursor queries combine the timestamp range with an equal-timestamp/document-ID branch. Verify both branches and both directions with more than 50 records, including equal timestamps. `createTime` and `lastTime` must be database Date values; back up and review any legacy strings or missing dates before migration. The [synthetic fixtures](DEMO_FIXTURES.md) provide a repeatable dataset but do not establish index compatibility or performance.
 
 1. Create the seven documented collections first. Open each collection's **Index Management** page in the CloudBase console and add only the candidates needed by enabled features.
 2. Deploy `getOrders`, `getContents`, `getMessages`, `getConversations`, `getProtectedFileURL`, and the other required functions to that environment; do not overwrite the historical environment.

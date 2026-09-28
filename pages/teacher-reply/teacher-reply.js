@@ -1,6 +1,7 @@
 const recorderManager = wx.getRecorderManager()
 const protectedFile = require('../../utils/protected-file')
 const { createRequestId } = require('../../utils/order-request')
+const { loadMessagePage } = require('../../utils/message-history')
 
 Page({
   data: {
@@ -17,7 +18,11 @@ Page({
     inputText: '',
     replyMethod: 'text',
     recording: false,
-    replies: []
+    replies: [],
+    hasOlder: false,
+    loadingMessages: false,
+    messageLoadError: false,
+    messageScrollTarget: ''
   },
 
   onLoad(options) {
@@ -53,25 +58,12 @@ Page({
   },
 
   loadMessages() {
-    if (this._messagesLoadPending) return
-    this._messagesLoadPending = true
-    const requestSeq = (this._messagesRequestSeq || 0) + 1
-    this._messagesRequestSeq = requestSeq
-    wx.cloud.callFunction({
-      name: 'getMessages',
-      data: { conversationId: this.data.conversationId },
-      success: (res) => {
-        this._messagesLoadPending = false
-        if (requestSeq === this._messagesRequestSeq && res.result && res.result.code === 0 && Array.isArray(res.result.data)) {
-          this.setData({ replies: res.result.data.map(m => ({
-            side: m.side, kind: m.kind || 'text',
-            text: m.content || '', fileID: m.fileID || '', dur: m.dur || 0, time: ''
-          }))})
-        }
-      },
-      fail: () => { this._messagesLoadPending = false }
-    })
+    loadMessagePage(this, wx, 'replies')
   },
+
+  loadOlderMessages() { loadMessagePage(this, wx, 'replies', 'older') },
+
+  refreshMessages() { loadMessagePage(this, wx, 'replies', 'refresh') },
 
   switchMethod(e) { this.setData({ replyMethod: e.currentTarget.dataset.method }) },
   onInput(e) { this.setData({ inputText: e.detail.value }) },
@@ -248,6 +240,7 @@ Page({
   },
 
   onUnload() {
+    if (this._messagePaging) this._messagePaging.disposed = true
     if (this._pollTimer) clearInterval(this._pollTimer)
   }
 })

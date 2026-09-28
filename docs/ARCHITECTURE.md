@@ -66,7 +66,8 @@ This seam does not emulate CloudBase. SDK query behavior, indexes, environment p
 5. An applicant submits through `submitMentorApplication`, which records `pending` while retaining student permissions.
 6. A trusted operator independently verifies the application and records both `role: mentor` and `mentorStatus: approved` outside the client.
 7. An approved mentor calls `grabOrder`.
-8. The function verifies both approval fields, updates the order, and creates one conversation-membership record for each participant.
+8. The function discovers any legacy memberships outside the transaction, then rechecks the mentor document, approval, order owner and assignment inside one transaction. The order assignment and both participant-membership writes commit or roll back together. A mentor cannot claim their own order.
+9. New memberships use a hash of caller identity and conversation ID. Claim retries and message-side repair use the same ID scheme; existing legacy membership documents are revalidated and reused without resetting previews, unread counts or message timestamps. Duplicate legacy rows still require operator review before migration.
 
 Only the assigned mentor can later mark the order complete through `completeOrder`.
 
@@ -86,7 +87,10 @@ Only the assigned mentor can later mark the order complete through `completeOrde
 4. New messages require a caller-scoped request ID and share a fixed one-minute rate counter.
 5. Voice messages first request an owner-bound upload path derived from the same message ID; sending rejects any cloud file outside that exact path.
 6. The message document, sender preview, authorized peer preview/unread count, and rate counter commit in one transaction; replaying the same request ID returns the existing result without another unread increment.
-7. Reads still return content only after the same order or membership authorization succeeds.
+7. Reads return content only after the same order or membership authorization succeeds on every page. Message cursors carry a conversation scope and `(createTime, _id)` boundary; list cursors carry a caller scope and `(lastTime, _id)` boundary. Scope validation prevents accidental cross-list reuse but never replaces authorization.
+8. The client first loads the newest 50 messages, can request older pages, and polls forward from the newest received cursor. Every ten successful forward reads it reconciles the newest window; a manual refresh does the same. Reconciliation merges by ID without advancing the forward cursor past a backlog or dropping loaded history. Conversation scans stop after 200 membership rows per request and expose a continuation even if every scanned row is stale.
+
+Pagination is keyset-based, not a snapshot. Concurrent conversation updates can move entries ahead of an older cursor; refresh the list to retrieve them. Late message writes within the newest 50 records are reconciled; writes arriving behind that window can require reopening the conversation and paging through history. Review Date-typed fields and [indexes](INDEXES.md) before deployment.
 
 ### Open a protected file
 

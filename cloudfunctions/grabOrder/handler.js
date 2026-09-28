@@ -12,35 +12,17 @@ function createGrabOrderHandler(dependencies) {
       const mentor = await database.findApprovedMentor(openid)
       if (!mentor) return { code: -3, error: '仅已认证导师可以接单' }
 
-      const order = await database.getOrder(orderId)
-      if (!order) return { code: -1, error: '订单不存在' }
-
-      if (order.status === 0) {
-        const claimed = await database.claimOpenOrder(orderId, mentor)
-        if (!claimed) return { code: -2, error: '订单已被其他导师接取' }
-      } else if (order.status !== 1 || order.teacherId !== mentor._id) {
-        return { code: -2, error: '订单不存在或已被接取' }
+      const result = await database.claimOrderAtomically({ orderId, mentorId: mentor._id, openid })
+      if (result.status === 'not-approved') return { code: -3, error: '导师认证状态已变更' }
+      if (result.status === 'self-claim') return { code: -3, error: '不能接取自己的订单' }
+      if (result.status === 'not-found') return { code: -1, error: '订单不存在' }
+      if (['conflict', 'order-changed'].includes(result.status)) {
+        return { code: -2, error: '订单状态已变更，请刷新后重试' }
       }
-
-      const conversationId = 'order_' + orderId
-      const anonymous = order.anonymous === true ||
-        (order.typeText === '问诊室' && typeof order.title === 'string' && order.title.startsWith('【匿名】'))
-      await Promise.all([
-        database.ensureConversation(order._openid, conversationId, {
-          participantRole: 'student',
-          peerName: mentor.name || '导师',
-          peerTheme: 'badge-primary',
-          orderTitle: order.title || ''
-        }),
-        database.ensureConversation(openid, conversationId, {
-          participantRole: 'mentor',
-          peerName: anonymous ? '匿名学员' : (order.student || '学员'),
-          peerTheme: 'badge-accent',
-          orderTitle: order.title || ''
-        })
-      ])
-
-      return { code: 0, data: { teacher: mentor.name || '导师' } }
+      if (!['claimed', 'already-claimed'].includes(result.status)) {
+        return { code: -1, error: '订单状态异常，无法接单' }
+      }
+      return { code: 0, data: { teacher: result.teacher } }
     } catch (error) {
       logger.error('grabOrder failed', error && error.code ? error.code : 'UNKNOWN')
       return { code: -1, error: '接单失败' }

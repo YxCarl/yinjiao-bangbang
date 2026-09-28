@@ -26,6 +26,8 @@ Thank you for helping improve Yinjiao Bangbang. Contributions to documentation, 
 
 See [Testing and evidence](docs/TESTING.md) when adding Cloud Function coverage. Keep business decisions in dependency-injected handlers, use purpose-specific adapters, and preserve separate isolated-environment checks for platform behavior.
 
+Use `npm run fixtures:demo` to preview deterministic synthetic data without credentials or cloud access. See [Demo fixtures](docs/DEMO_FIXTURES.md) before generating or importing files; generated output and private test-account bindings must never be committed.
+
 ## Pull-request expectations
 
 A useful pull request explains:

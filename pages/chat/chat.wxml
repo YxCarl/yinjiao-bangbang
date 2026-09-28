@@ -8,8 +8,10 @@
     </view>
   </view>
 
-  <scroll-view class="chat-list" scroll-y scroll-into-view="{{messages.length > 0 ? 'msg-' + messages[messages.length-1].id : ''}}">
-    <view class="time-divider">最近 50 条云端消息</view>
+  <scroll-view class="chat-list" scroll-y scroll-into-view="{{messageScrollTarget}}">
+    <button size="mini" disabled="{{loadingMessages}}" bindtap="refreshMessages">刷新最新消息</button>
+    <button size="mini" wx:if="{{hasOlder}}" loading="{{loadingMessages}}" disabled="{{loadingMessages}}" bindtap="loadOlderMessages">加载更早消息</button>
+    <view class="time-divider" wx:if="{{messageLoadError}}" bindtap="refreshMessages">消息加载失败，点击重试</view>
 
     <view class="msg-row {{item.side === 'out' ? 'row-out' : 'row-in'}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}">
       <view class="text-badge bubble-avatar {{peerTheme}}" wx:if="{{item.side === 'in'}}">{{peerChar}}</view>

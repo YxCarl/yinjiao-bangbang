@@ -1,10 +1,14 @@
+const { loadConversationPage } = require('../../utils/conversation-list')
+
 Page({
   data: {
     msgUnread: 0,
     conversations: [],
     filteredList: [],
     listLimited: false,
-    loadError: false
+    loadError: false,
+    loadingConversations: false,
+    hasMoreConversations: false
   },
 
   onShow() {
@@ -31,41 +35,10 @@ Page({
   },
 
   _tryCloudSync() {
-    wx.cloud.callFunction({
-      name: 'getConversations',
-      success: (res) => {
-        if (!(res.result && res.result.code === 0)) {
-          this.setData({ loadError: true })
-          wx.showToast({ title: '消息加载失败，请重试', icon: 'none' })
-          return
-        }
-        const conversations = res.result.data.map(c => ({
-            id: c._id,
-            conversationId: c.conversationId,
-            type: 'chat',
-            char: c.peerName ? c.peerName[0] : '学',
-            theme: c.peerTheme || 'badge-primary',
-            name: c.peerName || '学员',
-            desc: c.orderTitle || '',
-            time: this._formatTime(c.lastTime),
-            preview: c.lastMsg || '',
-            unread: c.unread || 0
-        }))
-        const msgUnread = conversations.reduce((sum, conversation) => sum + conversation.unread, 0)
-        this.setData({
-          conversations,
-          filteredList: conversations,
-          msgUnread,
-          listLimited: res.result.scanLimitReached === true,
-          loadError: false
-        })
-      },
-      fail: () => {
-        this.setData({ loadError: true })
-        wx.showToast({ title: '消息加载失败，请重试', icon: 'none' })
-      }
-    })
+    loadConversationPage(this, wx)
   },
+
+  loadMoreConversations() { loadConversationPage(this, wx, true) },
 
   _formatTime(dateStr) {
     if (!dateStr) return ''
