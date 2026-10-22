@@ -73,7 +73,7 @@ flowchart LR
 
 - 已启用云开发的微信开发者工具
 - 可使用云能力的微信小程序 AppID
-- Node.js 18 或更高版本，用于运行仓库校验
+- Node.js 22 或 24 LTS，用于仓库校验（不等同于云函数运行时）
 
 ### 1. 克隆并校验
 
@@ -121,6 +121,7 @@ npm test
 
 ## 安全与隐私说明
 
+- 2026-10-22 依赖审计发现当前 SDK 依赖树仍有高危/严重公告待处理；行为测试通过不代表依赖审计通过。部署前请查看[依赖策略与升级门槛](docs/DEPENDENCIES.md)。
 - 启用视频分析时，系统会把课堂视频的临时访问地址发送给所配置的外部模型服务。处理真实课堂录像前必须取得知情同意并制定保留期限。
 - 选择导师入口不会直接获得导师权限；申请人在可信管理员明确批准前始终保持学员权限，具体见[导师审批文档](docs/MENTOR_APPROVAL.md)。
 - 数据库和云存储权限取决于具体部署，仓库不会假设一套通用规则。建议从默认拒绝开始，只开放最小必要权限。
@@ -140,6 +141,8 @@ npm test
 ## 维护与贡献
 
 公开路线图见 [docs/ROADMAP.md](docs/ROADMAP.md)。建议每项改动先建立 Issue，再通过聚焦的 Pull Request 提交，并附上校验结果。版本变更记录维护在 [CHANGELOG.md](CHANGELOG.md)。
+
+同类项目对照、本轮改动、剩余阻塞项与建议维护节奏见 [2026-10-22 维护复盘](docs/MAINTENANCE.md)。
 
 当前主要维护者为 [@YxCarl](https://github.com/YxCarl)，维护职责和决策规则见 [GOVERNANCE.md](GOVERNANCE.md)。欢迎阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 后参与贡献，并在提交前运行 `npm test`。
 

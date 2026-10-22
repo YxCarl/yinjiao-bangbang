@@ -73,7 +73,7 @@ Client pages handle presentation and local interaction. Mutations involving prof
 
 - WeChat Developer Tools with Cloud Development enabled
 - A WeChat Mini Program AppID for cloud features
-- Node.js 18 or newer for repository validation
+- Node.js 22 or 24 LTS for repository validation (separate from the Cloud Function runtime)
 
 ### 1. Clone and validate
 
@@ -121,6 +121,7 @@ These tests establish local business and authorization behavior; they do not cla
 
 ## Security and privacy notes
 
+- The 2026-10-22 dependency audit found unresolved high/critical transitive advisories in the pinned SDK tree. A green behavior-test workflow is not a clean dependency audit. Review [Dependency policy and upgrade gate](docs/DEPENDENCIES.md) before deployment.
 - A temporary URL for an uploaded teaching video is sent to the configured external model provider when analysis is enabled. Obtain informed consent and define a retention policy before processing real classroom recordings.
 - Selecting the mentor entry point creates no mentor privilege. Applications remain on student permissions until a trusted operator records explicit approval; see [Mentor approval](docs/MENTOR_APPROVAL.md).
 - Database and storage rules are deployment-specific and are not safely inferred by this repository. Start with deny-by-default rules and allow only the minimum access required.
@@ -141,6 +142,8 @@ The project does not publish `.wxapkg`, AppID secrets, upload keys, production c
 ## Maintenance
 
 The public roadmap is tracked in [docs/ROADMAP.md](docs/ROADMAP.md). Changes should start with an issue and arrive through a focused pull request with validation results. Release notes are maintained in [CHANGELOG.md](CHANGELOG.md).
+
+See the [2026-10-22 maintenance review](docs/MAINTENANCE.md) for related-project comparisons, current blockers and a repeatable maintainer checklist.
 
 The current primary maintainer is [@YxCarl](https://github.com/YxCarl). Maintainer responsibilities and decision rules are documented in [GOVERNANCE.md](GOVERNANCE.md).
 

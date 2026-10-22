@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Revalidated sender membership, current order assignment and mentor approval inside message transactions; rechecked recipient membership before preview/unread updates. Added adapter-level race and rollback regressions.
+- Added lockfiles for all 14 Cloud Functions, offline lock validation and a separate online dependency-audit workflow. The 2026-10-22 audit reports unresolved high/critical transitive SDK advisories; no breaking SDK upgrade or automatic fix was applied.
+- Updated local CI to Node 22/24 LTS, pinned action revisions, and documented a comparison-based maintenance plan with explicit release blockers.
 - Made order claiming and both participant memberships one transaction with approval rechecks, self-claim rejection, stable membership IDs, legacy repair and message-state-preserving retries. Added rollback-at-each-write and competing-claim tests against the real adapter callback with a deterministic transaction double; cloud locking behavior remains unverified.
 - Added scoped keyset pagination for older messages, forward polling and conversation lists, with equal-timestamp handling, per-page authorization, client deduplication and stale-response protection. Automatic/manual latest-window reconciliation covers late writes without skipping a forward backlog; both message pages expose refresh and older-history controls.
 - Added a local-only synthetic fixture generator for seven collections, safe output guards, optional private test-account binding and reviewed reset instructions. Generated output is ignored by Git and excluded from the Mini Program package.

@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-09-28**
+**Last updated / 最后更新：2026-10-22**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -20,6 +20,8 @@ Evidence: [v0.1.0 public beta](https://github.com/YxCarl/yinjiao-bangbang/releas
 - [x] Publish the first tagged source pre-release with automatic ZIP and TAR.GZ archives.
 
 ## Now: v0.2.0 secure and reproducible deployment / 当前：安全且可复现的部署
+
+2026-10-22 maintenance review: message commits now recheck current authorization inside their transaction; dependency locks/auditing and a Node 22/24 test matrix have been added. The SDK tree has unresolved high/critical advisory matches, so production readiness remains blocked pending reviewed remediation and real-environment verification. See [Maintenance review](MAINTENANCE.md) and [Dependency upgrade gate](DEPENDENCIES.md).
 
 Repository checkpoint on 2026-09-28: 120 local tests and repository validation passed; atomic claim code, cursor pagination and synthetic fixtures are implemented. The maintainer has not yet prepared the isolated environment and two test accounts, so no new cloud deployment or `v0.2.0` release is claimed. See [Testing and evidence](TESTING.md).
 
@@ -51,6 +53,8 @@ Priority order / 优先顺序：
 10. [x] Publish a [candidate database-index checklist](INDEXES.md) for fresh-environment setup. Creation, query-plan checks, and performance evidence remain pending.
 11. [x] Put order claiming and both participant memberships in one retry-safe transaction; local tests cover rollback at each write, competing mentors, legacy-membership repair and preserved message state. Real CloudBase concurrency and migration checks remain part of item 1, not completed by these tests.
 12. [x] Mask profile names for anonymous question orders and mentor-facing conversations, including legacy title-marked orders; verify cross-role behavior locally. This is name masking, not full anonymity, and fresh-environment checks remain pending.
+13. [x] Recheck message sender and recipient permissions inside the message transaction, including revoked approvals, reassigned orders, changed memberships and replays; add regressions against the actual adapter callback.
+14. [ ] Review and remediate high/critical SDK dependency advisories, then verify a coordinated SDK upgrade in an isolated environment. The lockfiles and audit do not complete remediation.
 
 ### v0.2.0 definition of done / 完成标准
 
@@ -70,7 +74,7 @@ Priority order / 优先顺序：
 - [x] Add a local-only [synthetic fixture generator and reset instructions](DEMO_FIXTURES.md) for the seven collections; AI tasks and rate counters start empty, and no private file uploads or provider results are fabricated. Private account binding and actual imports remain operator-run steps.
 - [ ] Add an optional `miniprogram-ci` preview workflow with protected GitHub secrets and no credentials in logs or artifacts.
 - [ ] Publish a short, sanitized walkthrough showing clone, configuration, deployment, and the four core user flows.
-- [ ] Add Cloud Function dependency auditing and a documented update cadence.
+- [x] Add per-function lockfiles, offline drift checks, deduplicated online dependency auditing, supported-LTS CI and a documented review cadence. The audit intentionally fails on unresolved high/critical findings; SDK remediation is tracked separately above.
 - [ ] Add a provider interface for video analysis and an optional OpenAI-compatible adapter without changing the client pages.
 - [ ] Document an opt-in, human-reviewed Codex workflow for issue triage, test generation, pull-request review, and release-note drafting.
 - [ ] Label and maintain scoped `good first issue` tasks backed by contributor fixtures and acceptance criteria.

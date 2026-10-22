@@ -5,11 +5,13 @@
   "description": "Shifu Zaima: an open-source WeChat Mini Program reference implementation for educator mentoring workflows.",
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": "^22.0.0 || ^24.0.0"
   },
   "scripts": {
     "check": "node scripts/validate-project.js",
     "fixtures:demo": "node scripts/generate-demo-fixtures.js",
+    "check:locks": "node scripts/audit-cloud-dependencies.js --check",
+    "audit:cloud": "node scripts/audit-cloud-dependencies.js",
     "test": "node --test tests/*.test.js && npm run check"
   }
 }

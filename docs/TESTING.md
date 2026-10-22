@@ -48,6 +48,16 @@ This checkpoint proves platform parsing, compilation, packaging, AppID associati
 
 ## Run locally / 本地运行
 
+### Maintenance checkpoint: 2026-10-22 / 维护检查点
+
+- `npm test` on local Node 22.14.0: **131 tests passed**, zero failed; repository validation passed for 27 pages, 14 Cloud Functions and 266 checked files.
+- `npm run check:locks`: all 14 function locks validated, with one shared dependency tree.
+- `npm run audit:cloud`: **failed**, with 12 affected dependency entries (4 moderate, 6 high, 2 critical; inherited findings included). This is an unresolved dependency-advisory result, not a failed behavior test and not proof of application exploitation.
+- Added real message-adapter regressions for changes between the authorization precheck and the commit. The new cases reproduced the old behavior before the fix and pass with transaction-time checks.
+- CI is configured for Node 22 and 24 LTS. Cloud SDK/runtime compatibility, live rules, current WeChat UI and dual-account flows were not revalidated, and no cloud deployment was performed.
+
+本地业务测试通过与依赖审计失败同时成立。不能把前者用作后者已经解决的证明；依赖修复与隔离环境验收仍是发布门槛。
+
 ### Repository checkpoint: 2026-09-28 / 仓库验证检查点
 
 - `npm test`: **120 tests passed**, zero failed; repository validation passed for 27 pages, 14 Cloud Functions and 247 checked files.
@@ -59,11 +69,13 @@ This checkpoint proves platform parsing, compilation, packaging, AppID associati
 
 ### Commands / 命令
 
-Requirements: Node.js 18 or newer. No AppID, CloudBase environment, account credential, or provider key is required.
+Requirements: Node.js 22 or 24 LTS. No AppID, CloudBase environment, account credential, or provider key is required for `npm test`. CI checks both runtime lines; this does not select or change the deployed Cloud Function runtime.
 
 ```bash
 npm test
 ```
+
+`npm run check:locks` validates every Cloud Function lock without network access. `npm run audit:cloud` separately contacts the public npm advisory service, deduplicates identical dependency trees and returns a nonzero status on high/critical findings or an unavailable audit. The dependency audit is intentionally separate from the credential-free local behavior suite; neither result replaces the other.
 
 To run only the mentor-order behavior suite:
 
@@ -88,6 +100,8 @@ Tests import `handler.js`, which is the same function factory used by `index.js`
 For order claims, the order adapter also runs the **real** `grabOrder/cloud-database-adapter.js` transaction callback against `tests/transactional-cloud-database.js`. That document-store double stages writes, discards them on failure and serializes callbacks for reproducible competing requests. It does not emulate CloudBase locks, automatic conflict retries or SDK wire behavior. The tests establish rollback and retry logic, not platform concurrency guarantees.
 
 接单测试还直接执行真实适配器的事务回调，验证任一写入失败时回滚、竞争接单、重试以及旧会话修复；测试替身会串行化回调，不模拟 CloudBase 的锁、冲突重试或网络协议。平台并发语义仍需隔离环境验证。
+
+The message-transaction regression suite likewise executes the real `sendMessage` adapter. It injects permission changes between the handler precheck and the transaction, verifies denied sends have no message/rate-counter/preview writes, checks current recipient permissions, and exercises failure at each of the four writes. This is local race-boundary evidence, not proof of the deployed SDK's locking behavior.
 
 Currently covered behavior:
 

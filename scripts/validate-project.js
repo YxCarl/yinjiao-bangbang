@@ -1,6 +1,7 @@
 const { execFileSync, spawnSync } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
+const { dependencyGroups } = require('./audit-cloud-dependencies')
 
 const root = path.resolve(__dirname, '..')
 const errors = []
@@ -44,12 +45,18 @@ const requiredFiles = [
   'docs/DEMO_FIXTURES.md',
   'docs/SECURITY_RULES.md',
   'docs/DEPENDENCIES.md',
+  'docs/MAINTENANCE.md',
   'docs/DATA_HANDLING.md',
   'security/database-rules.json',
   'security/storage-rules.json',
-  '.github/workflows/validate.yml'
+  '.github/workflows/validate.yml',
+  '.github/workflows/dependency-audit.yml'
 ]
 requiredFiles.forEach(requireFile)
+
+try { dependencyGroups(root) } catch (error) {
+  errors.push(`Cloud Function dependency locks: ${error.message}`)
+}
 
 // Validate repository inputs, including untracked files that would be added by
 // Git, while excluding intentionally private or generated files from

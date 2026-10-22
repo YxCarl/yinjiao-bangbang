@@ -23,6 +23,7 @@ Please do not access data that is not yours, disrupt a deployment, or retain sen
 - Cloud Functions trust `OPENID` from the WeChat runtime, not identity fields supplied by pages.
 - Mentor-sensitive functions require both `role: mentor` and `mentorStatus: approved`; the public application flow cannot write approval.
 - Non-order conversations require a matching membership document. Order conversations recheck the student owner or currently assigned approved mentor against the order; an authorized participant can repair a missing membership, while a stale membership alone grants no access.
+- Message commits re-read the sender membership, current order and assigned mentor inside the same transaction as the message, previews and rate counter. Candidate recipients are revalidated before preview/unread writes, including on SDK transaction retries; a handler precheck alone is not the commit authorization.
 - The mentor demand hall returns only generic summaries for unclaimed orders; full details are returned only to the owner or currently assigned, approved mentor. Deploy the current `getOrders` function and mentor page together before introducing any real order data.
 - Question orders with `anonymous: true` store a generic student alias instead of the profile name; mentor order and conversation reads also mask legacy `【匿名】` question orders. This hides the profile name from mentors, not the account from CloudBase operators or identities voluntarily disclosed in question text or voice.
 - Protected profile and order mutations are server-side operations.
@@ -31,6 +32,7 @@ Please do not access data that is not yours, disrupt a deployment, or retain sen
 
 ## Known limitations
 
+- The 2026-10-22 npm audit of the pinned SDK tree reports 12 affected dependency entries (4 moderate, 6 high, 2 critical, including inherited findings). These are public advisory matches, not confirmed exploitation of this application. They remain unresolved; see [the upgrade gate](docs/DEPENDENCIES.md). Do not interpret passing local tests as production security clearance.
 - The reference approval step is a manual trusted-operator operation. Production deployments still need a reviewed identity-verification channel, reviewer authorization, privacy controls, and auditable decisions.
 - The wallet is simulated and must not be connected to real payments.
 - Mentor income, ratings, reviews, course uptake, and the sample content catalog are not verified operational metrics. Demo-only actions must not claim real payment, settlement, or teaching outcomes.

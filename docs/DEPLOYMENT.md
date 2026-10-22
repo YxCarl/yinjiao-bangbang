@@ -60,6 +60,8 @@ Use cloud-side dependency installation. Keep the SDK versions declared by each f
 
 All committed functions pin the same SDK baseline. Follow the review, isolated deployment, evidence, and rollback procedure in [Dependency policy](DEPENDENCIES.md) before changing it.
 
+Each function now has a committed `package-lock.json`. For a reviewed local dependency installation, run `npm ci --ignore-scripts --omit=dev` **inside the function directory**, not a project-root `npm install --prefix` command. Keep generated modules out of Git. Confirm how the selected WeChat deployment mode uses the lockfile and cloud runtime; a local lock does not prove the cloud reproduced it. Current SDK dependency advisories remain a production-release blocker; see [the upgrade gate](DEPENDENCIES.md).
+
 ## 5. Configure video analysis
 
 Set `ZHIPU_API_KEY` as an environment variable on `analyzeVideo`. Leave it unset to disable the feature safely. `ZHIPU_VIDEO_MODEL` is optional and defaults to `glm-4v-plus`.
@@ -100,6 +102,7 @@ Then verify in WeChat Developer Tools:
 - a pending mentor application cannot enter the mentor workspace or list mentor orders;
 - only a trusted console approval that sets both `role: mentor` and `mentorStatus: approved` grants mentor access;
 - revoking approval immediately blocks mentor order, conversation, and protected-file access;
+- revoking approval or reassigning an order between a message precheck and its commit rejects the old mentor's write; student sends do not update previews belonging to revoked/replaced recipients;
 - unauthorized users cannot list mentor orders;
 - anonymous question orders show only a generic student alias to the assigned mentor in the order and conversation lists; the account remains linked server-side, and question text/voice can still reveal identity;
 - the mentor demand hall shows only unclaimed summaries and the mentor's own assigned orders in their respective tabs;

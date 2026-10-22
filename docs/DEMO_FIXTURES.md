@@ -6,7 +6,7 @@ The fixture generator performs **local file generation only**. It never connects
 
 ## Generate locally / 本地生成
 
-From the repository root, with Node.js 18 or newer:
+From the repository root, with Node.js 22 or 24 LTS:
 
 ```powershell
 npm run fixtures:demo
