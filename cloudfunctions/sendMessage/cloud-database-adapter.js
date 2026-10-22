@@ -13,6 +13,40 @@ function transactionValue(result) {
   return result
 }
 
+async function transactionAccess(transaction, input) {
+  const senderReference = transaction.collection('conversations').doc(input.membershipId)
+  const sender = documentData(await senderReference.get())
+  if (!sender || sender._openid !== input.openid || sender.conversationId !== input.conversationId) return null
+
+  let allowedPeers = null
+  if (input.conversationId.startsWith('order_')) {
+    const orderId = input.conversationId.slice('order_'.length)
+    if (!orderId) return null
+    const order = documentData(await transaction.collection('orders').doc(orderId).get())
+    if (!order || typeof order._openid !== 'string' || !order._openid) return null
+    const mentor = typeof order.teacherId === 'string' && order.teacherId
+      ? documentData(await transaction.collection('users').doc(order.teacherId).get())
+      : null
+    const approved = mentor && mentor.role === 'mentor' && mentor.mentorStatus === 'approved' &&
+      typeof mentor._openid === 'string' && mentor._openid
+    if (order._openid !== input.openid && !(approved && mentor._openid === input.openid)) return null
+    allowedPeers = new Set([order._openid, ...(approved ? [mentor._openid] : [])])
+  }
+
+  // The preflight query only discovers IDs. Recheck every document in the
+  // transaction before publishing message previews or incrementing unread.
+  const peerReferences = []
+  for (const id of new Set(input.peerMembershipIds)) {
+    const reference = transaction.collection('conversations').doc(id)
+    const peer = documentData(await reference.get())
+    if (peer && peer.conversationId === input.conversationId && peer._openid &&
+        peer._openid !== input.openid && (!allowedPeers || allowedPeers.has(peer._openid))) {
+      peerReferences.push(reference)
+    }
+  }
+  return { senderReference, peerReferences }
+}
+
 function createCloudDatabaseAdapter(db) {
   const command = db.command
 
@@ -104,6 +138,8 @@ function createCloudDatabaseAdapter(db) {
         throw invalidPeers
       }
       const result = await db.runTransaction(async transaction => {
+        const access = await transactionAccess(transaction, input)
+        if (!access) return { status: 'forbidden' }
         const messageReference = transaction.collection('messages').doc(input.messageId)
         const rateReference = transaction.collection('rateLimits').doc(input.rateLimitId)
         const existingResult = await messageReference.get()
@@ -153,11 +189,11 @@ function createCloudDatabaseAdapter(db) {
           }
         })
 
-        await transaction.collection('conversations').doc(input.membershipId).update({
+        await access.senderReference.update({
           data: { lastMsg: input.preview, lastTime: db.serverDate() }
         })
-        for (const membershipId of input.peerMembershipIds) {
-          await transaction.collection('conversations').doc(membershipId).update({
+        for (const reference of access.peerReferences) {
+          await reference.update({
             data: {
               lastMsg: input.preview,
               lastTime: db.serverDate(),

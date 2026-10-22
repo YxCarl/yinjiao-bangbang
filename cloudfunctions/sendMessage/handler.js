@@ -132,6 +132,9 @@ function createSendMessageHandler(dependencies) {
         maximumMessages: MESSAGE_RATE_LIMIT,
         rateLimitExpiresAtMs: windowStartMs + (2 * MESSAGE_RATE_WINDOW_MS)
       })
+      if (result.status === 'forbidden') {
+        return { code: -3, error: '会话权限已变更，请刷新后重试' }
+      }
       if (result.status === 'rate-limited') {
         return { code: -4, error: '消息发送过于频繁，请稍后再试' }
       }

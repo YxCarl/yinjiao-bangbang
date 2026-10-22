@@ -10,6 +10,7 @@ class TransactionalCloudDatabase {
     this.queue = Promise.resolve()
     this.failOnWrite = 0
     this.beforeTransaction = null
+    this.command = { inc: value => ({ __testIncrement: value }) }
   }
 
   serverDate() { return this.clock() }
@@ -51,7 +52,11 @@ class TransactionalCloudDatabase {
           recordWrite()
           const row = (state()[name] || []).find(row => row._id === id)
           if (!row) throw new Error('Cannot update absent document')
-          Object.assign(row, clone(data))
+          for (const [key, value] of Object.entries(data)) {
+            row[key] = value && typeof value === 'object' && Object.hasOwn(value, '__testIncrement')
+              ? Number(row[key] || 0) + value.__testIncrement
+              : clone(value)
+          }
         }
       })
     }
