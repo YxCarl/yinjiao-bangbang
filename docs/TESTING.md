@@ -53,6 +53,12 @@ This checkpoint proves platform parsing, compilation, packaging, AppID associati
 
 **SDK security follow-up (candidate branch):** `npm test` passes **132 tests**; `npm run test:sdk` passes **9 installed-SDK contracts** on local Node 22.14.0. All 14 locks validate as one tree; `npm run audit:cloud` reports **0 vulnerabilities**, including 0 high and 0 critical. CI runs both suites on Node 22/24. See [dependency rationale and merge gate](DEPENDENCIES.md) for the two explicit overrides and runtime risks. No cloud deployment or live two-account test was performed; this is not a `v0.2.0` release.
 
+**GitHub CI confirmation for commit `570c1a58ebd60962686a7903a34458baf9aac2ff`:**
+
+- [Validate run 39796998931](https://github.com/YxCarl/yinjiao-bangbang/actions/runs/39796998931) completed successfully. Both Node 22 and Node 24 jobs passed repository tests/checks, installed the committed SDK lock with `npm ci --ignore-scripts`, and passed the installed-SDK contracts.
+- [Dependency audit run 39796999105](https://github.com/YxCarl/yinjiao-bangbang/actions/runs/39796999105) completed successfully. Its job log confirms all 14 function locks share fingerprint `3421a993380cc524832c2c714f90edde20ee11aeef99c49c525ab0b2e4b85828`, with zero findings at every severity.
+- These runs validate the candidate source and dependency tree, not a CloudBase deployment. The isolated-environment merge gate remains open; no main-branch merge, cloud rollout or release is established by these checks.
+
 The earlier checkpoint below records the pre-upgrade tree and remains historical evidence, not the current candidate's audit status:
 
 - `npm test` on local Node 22.14.0: **131 tests passed**, zero failed; repository validation passed for 27 pages, 14 Cloud Functions and 266 checked files.
