@@ -36,7 +36,7 @@ test('every Cloud Function has code, configuration, and the pinned SDK', () => {
     assert.equal(packageJson.license, 'MIT', `${entry.name} must use MIT`)
     assert.equal(
       packageJson.dependencies['wx-server-sdk'],
-      '3.0.4',
+      '4.0.2',
       `${entry.name} must use the repository SDK baseline`
     )
   }

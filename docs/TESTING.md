@@ -1,8 +1,8 @@
 # Testing and evidence / 测试与证据
 
-This project separates evidence into three levels. A passing lower level is useful, but it must not be described as proof that a higher level has passed.
+This project separates evidence into four levels. A passing lower level is useful, but it must not be described as proof that a higher level has passed.
 
-本项目将验证证据分为三个层级。较低层级通过具有实际价值，但不能据此声称更高层级已经完成。
+本项目将验证证据分为四个层级。较低层级通过具有实际价值，但不能据此声称更高层级已经完成。
 
 ## Evidence levels / 证据层级
 
@@ -10,6 +10,7 @@ This project separates evidence into three levels. A passing lower level is usef
 | --- | --- | --- | --- |
 | Repository validation | `scripts/validate-project.js` in CI | Required files exist, JSON and JavaScript parse, Cloud Function packages are complete, obvious deployment identifiers and credentials are absent | Business correctness or CloudBase runtime behavior |
 | Handler behavior | Node.js tests with deterministic in-memory adapters | The same handlers exported by selected Cloud Functions enforce approval, ownership, atomic state checks, and expected success/error outcomes | WeChat identity injection, SDK query semantics, deployed indexes, permissions, or security rules |
+| Installed SDK contracts | Real pinned SDK, synthetic CloudBase request boundary and loopback HTTP | Entry-point initialization, query/Date serialization, result shapes, transaction callback/retry/abort handling and storage/Axios wrappers | Platform acceptance of requests, actual credentials/signatures, concurrent cloud locking, indexes, permissions or deployed rules |
 | Isolated deployment | Manual matrix in a fresh CloudBase environment | Real Developer Tools, Cloud Functions, database, storage, identity context, rules, and cross-account flows work together | Behavior in a different environment or future commit |
 
 ## Maintainer deployment checkpoint / 维护者部署检查点
@@ -50,13 +51,17 @@ This checkpoint proves platform parsing, compilation, packaging, AppID associati
 
 ### Maintenance checkpoint: 2026-10-22 / 维护检查点
 
+**SDK security follow-up (candidate branch):** `npm test` passes **132 tests**; `npm run test:sdk` passes **9 installed-SDK contracts** on local Node 22.14.0. All 14 locks validate as one tree; `npm run audit:cloud` reports **0 vulnerabilities**, including 0 high and 0 critical. CI runs both suites on Node 22/24. See [dependency rationale and merge gate](DEPENDENCIES.md) for the two explicit overrides and runtime risks. No cloud deployment or live two-account test was performed; this is not a `v0.2.0` release.
+
+The earlier checkpoint below records the pre-upgrade tree and remains historical evidence, not the current candidate's audit status:
+
 - `npm test` on local Node 22.14.0: **131 tests passed**, zero failed; repository validation passed for 27 pages, 14 Cloud Functions and 266 checked files.
 - `npm run check:locks`: all 14 function locks validated, with one shared dependency tree.
 - `npm run audit:cloud`: **failed**, with 12 affected dependency entries (4 moderate, 6 high, 2 critical; inherited findings included). This is an unresolved dependency-advisory result, not a failed behavior test and not proof of application exploitation.
 - Added real message-adapter regressions for changes between the authorization precheck and the commit. The new cases reproduced the old behavior before the fix and pass with transaction-time checks.
 - CI is configured for Node 22 and 24 LTS. Cloud SDK/runtime compatibility, live rules, current WeChat UI and dual-account flows were not revalidated, and no cloud deployment was performed.
 
-本地业务测试通过与依赖审计失败同时成立。不能把前者用作后者已经解决的证明；依赖修复与隔离环境验收仍是发布门槛。
+上述旧基线曾出现业务测试通过而依赖审计失败；本次候选的依赖审计已通过，但隔离云环境验收仍是合并与发布门槛。
 
 ### Repository checkpoint: 2026-09-28 / 仓库验证检查点
 
@@ -76,6 +81,17 @@ npm test
 ```
 
 `npm run check:locks` validates every Cloud Function lock without network access. `npm run audit:cloud` separately contacts the public npm advisory service, deduplicates identical dependency trees and returns a nonzero status on high/critical findings or an unavailable audit. The dependency audit is intentionally separate from the credential-free local behavior suite; neither result replaces the other.
+
+To test the **installed** SDK (network access is needed only to install packages):
+
+```bash
+cd cloudfunctions/sendMessage
+npm ci --ignore-scripts --omit=dev --no-audit --no-fund
+cd ../..
+npm run test:sdk
+```
+
+The one installed tree represents all 14 byte-equivalent locks checked by `check:locks`; do not use this shortcut if future functions have different dependency trees. Missing dependencies fail the suite, not skip it. Tests execute the real SDK and all entry-point source files, replace only the CloudBase request boundary with synthetic responses, and permit only the local HTTP fixture. They verify Date/logic/sort encoding, null-document handling, update/delete/insert result shapes, transaction IDs, serverDate/increment serialization, simulated conflict retry and abort, message authorization/four writes, temporary file errors, and Axios JSON/headers/redirect/error/timeout behavior. No real cloud request is made; server-side transactions and identity injection remain unverified.
 
 To run only the mentor-order behavior suite:
 

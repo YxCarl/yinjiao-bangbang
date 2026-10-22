@@ -2,7 +2,7 @@ const test = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
-const { lockFingerprint, dependencyGroups, auditOutcome } = require('../scripts/audit-cloud-dependencies')
+const { lockFingerprint, dependencyGroups, auditOutcome, validateSecurityPolicy } = require('../scripts/audit-cloud-dependencies')
 
 const root = path.resolve(__dirname, '..')
 test('every Cloud Function has a matching public-registry lockfile and identical trees share one audit', () => {
@@ -35,9 +35,24 @@ test('audit distinguishes high severity, lower severity and unavailable results 
   assert.equal(auditOutcome({ error: new Error('timeout') }).status, 'unavailable')
 })
 
+test('security policy rejects missing overrides, stale locks and nested vulnerable copies', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'cloudfunctions/sendMessage/package.json'), 'utf8'))
+  const lock = JSON.parse(fs.readFileSync(path.join(root, 'cloudfunctions/sendMessage/package-lock.json'), 'utf8'))
+  assert.doesNotThrow(() => validateSecurityPolicy(pkg, lock))
+  assert.throws(() => validateSecurityPolicy({ ...pkg, overrides: {} }, lock), /security overrides/)
+  const stale = structuredClone(lock)
+  stale.packages['node_modules/axios'].version = '0.27.2'
+  assert.throws(() => validateSecurityPolicy(pkg, stale), /security lock mismatch/)
+  const nested = structuredClone(lock)
+  nested.packages['node_modules/other/node_modules/axios'] = { version: '0.27.2' }
+  assert.throws(() => validateSecurityPolicy(pkg, nested), /security lock mismatch/)
+})
+
 test('maintenance workflows use supported test runtimes and never deploy or suppress audit failures', () => {
   const validate = fs.readFileSync(path.join(root, '.github/workflows/validate.yml'), 'utf8')
   assert.match(validate, /node: \[22, 24\]/)
+  assert.match(validate, /npm ci --ignore-scripts --omit=dev/)
+  assert.match(validate, /npm run test:sdk/)
   const audit = fs.readFileSync(path.join(root, '.github/workflows/dependency-audit.yml'), 'utf8')
   assert.match(audit, /npm run audit:cloud/)
   assert.match(audit, /workflow_dispatch:/)

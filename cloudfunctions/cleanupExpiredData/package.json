@@ -5,6 +5,12 @@
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "3.0.4"
+    "wx-server-sdk": "4.0.2"
+  },
+  "overrides": {
+    "@cloudbase/node-sdk": {
+      "axios": "0.34.0",
+      "@cloudbase/database": "1.5.1"
+    }
   }
 }

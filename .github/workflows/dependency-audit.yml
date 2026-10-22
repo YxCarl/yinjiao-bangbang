@@ -2,7 +2,7 @@ name: Dependency audit
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'codex/sdk-*']
     paths:
       - 'cloudfunctions/**/package*.json'
       - 'scripts/audit-cloud-dependencies.js'

@@ -5,7 +5,7 @@ const { dependencyGroups } = require('./audit-cloud-dependencies')
 
 const root = path.resolve(__dirname, '..')
 const errors = []
-const CLOUD_FUNCTION_SDK_VERSION = '3.0.4'
+const CLOUD_FUNCTION_SDK_VERSION = '4.0.2'
 
 function relative(file) {
   return path.relative(root, file).split(path.sep).join('/')
