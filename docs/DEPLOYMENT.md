@@ -60,7 +60,7 @@ Use cloud-side dependency installation. Keep the SDK versions declared by each f
 
 All committed functions pin the same SDK baseline. Follow the review, isolated deployment, evidence, and rollback procedure in [Dependency policy](DEPENDENCIES.md) before changing it.
 
-Each function now has a committed `package-lock.json`. For a reviewed local dependency installation, run `npm ci --ignore-scripts --omit=dev` **inside the function directory**, not a project-root `npm install --prefix` command. Keep generated modules out of Git. Confirm how the selected WeChat deployment mode uses the lockfile and cloud runtime; a local lock does not prove the cloud reproduced it. Current SDK dependency advisories remain a production-release blocker; see [the upgrade gate](DEPENDENCIES.md).
+Each function has a committed `package-lock.json`. For a reviewed local dependency installation, run `npm ci --ignore-scripts --omit=dev` **inside the function directory**, not a project-root `npm install --prefix` command. Keep generated modules out of Git. The security candidate requires npm overrides: confirm the chosen WeChat installation mode honors both overrides and locks, and record actual resolved versions and the selected Node runtime. An installer ignoring overrides can restore vulnerable dependencies. The candidate audit is clean, but cloud compatibility remains a merge/release blocker; see [the upgrade gate](DEPENDENCIES.md). Do not deploy this candidate to a historical/production environment before isolated acceptance.
 
 ## 5. Configure video analysis
 

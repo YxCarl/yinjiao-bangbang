@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-10-22**
+**Last updated / 最后更新：2026-10-23**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -21,7 +21,11 @@ Evidence: [v0.1.0 public beta](https://github.com/YxCarl/yinjiao-bangbang/releas
 
 ## Now: v0.2.0 secure and reproducible deployment / 当前：安全且可复现的部署
 
-2026-10-22 maintenance review: message commits now recheck current authorization inside their transaction; dependency locks/auditing and a Node 22/24 test matrix have been added. The SDK tree has unresolved high/critical advisory matches, so production readiness remains blocked pending reviewed remediation and real-environment verification. See [Maintenance review](MAINTENANCE.md) and [Dependency upgrade gate](DEPENDENCIES.md).
+2026-10-23 compatibility follow-up: the installed-SDK suite now has **12 passing contracts**, alongside 132 repository tests and zero dependency audit findings. WeChat Developer Tools 2.02.2608070 successfully compiled a **203,828-byte development preview**. This is not a Cloud Function deployment: the maintainer deferred creating an isolated environment, so live SDK/runtime, rules and dual-account verification remain pending. See [Testing and evidence](TESTING.md).
+
+2026-10-23 兼容性进展：12 项真实 SDK 契约与 132 项仓库测试通过，依赖审计为 0 告警；微信平台编译与开发预览成功。维护者暂缓创建隔离环境，当前不将云端验收、合并门槛或 v0.2.0 发布标记完成。
+
+2026-10-22 security follow-up: the SDK candidate upgrades all 14 functions, adds two scoped security overrides and reports zero audit findings. There are 132 passing repository tests plus 9 installed-SDK contracts; CI targets Node 22/24. Review and isolated runtime/installer verification remain required before merge or release. See [Maintenance review](MAINTENANCE.md) and [Dependency upgrade gate](DEPENDENCIES.md).
 
 Repository checkpoint on 2026-09-28: 120 local tests and repository validation passed; atomic claim code, cursor pagination and synthetic fixtures are implemented. The maintainer has not yet prepared the isolated environment and two test accounts, so no new cloud deployment or `v0.2.0` release is claimed. See [Testing and evidence](TESTING.md).
 
@@ -54,7 +58,7 @@ Priority order / 优先顺序：
 11. [x] Put order claiming and both participant memberships in one retry-safe transaction; local tests cover rollback at each write, competing mentors, legacy-membership repair and preserved message state. Real CloudBase concurrency and migration checks remain part of item 1, not completed by these tests.
 12. [x] Mask profile names for anonymous question orders and mentor-facing conversations, including legacy title-marked orders; verify cross-role behavior locally. This is name masking, not full anonymity, and fresh-environment checks remain pending.
 13. [x] Recheck message sender and recipient permissions inside the message transaction, including revoked approvals, reassigned orders, changed memberships and replays; add regressions against the actual adapter callback.
-14. [ ] Review and remediate high/critical SDK dependency advisories, then verify a coordinated SDK upgrade in an isolated environment. The lockfiles and audit do not complete remediation.
+14. [ ] Finish isolated verification and review of the coordinated SDK security candidate. Repository remediation is implemented (zero audit findings, installed-SDK contracts); actual runtime, transaction wire compatibility and cloud installer override enforcement are not yet verified.
 
 ### v0.2.0 definition of done / 完成标准
 

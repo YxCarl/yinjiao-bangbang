@@ -5,6 +5,25 @@ const { spawnSync } = require('node:child_process')
 
 const root = path.resolve(__dirname, '..')
 
+function validateSecurityPolicy(pkg, lock) {
+  const expected = { '@cloudbase/node-sdk': { axios: '0.34.0', '@cloudbase/database': '1.5.1' } }
+  if (JSON.stringify(pkg.overrides) !== JSON.stringify(expected)) {
+    throw new Error('Cloud SDK security overrides differ from the reviewed policy')
+  }
+  // A lockfile does not record root overrides. Verify actual resolved versions,
+  // including nested copies, so removing/ignoring an override cannot pass offline.
+  for (const [name, version] of Object.entries({
+    'wx-server-sdk': '4.0.2', '@cloudbase/node-sdk': '3.17.2',
+    axios: '0.34.0', '@cloudbase/database': '1.5.1'
+  })) {
+    const entries = Object.entries(lock.packages).filter(([key]) =>
+      key === `node_modules/${name}` || key.endsWith(`/node_modules/${name}`))
+    if (!entries.length || entries.some(([, value]) => value.version !== version)) {
+      throw new Error(`Cloud SDK security lock mismatch: ${name}`)
+    }
+  }
+}
+
 function lockFingerprint(pkg, lock) {
   if (lock.lockfileVersion !== 3 || !lock.packages || !lock.packages['']) throw new Error('Expected npm lockfile v3')
   if (lock.name !== pkg.name || lock.version !== pkg.version) throw new Error('Lockfile package identity mismatch')
@@ -41,6 +60,7 @@ function dependencyGroups(projectRoot = root) {
     const pkg = JSON.parse(fs.readFileSync(path.join(directory, 'package.json'), 'utf8'))
     const lock = JSON.parse(fs.readFileSync(path.join(directory, 'package-lock.json'), 'utf8'))
     const fingerprint = lockFingerprint(pkg, lock)
+    validateSecurityPolicy(pkg, lock)
     if (!groups.has(fingerprint)) groups.set(fingerprint, { fingerprint, directory, functions: [] })
     groups.get(fingerprint).functions.push(entry.name)
   }
@@ -92,4 +112,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { lockFingerprint, dependencyGroups, auditOutcome }
+module.exports = { lockFingerprint, dependencyGroups, auditOutcome, validateSecurityPolicy }

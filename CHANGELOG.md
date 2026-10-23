@@ -8,8 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Prepared an SDK security candidate: all 14 functions use wx-server-sdk 4.0.2 with scoped Axios 0.34.0 and CloudBase database 1.5.1 overrides. The locked tree's 2026-10-22 audit has zero findings. Added installed-SDK contract tests and offline override/nested-version checks; isolated cloud validation and review are required before merge/deployment.
+
 - Revalidated sender membership, current order assignment and mentor approval inside message transactions; rechecked recipient membership before preview/unread updates. Added adapter-level race and rollback regressions.
-- Added lockfiles for all 14 Cloud Functions, offline lock validation and a separate online dependency-audit workflow. The 2026-10-22 audit reports unresolved high/critical transitive SDK advisories; no breaking SDK upgrade or automatic fix was applied.
+- Added lockfiles for all 14 Cloud Functions, offline lock validation and a separate online dependency-audit workflow. The initial 2026-10-22 audit exposed high/critical advisories in the old 3.0.4 tree, addressed by the subsequent candidate described above; no automatic fix was applied.
 - Updated local CI to Node 22/24 LTS, pinned action revisions, and documented a comparison-based maintenance plan with explicit release blockers.
 - Made order claiming and both participant memberships one transaction with approval rechecks, self-claim rejection, stable membership IDs, legacy repair and message-state-preserving retries. Added rollback-at-each-write and competing-claim tests against the real adapter callback with a deterministic transaction double; cloud locking behavior remains unverified.
 - Added scoped keyset pagination for older messages, forward polling and conversation lists, with equal-timestamp handling, per-page authorization, client deduplication and stale-response protection. Automatic/manual latest-window reconciliation covers late writes without skipping a forward backlog; both message pages expose refresh and older-history controls.

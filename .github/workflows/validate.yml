@@ -2,7 +2,7 @@ name: Validate
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'codex/sdk-*']
   pull_request:
   workflow_dispatch:
 
@@ -31,3 +31,10 @@ jobs:
 
       - name: Run tests and repository checks
         run: npm test
+
+      - name: Install the representative locked SDK tree without lifecycle scripts
+        working-directory: cloudfunctions/sendMessage
+        run: npm ci --ignore-scripts --omit=dev --no-audit --no-fund
+
+      - name: Run installed SDK contracts with synthetic transport and loopback HTTP
+        run: npm run test:sdk

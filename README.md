@@ -121,7 +121,7 @@ These tests establish local business and authorization behavior; they do not cla
 
 ## Security and privacy notes
 
-- The 2026-10-22 dependency audit found unresolved high/critical transitive advisories in the pinned SDK tree. A green behavior-test workflow is not a clean dependency audit. Review [Dependency policy and upgrade gate](docs/DEPENDENCIES.md) before deployment.
+- The SDK security candidate's 2026-10-22 audit reports zero findings, with installed-SDK contract tests added. It uses two explicit subdependency overrides and is not cloud-validated. Review [Dependency policy and merge/deployment gate](docs/DEPENDENCIES.md); a clean audit does not certify production readiness.
 - A temporary URL for an uploaded teaching video is sent to the configured external model provider when analysis is enabled. Obtain informed consent and define a retention policy before processing real classroom recordings.
 - Selecting the mentor entry point creates no mentor privilege. Applications remain on student permissions until a trusted operator records explicit approval; see [Mentor approval](docs/MENTOR_APPROVAL.md).
 - Database and storage rules are deployment-specific and are not safely inferred by this repository. Start with deny-by-default rules and allow only the minimum access required.

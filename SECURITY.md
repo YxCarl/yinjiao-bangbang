@@ -32,7 +32,7 @@ Please do not access data that is not yours, disrupt a deployment, or retain sen
 
 ## Known limitations
 
-- The 2026-10-22 npm audit of the pinned SDK tree reports 12 affected dependency entries (4 moderate, 6 high, 2 critical, including inherited findings). These are public advisory matches, not confirmed exploitation of this application. They remain unresolved; see [the upgrade gate](docs/DEPENDENCIES.md). Do not interpret passing local tests as production security clearance.
+- The 2026-10-22 security candidate replaces the old SDK tree (12 affected entries) with a locked tree reporting zero audit findings. It requires explicit Axios/database overrides; the database override changes BSON and transaction request behavior and is published under upstream's `next` tag. Installed-SDK contracts pass, but cloud compatibility and installer enforcement of overrides remain unverified. See [the merge/deployment gate](docs/DEPENDENCIES.md); this is not production security clearance.
 - The reference approval step is a manual trusted-operator operation. Production deployments still need a reviewed identity-verification channel, reviewer authorization, privacy controls, and auditable decisions.
 - The wallet is simulated and must not be connected to real payments.
 - Mentor income, ratings, reviews, course uptake, and the sample content catalog are not verified operational metrics. Demo-only actions must not claim real payment, settlement, or teaching outcomes.
