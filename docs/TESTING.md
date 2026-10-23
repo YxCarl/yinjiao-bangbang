@@ -49,6 +49,17 @@ This checkpoint proves platform parsing, compilation, packaging, AppID associati
 
 ## Run locally / 本地运行
 
+### Compatibility checkpoint: 2026-10-23 / 兼容性验收进展
+
+- Re-ran `npm test` on Node 22.14.0 / npm 10.9.2: **132 passed**, zero failed; validation passed for 27 pages, 14 Cloud Functions and 267 checked files.
+- Expanded the real installed-SDK suite from 9 to **12 passing contracts**. The added cases execute the actual `addOrder`, `grabOrder` and `completeOrder` adapters through the installed SDK. They check transaction-ID propagation, debit/expiry serialization, replay without writes, abort after a simulated write error, both claim memberships, revoked approval, owner/status update predicates, and rejection of zero/multiple updated rows. Only the CloudBase transport responses are synthetic; this does **not** establish server-side rollback or concurrent isolation.
+- Re-ran `npm run audit:cloud`: all 14 locks still share the reviewed tree fingerprint, with **0 findings at every severity**.
+- WeChat Developer Tools **2.02.2608070**, using the local private AppID configuration and base-library setting **3.15.0**, successfully compiled and uploaded a development preview of candidate source `4d7a68c`. The package was **203,828 bytes (199.1 KB)**. The subsequent changes in this checkpoint affect only tests and documentation, which are excluded from the Mini Program package. Preview artifacts stay in ignored `outputs/`; they are not release assets and must not be committed.
+- Authenticated, read-only environment discovery returned one environment containing the same 18 function names as the historical checkpoint, including legacy functions. No fresh isolated environment was available. No functions, database records, storage rules, runtime settings or cloud credentials were changed.
+- The maintainer elected to defer new environment creation. Consequently, actual cloud dependency installation/runtime versions, transaction protocol acceptance, security rules and dual-account flows remain **not tested** for this candidate. The merge/release gate remains open; a passing preview is not cloud-function deployment evidence.
+
+本轮已完成真实微信平台编译与预览，并把已安装 SDK 契约测试扩充至 12 项。现有环境仍是含历史函数的环境，未被用作写入测试。维护者暂缓创建隔离环境，因此云端兼容性与双账号验收不能标记通过，也不能仅凭上述检查合并或发布。
+
 ### Maintenance checkpoint: 2026-10-22 / 维护检查点
 
 **SDK security follow-up (candidate branch):** `npm test` passes **132 tests**; `npm run test:sdk` passes **9 installed-SDK contracts** on local Node 22.14.0. All 14 locks validate as one tree; `npm run audit:cloud` reports **0 vulnerabilities**, including 0 high and 0 critical. CI runs both suites on Node 22/24. See [dependency rationale and merge gate](DEPENDENCIES.md) for the two explicit overrides and runtime risks. No cloud deployment or live two-account test was performed; this is not a `v0.2.0` release.
@@ -97,7 +108,7 @@ cd ../..
 npm run test:sdk
 ```
 
-The one installed tree represents all 14 byte-equivalent locks checked by `check:locks`; do not use this shortcut if future functions have different dependency trees. Missing dependencies fail the suite, not skip it. Tests execute the real SDK and all entry-point source files, replace only the CloudBase request boundary with synthetic responses, and permit only the local HTTP fixture. They verify Date/logic/sort encoding, null-document handling, update/delete/insert result shapes, transaction IDs, serverDate/increment serialization, simulated conflict retry and abort, message authorization/four writes, temporary file errors, and Axios JSON/headers/redirect/error/timeout behavior. No real cloud request is made; server-side transactions and identity injection remain unverified.
+The one installed tree represents all 14 byte-equivalent locks checked by `check:locks`; do not use this shortcut if future functions have different dependency trees. Missing dependencies fail the suite, not skip it. Tests execute the real SDK and all entry-point source files, replace only the CloudBase request boundary with synthetic responses, and permit only the local HTTP fixture. They verify Date/logic/sort encoding, null-document handling, update/delete/insert result shapes, transaction IDs, serverDate/increment serialization, simulated conflict retry and abort, message authorization/four writes, transactional order creation/replay and claims, conditional order completion, temporary file errors, and Axios JSON/headers/redirect/error/timeout behavior. No real cloud request is made; server-side transactions and identity injection remain unverified.
 
 To run only the mentor-order behavior suite:
 

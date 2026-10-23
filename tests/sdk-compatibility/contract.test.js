@@ -198,6 +198,107 @@ test('real sendMessage adapter runs authorization and four writes through instal
   assert.equal(calls.filter(call => call.action === 'database.modifyDocument').length, 0)
 })
 
+test('real addOrder adapter preserves transactional debit, Date expiry and idempotent replay', async () => {
+  const db = cloud.database({ throwOnNotFound: false })
+  const adapter = require('../../cloudfunctions/addOrder/cloud-database-adapter').createCloudDatabaseAdapter(db)
+  let existingOrder = null
+  let failWrite = false
+  respond = params => {
+    if (params.action === 'database.startTransaction') return { transactionId: 'order-txn' }
+    if (['database.commitTransaction', 'database.abortTransaction'].includes(params.action)) return {}
+    if (params.action === 'database.modifyDocument') {
+      if (failWrite && params.collectionName === 'users') throw new Error('synthetic-sdk-write-failure')
+      return { data: { updated: 1 } }
+    }
+    if (params.action === 'database.getDocument') {
+      const record = params.collectionName === 'users'
+        ? { _openid: 'student', role: 'student', balance: 100 }
+        : params.collectionName === 'orders' ? existingOrder : null
+      return listResponse(record ? [record] : [])
+    }
+    throw new Error(params.action)
+  }
+  const input = { userId: 'user', orderId: 'order', openid: 'student', requestId: 'request',
+    price: 29, rateLimitId: 'rate', windowStartMs: 1000, maximumOrders: 10,
+    rateLimitExpiresAtMs: 61000, order: { typeText: '问诊室', title: 'Test', student: 'Test',
+      studentAvatar: 'T', anonymous: false, desc: 'Synthetic', detail: {} } }
+  assert.deepEqual(await adapter.createOrderAtomically(input), { status: 'created', balance: 71 })
+  const writes = calls.filter(call => call.action === 'database.modifyDocument')
+  assert.deepEqual(writes.map(call => call.collectionName), ['rateLimits', 'users', 'orders'])
+  assert.ok(calls.filter(call => call.action.startsWith('database.') &&
+    !call.action.endsWith('startTransaction')).every(call => call.transactionId === 'order-txn'))
+  assert.equal(decode(writes[0].data).expiresAt.getTime(), 61000)
+  assert.equal(decode(writes[1].data).$set.balance, 71)
+  assert.equal(decode(writes[2].data).requestId, 'request')
+  assert.deepEqual(decode(writes[2].data).createTime, { $tcb_server_date: { offset: 0 } })
+
+  calls = []
+  existingOrder = { _openid: 'student', requestId: 'request' }
+  assert.deepEqual(await adapter.createOrderAtomically(input), { status: 'duplicate', balance: 100 })
+  assert.equal(calls.filter(call => call.action === 'database.modifyDocument').length, 0)
+
+  calls = []
+  existingOrder = null
+  failWrite = true
+  await assert.rejects(adapter.createOrderAtomically(input), /synthetic-sdk-write-failure/)
+  assert.equal(calls.at(-1).action, 'database.abortTransaction')
+  assert.equal(calls.some(call => call.action === 'database.commitTransaction'), false)
+  assert.equal(calls.some(call => call.action === 'database.modifyDocument' && call.collectionName === 'orders'), false)
+})
+
+test('real grabOrder adapter sends claim and both memberships in one SDK transaction', async () => {
+  const db = cloud.database({ throwOnNotFound: false })
+  const adapter = require('../../cloudfunctions/grabOrder/cloud-database-adapter').createCloudDatabaseAdapter(db)
+  let approved = true
+  respond = params => {
+    if (params.action === 'database.startTransaction') return { transactionId: 'claim-txn' }
+    if (params.action === 'database.commitTransaction') return {}
+    if (params.action === 'database.modifyDocument') return { data: { updated: 1 } }
+    if (params.action === 'database.getDocument') {
+      const record = params.collectionName === 'orders'
+        ? { _openid: 'student', status: 0, anonymous: true }
+        : params.collectionName === 'users'
+          ? { _openid: 'teacher', role: 'mentor', mentorStatus: approved ? 'approved' : 'revoked', name: 'Mentor' } : null
+      return listResponse(record ? [record] : [])
+    }
+    throw new Error(params.action)
+  }
+  const input = { orderId: 'order', mentorId: 'mentor', openid: 'teacher' }
+  assert.deepEqual(await adapter.claimOrderAtomically(input), { status: 'claimed', teacher: 'Mentor' })
+  const writes = calls.filter(call => call.action === 'database.modifyDocument')
+  assert.deepEqual(writes.map(call => call.collectionName), ['orders', 'conversations', 'conversations'])
+  assert.ok(writes.every(call => call.transactionId === 'claim-txn'))
+  const start = calls.findIndex(call => call.action === 'database.startTransaction')
+  assert.ok(calls.slice(start + 1).every(call => call.transactionId === 'claim-txn'))
+  assert.equal(decode(writes[0].data).$set.teacherId, 'mentor')
+  const memberships = writes.slice(1).map(call => decode(call.data))
+  assert.deepEqual(memberships.map(doc => doc._openid), ['student', 'teacher'])
+  assert.ok(memberships.every(doc => doc.conversationId === 'order_order' && doc.unread === 0))
+  assert.equal(memberships[1].peerName, '匿名学员')
+
+  calls = []
+  approved = false
+  assert.deepEqual(await adapter.claimOrderAtomically(input), { status: 'not-approved' })
+  assert.equal(calls.filter(call => call.action === 'database.modifyDocument').length, 0)
+})
+
+test('real completeOrder adapter retains owner/status conditions and rejects zero or multiple updates', async () => {
+  const adapter = require('../../cloudfunctions/completeOrder/cloud-database-adapter')
+    .createCloudDatabaseAdapter(cloud.database())
+  for (const updated of [0, 1, 2]) {
+    calls = []
+    respond = params => {
+      assert.equal(params.action, 'database.modifyDocument')
+      return { data: { updated } }
+    }
+    assert.equal(await adapter.completeAssignedOrder('order', 'mentor'), updated === 1)
+    assert.deepEqual(decode(calls[0].query), { _id: 'order', teacherId: 'mentor', status: 1 })
+    assert.deepEqual(decode(calls[0].data).$set, {
+      status: 2, completeTime: { $tcb_server_date: { offset: 0 } }
+    })
+  }
+})
+
 test('temporary URL and deletion wrappers preserve file statuses including failures', async () => {
   const fileID = 'cloud://synthetic-test.bucket/test.txt'
   respond = params => {

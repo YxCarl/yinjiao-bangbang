@@ -1,6 +1,6 @@
 # Public roadmap / 公开路线图
 
-**Last updated / 最后更新：2026-10-22**
+**Last updated / 最后更新：2026-10-23**
 
 This roadmap communicates current priorities, not guaranteed delivery dates. Planned work should be linked to a public issue before implementation, and completed work should include tests or other reproducible evidence.
 
@@ -20,6 +20,10 @@ Evidence: [v0.1.0 public beta](https://github.com/YxCarl/yinjiao-bangbang/releas
 - [x] Publish the first tagged source pre-release with automatic ZIP and TAR.GZ archives.
 
 ## Now: v0.2.0 secure and reproducible deployment / 当前：安全且可复现的部署
+
+2026-10-23 compatibility follow-up: the installed-SDK suite now has **12 passing contracts**, alongside 132 repository tests and zero dependency audit findings. WeChat Developer Tools 2.02.2608070 successfully compiled a **203,828-byte development preview**. This is not a Cloud Function deployment: the maintainer deferred creating an isolated environment, so live SDK/runtime, rules and dual-account verification remain pending. See [Testing and evidence](TESTING.md).
+
+2026-10-23 兼容性进展：12 项真实 SDK 契约与 132 项仓库测试通过，依赖审计为 0 告警；微信平台编译与开发预览成功。维护者暂缓创建隔离环境，当前不将云端验收、合并门槛或 v0.2.0 发布标记完成。
 
 2026-10-22 security follow-up: the SDK candidate upgrades all 14 functions, adds two scoped security overrides and reports zero audit findings. There are 132 passing repository tests plus 9 installed-SDK contracts; CI targets Node 22/24. Review and isolated runtime/installer verification remain required before merge or release. See [Maintenance review](MAINTENANCE.md) and [Dependency upgrade gate](DEPENDENCIES.md).
 
